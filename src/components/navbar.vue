@@ -64,7 +64,7 @@
         </ul>
 
         <!-- Sign-in and Register buttons -->
-        <div class="d-flex align-items-center ms-3">
+        <div class="d-none d-lg-block align-items-center ms-3">
           <button class="btn btn-outline-secondary me-2" type="button">Sign In</button>
           <button class="btn btn-dark" type="button">Register</button>
         </div>
