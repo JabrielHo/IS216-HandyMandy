@@ -7,6 +7,7 @@ import foot_er from './components/foot_er.vue'
 <template>
   <Navbar />
   <RouterView class="main" />
+  <foot_er />
 </template>
 
 <style scoped></style>
