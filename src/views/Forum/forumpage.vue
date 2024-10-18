@@ -16,11 +16,54 @@ const posts = [
   }
   // Add more post objects here
 ];
+
 </script>
 
 <template>
   <main class="backdrop">
     <!-- You can add your components here -->
+
+    <div class="card-container">
+      <div class="card" v-for="post in posts" :key="post.id">
+        <div class="card-header">
+          <img :src="post.userImage" alt="User profile" class="user-image" />
+          <div class="user-info">
+            <h3>{{ post.username }}</h3>
+            <p>{{ post.location }} | {{ post.time }}</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <h2>{{ post.title }}</h2>
+          <p>{{ post.content }}</p>
+        </div>
+        <div class="card-footer">
+          <span><i class="fas fa-thumbs-up"></i> {{ post.likes }}</span>
+          <span><i class="fas fa-thumbs-down"></i> {{ post.dislikes }}</span>
+          <span><i class="fas fa-comment"></i> {{ post.comments }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-container">
+      <div class="card" v-for="post in posts" :key="post.id">
+        <div class="card-header">
+          <img :src="post.userImage" alt="User profile" class="user-image" />
+          <div class="user-info">
+            <h3>{{ post.username }}</h3>
+            <p>{{ post.location }} | {{ post.time }}</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <h2>{{ post.title }}</h2>
+          <p>{{ post.content }}</p>
+        </div>
+        <div class="card-footer">
+          <span><i class="fas fa-thumbs-up"></i> {{ post.likes }}</span>
+          <span><i class="fas fa-thumbs-down"></i> {{ post.dislikes }}</span>
+          <span><i class="fas fa-comment"></i> {{ post.comments }}</span>
+        </div>
+      </div>
+    </div>
 
     <div class="card-container">
       <div class="card" v-for="post in posts" :key="post.id">
@@ -78,7 +121,7 @@ const posts = [
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
-  padding: 20px;
+  /* padding: 20px; */
   display: flex;
   flex-direction: column;
 }
@@ -118,14 +161,17 @@ const posts = [
 
 .card-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content:flex-start;
   font-size: 16px;
   color: gray;
+  background-color: white;
+  border: none;
 }
 
 .card-footer span {
   display: flex;
   align-items: center;
+  padding: 0px 5px;
 }
 
 .card-footer i {
