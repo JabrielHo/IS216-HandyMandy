@@ -68,7 +68,7 @@ const navigateToRegister = () => {
             <a class="nav-link" href="/">Workshops</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Forum</a>
+            <a class="nav-link" href="/Forum">Forum</a>
           </li>
         </ul>
 

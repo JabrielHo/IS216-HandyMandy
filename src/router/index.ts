@@ -38,6 +38,11 @@ const router = createRouter({
       path: '/personalProfile',
       name: 'personalprofile',
       component: () => import('../views/ProfilePage/personalProfile.vue')
+    },
+    {
+      path: '/forum',
+      name: 'forumpage',
+      component: () => import('../views/Forum/forumpage.vue')
     }
   ]
 })
