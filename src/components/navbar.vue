@@ -1,12 +1,22 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const navigateToSignIn = () => {
+  router.push('/signin') // Navigate to the sign-in page
+}
+
+const navigateToRegister = () => {
+  router.push('/register') // Navigate to the sign-in page
+}
+</script>
 
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
       <!-- Logo and Search Bar -->
       <a class="navbar-brand d-flex align-items-center" href="#">
-        <!-- Input logo here once have -->
-        <!-- <img src="@/assets/logo.png" alt="Helper Logo" width="40" height="40" /> -->
         <span class="ms-2">HandyMandy</span>
       </a>
 
@@ -26,7 +36,6 @@
               d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
             />
           </svg>
-          <!-- Bootstrap icon for magnifying glass -->
         </button>
       </div>
 
@@ -56,7 +65,7 @@
             <a class="nav-link" href="/requests">Requests</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Workshops</a>
+            <a class="nav-link" href="/">Workshops</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Forum</a>
@@ -65,19 +74,15 @@
 
         <!-- Sign-in and Register buttons -->
         <div class="d-none d-lg-block align-items-center ms-3">
-          <button class="btn btn-outline-secondary me-2" type="button">Sign In</button>
-          <button class="btn btn-dark" type="button">Register</button>
+          <button class="btn btn-outline-secondary me-2" type="button" @click="navigateToSignIn">
+            Sign In
+          </button>
+          <button class="btn btn-dark" type="button" @click="navigateToRegister">Register</button>
         </div>
       </div>
     </div>
   </nav>
 </template>
-
-<script>
-export default {
-  name: 'Nav_bar'
-}
-</script>
 
 <style scoped>
 /* Optional custom styles */

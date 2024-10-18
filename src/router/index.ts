@@ -10,6 +10,16 @@ const router = createRouter({
       component: LandingPage
     },
     {
+      path: '/signin',
+      name: 'signin',
+      component: () => import('../views/SigninPage/SignIn.vue')
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('../views/SigninPage/register.vue')
+    },
+    {
       path: '/requests',
       name: 'requests',
       component: () => import('../views/ServiceRequests/RequestView.vue')
@@ -17,7 +27,7 @@ const router = createRouter({
     {
       path: '/service-request',
       name: 'serviceRequest',
-      component: () => import("../views/ServiceRequests/CreateRequestView.vue")
+      component: () => import('../views/ServiceRequests/CreateRequestView.vue')
     },
     {
       path: '/services',

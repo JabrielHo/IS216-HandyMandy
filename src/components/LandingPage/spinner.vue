@@ -162,8 +162,10 @@ export default {
 </script>
 
 <style scoped>
+
 .spinnercontainer {
   background-color: rgb(216, 214, 255);
+  overflow: hidden;
 }
 
 .wheelwrapper {

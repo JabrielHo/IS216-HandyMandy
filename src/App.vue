@@ -8,6 +8,6 @@ import foot_er from './components/foot_er.vue'
   <Navbar />
   <RouterView class="main" />
   <foot_er />
-</template>
+</template> 
 
 <style scoped></style>

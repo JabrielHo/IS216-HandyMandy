@@ -5,7 +5,7 @@ import carousel from '@/components/LandingPage/carousel.vue'
 </script>
 
 <template>
-  <main>
+  <main class="maincontainer">
     <TheWelcome />
     <spinner />
     <carousel />
@@ -67,5 +67,9 @@ import carousel from '@/components/LandingPage/carousel.vue'
 
 .volunteercontainer {
   background-color: rgb(144, 229, 248);
+}
+
+.maincontainer {
+  margin: 0 !important;
 }
 </style>
