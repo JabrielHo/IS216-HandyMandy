@@ -24,7 +24,7 @@ function selectServicesOption(option) {
 
 </script>
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid notice-board">
     <div id="header">
       <h2>Services</h2>
     </div>
@@ -57,7 +57,9 @@ function selectServicesOption(option) {
     </div>
     <div class="row">
       <div class="col-xl-3 col-lg-3 col-md-6" v-for="(card, index) in cards" :key="index">
-        <div class="card">
+        <div class="card notice">
+          <!-- Pin image at the top of the card -->
+          <div class="pin"></div>
           <div class="userInfo">
             <img
               :src="card.profileImgSrc"
@@ -172,5 +174,57 @@ button {
 a {
     text-decoration: none;
     color: black;
+}
+
+/* Notice board styling */
+.notice-board {
+    background-image: url('https://www.transparenttextures.com/patterns/green-fabric.png'); /* Green texture */
+    background-color: #2e8b57; /* Backup solid green */
+    border: 10px solid #4c4c4c; /* Dark grey/black to simulate a frame */
+    border-radius: 10px;
+    padding: 20px;
+    margin: 40px auto;
+    max-width: 1200px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Notice/card styling */
+.notice {
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden; /* Ensures pin doesn't spill over */
+}
+
+/* Pin styling */
+.pin {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+h2 {
+    color: white;
+}
+
+/* Subtle text changes for more notice board feel */
+h6 {
+    font-family: 'Verdana', sans-serif;
+    color: #333;
+}
+
+p {
+    font-size: 0.9rem;
 }
 </style>
