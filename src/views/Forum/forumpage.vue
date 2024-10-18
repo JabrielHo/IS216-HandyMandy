@@ -13,58 +13,134 @@ const posts = [
     likes: 10,
     dislikes: 1,
     comments: 20
-  }
+  },
   // Add more post objects here
+  {
+    id: 2,
+    username: 'Alex',
+    location: 'Dhoby Ghaut',
+    time: '2 hours ago',
+    userImage: 'path_to_image',
+    title: 'Looking for recommendations!',
+    content: 'Any good places to eat around here?',
+    likes: 5,
+    dislikes: 0,
+    comments: 3
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  },
+  {
+    id: 3,
+    username: 'Jamie',
+    location: 'Orchard',
+    time: '1 hour ago',
+    userImage: 'path_to_image',
+    title: 'Help with my project!',
+    content: 'I need some assistance with coding...',
+    likes: 15,
+    dislikes: 2,
+    comments: 10
+  }
 ];
 
 </script>
 
 <template>
   <main class="backdrop">
-    <!-- You can add your components here -->
-
-    <div class="card-container">
-      <div class="card" v-for="post in posts" :key="post.id">
-        <div class="card-header">
-          <img :src="post.userImage" alt="User profile" class="user-image" />
-          <div class="user-info">
-            <h3>{{ post.username }}</h3>
-            <p>{{ post.location }} | {{ post.time }}</p>
-          </div>
-        </div>
-        <div class="card-body">
-          <h2>{{ post.title }}</h2>
-          <p>{{ post.content }}</p>
-        </div>
-        <div class="card-footer">
-          <span><i class="fas fa-thumbs-up"></i> {{ post.likes }}</span>
-          <span><i class="fas fa-thumbs-down"></i> {{ post.dislikes }}</span>
-          <span><i class="fas fa-comment"></i> {{ post.comments }}</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card-container">
-      <div class="card" v-for="post in posts" :key="post.id">
-        <div class="card-header">
-          <img :src="post.userImage" alt="User profile" class="user-image" />
-          <div class="user-info">
-            <h3>{{ post.username }}</h3>
-            <p>{{ post.location }} | {{ post.time }}</p>
-          </div>
-        </div>
-        <div class="card-body">
-          <h2>{{ post.title }}</h2>
-          <p>{{ post.content }}</p>
-        </div>
-        <div class="card-footer">
-          <span><i class="fas fa-thumbs-up"></i> {{ post.likes }}</span>
-          <span><i class="fas fa-thumbs-down"></i> {{ post.dislikes }}</span>
-          <span><i class="fas fa-comment"></i> {{ post.comments }}</span>
-        </div>
-      </div>
-    </div>
-
     <div class="card-container">
       <div class="card" v-for="post in posts" :key="post.id">
         <div class="card-header">
@@ -88,14 +164,14 @@ const posts = [
   </main>
 </template>
 
-
 <style scoped>
 /* Add the background image */
 .backdrop {
-  background-image: url('IMG_0234.jpeg');
-  /* Path to your image */
-  background-size: cover; /* Make the image cover the whole area */
-  background-position: center; /* Center the image */
+  margin: auto;
+  background-image: url('WAD drawing-2 2.jpg'); /* Path to your image */
+  background-size: cover; /* Cover the entire area */
+  background-position: top; /* Start from the top */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
   width: 100vw; /* Cover the full width of the viewport */
   min-height: 100vh; /* Ensure the background takes the full viewport height */
   display: flex; /* Allows better layout positioning if needed */
@@ -105,13 +181,16 @@ const posts = [
   overflow: hidden; /* Prevents overflow in case of content */
 }
 
+
+
+
+
 .card-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  /* space between cards */
+  display: flex; /* Enable flexbox */
+  flex-wrap: wrap; /* Allow wrapping of cards */
+  justify-content: center; /* Center the cards in the container */
+  gap: 20px; /* Space between cards */
+  width: 800px;
   padding: 20px;
 }
 
@@ -119,9 +198,8 @@ const posts = [
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  width: calc(50% - 20px); /* Set the width to 50% minus the gap */
   max-width: 600px;
-  /* padding: 20px; */
   display: flex;
   flex-direction: column;
 }
@@ -161,7 +239,7 @@ const posts = [
 
 .card-footer {
   display: flex;
-  justify-content:flex-start;
+  justify-content: flex-start;
   font-size: 16px;
   color: gray;
   background-color: white;
