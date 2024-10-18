@@ -1,21 +1,25 @@
 <template>
   <div class="container-fluid spinnercontainer">
     <div class="row">
-      <div class="col-md-6">
-        <h1>{{ selectedAnimal }}</h1>
+      <div class="col-5">
+        <h1 class="fs-1 text-primary">{{ selectedAnimal }}</h1>
       </div>
-
-      <div class="col-md-6">
-        <div class="wheelwrapper">
-          <h2 id="wheeltitle" class="centered"></h2>
-          <img
-            src="http://developedbydave.com/wp-content/uploads/2022/06/arrow.png"
-            class="arrow"
-            style="position: absolute; left: 50%; transform: translateX(-50%); margin-top: -10px"
-          />
-          <div class="wheelcircle">
-            <div id="animals"></div>
-          </div>
+      <div class="col-2">
+        <img
+          src="http://developedbydave.com/wp-content/uploads/2022/06/arrow.png"
+          class="arrow"
+          style="
+            position: absolute;
+            margin-top: -10px;
+            rotate: -90deg;
+            transform: translateY(180px) translatex(20px);
+          "
+        />
+      </div>
+      <div class="wheelwrapper col-5">
+        <h2 id="wheeltitle" class="centered"></h2>
+        <div class="wheelcircle">
+          <div id="animals"></div>
         </div>
       </div>
     </div>
@@ -96,18 +100,51 @@ export default {
     initPropeller() {
       this.propellerInstance = new Propeller(document.getElementById('animals'), {
         inertia: 0.9,
-        onStop: () => {
-          let turn = this.propellerInstance.angle
-          console.log(turn)
-          this.setAnimal(turn)
-          const targetAnimal = this.data.find((animal) => animal.name === this.selectedAnimal)
-          console.log(targetAnimal.rotate)
-          this.propellerInstance.angle = 360 - targetAnimal.rotate
+        ondragstop: () => {
+          setTimeout(() => {
+            let turn = this.propellerInstance.angle
+            console.log('Current angle:', turn)
+            this.setAnimal(turn)
+
+            const targetAnimal = this.data.find((animal) => animal.name === this.selectedAnimal)
+            const targetRotation = 270 - targetAnimal.rotate // Position where the arrow should be above the animal
+
+            const rotateToTarget = () => {
+              const currentAngle = this.propellerInstance.angle
+
+              if (Math.abs(currentAngle - targetRotation) < 1) {
+                // If the angle is close enough, stop adjusting
+                this.propellerInstance.angle = targetRotation
+                console.log('Aligned to target:', this.selectedAnimal)
+                return
+              }
+
+              // Gradually adjust the angle
+              const adjustment = currentAngle > targetRotation ? -1 : 1 // Determine if we need to increase or decrease
+              this.propellerInstance.angle += adjustment
+
+              requestAnimationFrame(rotateToTarget) // Smooth animation using requestAnimationFrame
+            }
+
+            rotateToTarget() // Start the adjustment process
+          }, 1000) // 500ms delay before the function executes
         }
+
+        // onstop: () => {
+        //   let turn = this.propellerInstance.angle
+        //   console.log(turn)
+        //   this.setAnimal(turn)
+        //   const targetAnimal = this.data.find((animal) => animal.name === this.selectedAnimal)
+        //   console.log(targetAnimal.rotate)
+        //   this.propellerInstance.angle = 270 - targetAnimal.rotate
+        // }
       })
     },
     setAnimal(turn) {
-      if (turn > 0 && turn < 72) {
+      console.log(turn)
+      turn += 90
+      console.log(turn)
+      if (turn > 360 && turn < 450) {
         this.selectedAnimal = 'monkey'
       } else if (turn > 73 && turn < 144) {
         this.selectedAnimal = 'fish'
@@ -119,7 +156,6 @@ export default {
         this.selectedAnimal = 'giraffe'
       }
       console.log(this.selectedAnimal)
-      console.log(this.speed)
     }
   }
 }
@@ -150,5 +186,11 @@ export default {
   margin-top: 50px;
   color: red;
   background-color: white;
+}
+
+.row {
+  display: flex;
+  align-items: center; /* Optional: vertically align items */
+  flex-wrap: nowrap; /* Prevents wrapping to new rows */
 }
 </style>
