@@ -1,4 +1,43 @@
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+import RequestService from '../../services/RequestService'
+import { auth } from '../../firebaseConfig'
+import { serverTimestamp } from 'firebase/firestore'
+
+const router = useRouter()
+const title = ref('')
+const description = ref('')
+const location = ref('')
+const category = ref('')
+const image = ref(null)
+
+function handleFileChange(event) {
+  image.value = event.target.files[0]
+}
+
+async function createRequest() {
+  const user = auth.currentUser
+
+  const fields = {
+    title: title.value,
+    description: description.value,
+    location: location.value,
+    category: category.value,
+    status: 'Open',
+    userId: user.uid,
+    timestamp: serverTimestamp()
+  }
+
+  const result = await RequestService.createServiceRequest(fields, image.value)
+
+  if (result.success) {
+    router.push('/request/' + result.id)
+  } else {
+    alert(`Failed to create request: ${result.error}`)
+  }
+}
 </script>
 
 <template>
@@ -13,6 +52,7 @@
         class="form-control"
         placeholder="Looking for air-con service man"
         aria-label="title"
+        v-model="title"
       />
     </div>
     <div class="formgroup">
@@ -23,6 +63,7 @@
         rows="5"
         aria-label="description"
         placeholder="I need..."
+        v-model="description"
       ></textarea>
     </div>
     <div class="formgroup">
@@ -33,11 +74,12 @@
         class="form-control"
         placeholder="Ang Mo Kio"
         aria-label="location"
+        v-model="location"
       />
     </div>
     <div class="formgroup">
       <label for="category" class="form-label">Which category fits your required service?</label>
-      <select class="form-select" id="category" aria-label="category">
+      <select class="form-select" id="category" aria-label="category" v-model="category">
         <option disabled selected hidden>Select Category</option>
         <option value="Installation">Installation</option>
         <option value="Repair">Repair</option>
@@ -45,10 +87,16 @@
     </div>
     <div class="formgroup">
       <label for="image" class="form-label">Attach images of your issue</label>
-      <input class="form-control" type="file" id="image" accept="image/*" multiple />
+      <input
+        class="form-control"
+        type="file"
+        id="image"
+        accept="image/*"
+        @change="handleFileChange"
+      />
     </div>
     <div class="submit-button">
-      <button type="submit" class="btn btn-dark">Submit Request</button>
+      <button class="btn btn-dark" @click="createRequest()">Submit Request</button>
     </div>
   </div>
 </template>
