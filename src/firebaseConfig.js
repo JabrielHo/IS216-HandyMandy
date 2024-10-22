@@ -8,8 +8,8 @@ const firebaseConfig = {
   projectId: 'handymandy-cd15a',
   storageBucket: 'handymandy-cd15a.appspot.com',
   messagingSenderId: '726421475154',
-  appId: '1:726421475154:web:c5283fb401e17dd6a3748b',
-  measurementId: 'G-0Z6N1XPYLT'
+  appId: '1:726421475154:web:5e1bedb8e6a7713da3748b',
+  measurementId: 'G-FQPLL74EGZ'
 }
 
 const app = initializeApp(firebaseConfig)

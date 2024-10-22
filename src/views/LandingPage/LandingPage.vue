@@ -72,4 +72,5 @@ import carousel from '@/components/LandingPage/carousel.vue'
 .maincontainer {
   margin: 0 !important;
 }
+
 </style>
