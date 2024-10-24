@@ -162,7 +162,6 @@ export default {
 </script>
 
 <style scoped>
-
 .spinnercontainer {
   background-color: rgb(216, 214, 255);
   overflow: hidden;
@@ -172,7 +171,10 @@ export default {
   width: 500px;
   height: 500px;
   position: relative;
+  left: 50%; /* Move to the center of the parent */
+  transform: translateX(-90%); /* Offset by half of its own width */
 }
+
 .wheelwrapper h2 {
   color: #fff;
   padding-top: 20px;

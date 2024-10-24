@@ -61,6 +61,13 @@ import carousel from '@/components/LandingPage/carousel.vue'
 </template>
 
 <style scoped>
+.maincontainer {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0;
+  width: 100%;
+}
+
 .forumcontainer {
   background-color: rgb(244, 172, 139);
 }
@@ -68,9 +75,4 @@ import carousel from '@/components/LandingPage/carousel.vue'
 .volunteercontainer {
   background-color: rgb(144, 229, 248);
 }
-
-.maincontainer {
-  margin: 0 !important;
-}
-
 </style>

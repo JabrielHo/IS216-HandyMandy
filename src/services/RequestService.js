@@ -1,0 +1,84 @@
+import { db } from '../firebaseConfig'
+import {
+  collection,
+  getDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  addDoc,
+  updateDoc,
+  doc
+} from 'firebase/firestore'
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+
+class RequestService {
+  async getAllServiceRequests(sortOption, categoryOption) {
+    let q = query(collection(db, 'requests'), where('status', '==', 'Open'))
+
+    if (categoryOption !== 'All categories') {
+      q = query(q, where('category', '==', categoryOption))
+    }
+
+    if (sortOption === 'Sort by Newest') {
+      q = query(q, orderBy('timestamp', 'desc'))
+    } else if (sortOption === 'Sort by Oldest') {
+      q = query(q, orderBy('timestamp', 'asc'))
+    }
+
+    const querySnapshot = await getDocs(q)
+    const result = querySnapshot.docs.map((doc) => ({
+      ...doc.data()
+    }))
+
+    return result
+  }
+
+  async getServiceRequest(requestId) {
+    const docRef = doc(db, 'requests', requestId)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      return docSnap.data()
+    }
+  }
+
+  async getAllCategories() {
+    const q = collection(db, 'requests')
+    const querySnapshot = await getDocs(q)
+    const categories = new Set()
+
+    querySnapshot.docs.forEach((doc) => {
+      const data = doc.data()
+      if (data.category) {
+        categories.add(data.category)
+      }
+    })
+
+    return Array.from(categories)
+  }
+
+  async createServiceRequest(fields, image) {
+    try {
+      const docRef = await addDoc(collection(db, 'requests'), fields)
+      const docId = docRef.id
+
+      // Upload the image to Firebase Storage
+      const storage = getStorage()
+      const storageRef = ref(storage, `requests/${docId}`)
+      await uploadBytes(storageRef, image)
+      const imageUrl = await getDownloadURL(storageRef)
+
+      await updateDoc(doc(db, 'requests', docId), {
+        id: docId,
+        imgSrc: imageUrl
+      })
+
+      return { success: true, id: docId }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+}
+
+export default new RequestService()

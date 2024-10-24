@@ -1,116 +1,154 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { auth } from '../../firebaseConfig'
+import { onAuthStateChanged } from 'firebase/auth'
+import UserService from '../../services/UserService'
+import RequestService from '../../services/RequestService'
+import PlaceholderCard from '../../components/PlaceholderCard.vue'
+import ServiceRequestCard from '../../components/ServiceRequestCard.vue'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
-const n = 12
-const cards = ref([])
-for (let i = 1; i <= n; i++) {
-  cards.value.push({
-    name: `User ${i}`,
-    title: `Need help on ${i}`,
-    imgSrc: 'src/assets/logo.svg',
-    profileImgSrc: 'src/assets/logo.svg',
-    location: 'Location'
-  })
-}
-
-const selectedSortOption = ref('Sort by Relevant')
+const router = useRouter()
+const selectedSortOption = ref('Sort by Newest')
 const selectedCategoryOption = ref('All categories')
+const serviceRequests = ref([])
+const categories = ref([])
+const loading = ref(true)
 
 function selectSortOption(option) {
   selectedSortOption.value = option
+  fetchServiceRequests()
 }
 
 function selectCategoryOption(option) {
   selectedCategoryOption.value = option
+  fetchServiceRequests()
 }
 
-const router = useRouter()
 function navigateToCreateRequest() {
   router.push('/service-request')
 }
+
+async function fetchServiceRequests() {
+  loading.value = true
+  const result = await RequestService.getAllServiceRequests(
+    selectedSortOption.value,
+    selectedCategoryOption.value
+  )
+
+  const requestPromises = result.map((item) => {
+    return UserService.getUserData(item.userId).then((userData) => {
+      item.name = userData.userName
+      item.profilePicture = userData.profilePicture
+      return item
+    })
+  })
+
+  Promise.all(requestPromises).then((loadedData) => {
+    serviceRequests.value = loadedData
+    loading.value = false
+  })
+}
+
+async function populateCategoryFilter() {
+  const result = await RequestService.getAllCategories()
+  result.map((item) => {
+    categories.value.push(item)
+  })
+}
+
+onMounted(() => {
+  // Fetch Data
+  fetchServiceRequests()
+  populateCategoryFilter()
+})
 </script>
+
 <template>
-  <div class="container-fluid">
+  <div class="container">
     <div id="header">
-      <h2>Service Requests</h2>
-      <button type="button" class="btn btn-danger" @click="navigateToCreateRequest">
+      <h1>Service Requests</h1>
+      <button
+        type="button"
+        class="createBtn btn btn-danger"
+        style="font-weight: bold"
+        @click="navigateToCreateRequest"
+      >
         New Service Request
       </button>
+      <div class="fab" @click="navigateToCreateRequest"><i class="bi bi-plus"></i></div>
     </div>
-    <div id="filter">
-      <div class="dropdown me-2">
-        <button
-          class="btn drop dropdown-toggle rounded-pill"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          {{ selectedSortOption }}
-        </button>
-        <ul class="dropdown-menu">
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedSortOption === 'Sort by Relevant' }"
-            @click="selectSortOption('Sort by Relevant')"
-          >
-            Sort by Relevant
-          </li>
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedSortOption === 'Sort by Recent' }"
-            @click="selectSortOption('Sort by Recent')"
-          >
-            Sort by Recent
-          </li>
-        </ul>
-      </div>
-      <div class="dropdown">
-        <button
-          class="btn drop dropdown-toggle rounded-pill"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          {{ selectedCategoryOption }}
-        </button>
-        <ul class="dropdown-menu">
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedCategoryOption === 'All categories' }"
-            @click="selectCategoryOption('All categories')"
-          >
-            All categories
-          </li>
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedCategoryOption === 'Installation' }"
-            @click="selectCategoryOption('Installation')"
-          >
-            Installation
-          </li>
-        </ul>
-      </div>
+    <div v-if="loading" class="row">
+      <placeholder-card />
     </div>
-    <div class="row">
-      <div class="col-xl-3 col-lg-3 col-md-6" v-for="(card, index) in cards" :key="index">
-        <div class="card">
-          <div class="userInfo">
-            <img
-              :src="card.profileImgSrc"
-              class="rounded-circle me-2"
-              alt="Profile Picture"
-              width="40"
-              height="40"
-            />
-            <span class="name">{{ card.name }}</span>
-          </div>
-          <img :src="card.imgSrc" class="card-img-top" alt="Request Image" />
-          <div class="card-body">
-            <span class="badge rounded-pill text-bg-dark mb-2">Installation</span>
-            <h6>{{ card.title }}</h6>
-            <span>{{ card.location }}</span>
-          </div>
+    <div v-if="!loading && serviceRequests.length === 0" style="text-align: center">
+      <h3>No Service Requests</h3>
+    </div>
+    <div v-else>
+      <div id="filter">
+        <div class="dropdown me-2">
+          <button
+            class="btn drop dropdown-toggle rounded-pill"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {{ selectedSortOption }}
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedSortOption === 'Sort by Newest' }"
+              @click="selectSortOption('Sort by Newest')"
+            >
+              Sort by Newest
+            </li>
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedSortOption === 'Sort by Oldest' }"
+              @click="selectSortOption('Sort by Oldest')"
+            >
+              Sort by Oldest
+            </li>
+          </ul>
+        </div>
+        <div class="dropdown">
+          <button
+            class="btn drop dropdown-toggle rounded-pill"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {{ selectedCategoryOption }}
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedCategoryOption === 'All categories' }"
+              @click="selectCategoryOption('All categories')"
+            >
+              All categories
+            </li>
+            <div v-for="category in categories" :key="category">
+              <li
+                class="dropdown-item"
+                :class="{ active: selectedCategoryOption === category }"
+                @click="selectCategoryOption(category)"
+              >
+                {{ category }}
+              </li>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div
+          class="col-xl-3 col-lg-3 col-md-6 col-sm-6"
+          v-for="serviceRequest in serviceRequests"
+          :key="serviceRequest.id"
+        >
+          <ServiceRequestCard :serviceRequest="serviceRequest" />
         </div>
       </div>
     </div>
@@ -128,32 +166,6 @@ function navigateToCreateRequest() {
   display: flex;
   justify-content: end;
   margin: 8px 0 14px 0;
-}
-
-.card {
-  padding: 8px;
-  margin-bottom: 16px;
-}
-
-.card:hover {
-  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
-}
-
-.card-body {
-  margin-top: 8px;
-  padding-bottom: 0;
-}
-
-.userInfo {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.name {
-  font-size: 14px;
-  line-height: 22px;
-  font-weight: 600;
 }
 
 .drop {
@@ -174,13 +186,33 @@ li {
   background-color: #f0eeee !important;
 }
 
+.dropdown-toggle[aria-expanded='true']:after {
+  transform: rotate(180deg);
+}
+
+.dropdown-toggle:after {
+  transition: 0.1s;
+}
+
+.fab {
+  display: none;
+  position: fixed;
+  width: 55px;
+  height: 55px;
+  background-color: red;
+  border-radius: 50%;
+  bottom: 20px;
+  right: 20px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+  color: white;
+  font-size: 30px;
+}
+
 @media (max-width: 500px) {
   #filter {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #header {
     flex-direction: column;
     align-items: stretch;
   }
@@ -188,13 +220,13 @@ li {
   .dropdown {
     margin-bottom: 8px;
   }
-}
 
-.dropdown-toggle[aria-expanded='true']:after {
-  transform: rotate(180deg);
-}
+  .fab {
+    display: flex;
+  }
 
-.dropdown-toggle:after {
-  transition: 0.1s;
+  .createBtn {
+    display: none;
+  }
 }
 </style>
