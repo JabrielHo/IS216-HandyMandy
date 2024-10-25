@@ -18,29 +18,31 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { auth } from '../../firebaseConfig.js'; // Ensure this path is correct
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Import Firebase auth method
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../stores/auth'
 
-const email = ref('');
-const password = ref('');
-const router = useRouter(); // Use the router instance
+const email = ref('')
+const password = ref('')
+const router = useRouter()
+const authStore = useAuthStore()
 
 const handleSubmit = async () => {
   try {
-    // Authenticate user with email and password
-    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
-    
-    // Log the authenticated user details (for debugging)
-    console.log('Signed in user:', userCredential.user);
-    
-    // Redirect to another page after successful sign in
-    router.push({ name: 'home' }); // Change '/welcome' to your desired route
+    // Authenticate user with email and password using the auth store
+    await authStore.login(email.value, password.value)
+
+    // Check if the user is authenticated
+    if (authStore.user) {
+      // Redirect to another page after successful sign in
+      router.push({ name: 'home' }) // Change 'home' to your desired route
+    } else {
+      alert('Login failed. Please check your credentials.')
+    }
   } catch (error) {
-    console.error('Error during sign in:', error);
-    alert(error.message); // Show error message to the user
+    console.error('Error during sign in:', error)
+    alert(error.message) // Show error message to the user
   }
 }
 </script>
