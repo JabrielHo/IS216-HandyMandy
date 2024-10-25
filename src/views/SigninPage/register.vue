@@ -141,8 +141,9 @@ const handleFacebookSignIn = async () => {
           <img src="./facebookIcon.png" alt="Profile" class="icon-image" style="width: 65px;" @click="handleFacebookSignIn">
         </div>
         <button type="submit" class="btn btn-primary">Register</button>
+        <p class="mt-3">Already have an account? <router-link to="/signin">Sign In</router-link></p>
       </div>
-      <p class="mt-3">Already have an account? <router-link to="/signin">Sign In</router-link></p>
+      
     </form>
   </div>
 </template>
