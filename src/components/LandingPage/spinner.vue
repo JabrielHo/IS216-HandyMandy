@@ -1,8 +1,25 @@
 <template>
   <div class="container-fluid spinnercontainer">
     <div class="row">
-      <div class="col-5">
-        <h1 class="fs-1 text-primary">{{ selectedAnimal }}</h1>
+      <div class="col-5 dropdown position-relative">
+        <h1 class="fs-1 text-primary">{{ selectedService }}</h1>
+        <input
+          type="text"
+          v-model="typedService"
+          class="input-group-text ms-auto dropdown-toggle"
+          @input="filterServices"
+          placeholder="Type a service..."
+        />
+        <ul class="list-group serviceDropdown" v-if="filteredServices.length > 0">
+          <li
+            v-for="service in filteredServices"
+            :key="service"
+            class="list-group-item list-group-item-action"
+            @click="selectService(service)"
+          >
+            {{ service }}
+          </li>
+        </ul>
       </div>
       <div class="col-2">
         <img
@@ -12,14 +29,14 @@
             position: absolute;
             margin-top: -10px;
             rotate: -90deg;
-            transform: translateY(180px) translatex(20px);
+            transform: translateY(180px) translateX(20px);
           "
         />
       </div>
       <div class="wheelwrapper col-5">
         <h2 id="wheeltitle" class="centered"></h2>
         <div class="wheelcircle">
-          <div id="animals"></div>
+          <div id="services"></div>
         </div>
       </div>
     </div>
@@ -32,22 +49,71 @@ import * as d3 from 'd3'
 export default {
   data() {
     return {
-      data: [
-        { name: 'giraffe', count: 1, color: '#a5d3e4', rotate: '36' },
-        { name: 'dog', count: 1, color: '#e4b5a5', rotate: '108' },
-        { name: 'cat', count: 1, color: '#a5d3e4', rotate: '180' },
-        { name: 'fish', count: 1, color: '#e4b5a5', rotate: '252' },
-        { name: 'monkey', count: 1, color: '#a5d3e4', rotate: '324' }
-      ],
-      selectedAnimal: '',
-      propellerInstance: null
+      services: [
+        'plumbing',
+        'electrical',
+        'air-con',
+        'cleaning',
+        'gardening',
+        'painting',
+        'repair',
+        'installation'
+      ], // List of services
+      data: [], // Initially empty
+      selectedService: '',
+      propellerInstance: null,
+      typedService: '',
+      filteredServices: []
     }
   },
   mounted() {
+    this.generateData('') // Generate data before drawing the wheel
     this.drawWheel()
     this.initPropeller()
   },
+  watch: {
+    typedService(service) {
+      this.generateData(service)
+      let wheel = document.getElementById('services')
+      wheel.innerText = ''
+      this.drawWheel()
+    }
+  },
   methods: {
+    filterServices() {
+      if (this.typedService) {
+        this.filteredServices = this.services.filter((service) =>
+          service.startsWith(this.typedService.toLowerCase())
+        )
+      } else {
+        this.filteredServices = []
+      }
+    },
+    selectService(service) {
+      this.selectedService = service
+      this.typedService = service // Set the input value to the selected service
+      this.filteredServices = [] // Clear the dropdown
+    },
+    generateData(text) {
+      const colors = ['#a5d3e4', '#e4b5a5'] // Alternate colors
+      this.data = []
+
+      const filteredServices = this.services.filter((service) =>
+        service.startsWith(text.toLowerCase())
+      )
+
+      for (let i = 0; i < filteredServices.length; i++) {
+        this.data.push({
+          name: filteredServices[i],
+          count: 1,
+          color: colors[i % colors.length],
+          rotate: i * (360 / filteredServices.length),
+          endrotate: i * (360 / filteredServices.length) + 360 / filteredServices.length,
+          middlerotate: i * (360 / filteredServices.length) + 360 / filteredServices.length / 2
+        })
+      }
+      console.log(filteredServices)
+    },
     drawWheel() {
       const width = 400
       const height = 400
@@ -66,7 +132,7 @@ export default {
         })
 
       const svg = d3
-        .select('#animals')
+        .select('#services')
         .append('svg')
         .attr('width', width)
         .attr('height', height)
@@ -83,31 +149,30 @@ export default {
 
       g.append('text')
         .attr('transform', function (d) {
-          var _d = arc.centroid(d)
-          _d[0] *= 0.95 // adjust position
-          _d[1] *= 0.95
-          var rot = d.data.rotate
-          return 'translate(' + _d + ') rotate(' + rot + ')'
+          const [x, y] = arc.centroid(d) // Get the segment's centroid coordinates
+          const angle = ((d.startAngle + d.endAngle) / 2) * (180 / Math.PI) // Calculate the midpoint angle of the segment
+          return `translate(${x}, ${y}) rotate(${angle + 90})` // Rotate the text by 90 degrees
         })
-        .attr('dy', '1em')
+        .attr('dy', '0.35em') // Center vertically
         .style('text-anchor', 'middle')
-        .style('font-size', 14)
+        .style('font-size', '14px')
         .style('text-transform', 'uppercase')
-        .text(function (d) {
-          return d.data.name
-        })
+        .text((d) => d.data.name)
     },
     initPropeller() {
-      this.propellerInstance = new Propeller(document.getElementById('animals'), {
-        inertia: 0.9,
+      this.propellerInstance = new Propeller(document.getElementById('services'), {
+        inertia: 0.99,
         ondragstop: () => {
           setTimeout(() => {
             let turn = this.propellerInstance.angle
-            console.log('Current angle:', turn)
-            this.setAnimal(turn)
+            this.setService(turn)
 
-            const targetAnimal = this.data.find((animal) => animal.name === this.selectedAnimal)
-            const targetRotation = 270 - targetAnimal.rotate // Position where the arrow should be above the animal
+            var targetService = this.data.find((service) => service.name === this.selectedService)
+            var targetRotation = 360 - targetService.middlerotate - 90 // Position where the arrow should be above the service
+            if (targetRotation < 0) {
+              targetRotation = Math.abs(targetRotation)
+              targetRotation = 360 - targetRotation
+            }
 
             const rotateToTarget = () => {
               const currentAngle = this.propellerInstance.angle
@@ -115,7 +180,7 @@ export default {
               if (Math.abs(currentAngle - targetRotation) < 1) {
                 // If the angle is close enough, stop adjusting
                 this.propellerInstance.angle = targetRotation
-                console.log('Aligned to target:', this.selectedAnimal)
+                console.log('Aligned to target:', this.selectedService)
                 return
               }
 
@@ -127,35 +192,27 @@ export default {
             }
 
             rotateToTarget() // Start the adjustment process
-          }, 1000) // 500ms delay before the function executes
+          }, 1000) // 1 second delay before the function executes
         }
-
-        // onstop: () => {
-        //   let turn = this.propellerInstance.angle
-        //   console.log(turn)
-        //   this.setAnimal(turn)
-        //   const targetAnimal = this.data.find((animal) => animal.name === this.selectedAnimal)
-        //   console.log(targetAnimal.rotate)
-        //   this.propellerInstance.angle = 270 - targetAnimal.rotate
-        // }
       })
     },
-    setAnimal(turn) {
-      console.log(turn)
-      turn += 90
-      console.log(turn)
-      if (turn > 360 && turn < 450) {
-        this.selectedAnimal = 'monkey'
-      } else if (turn > 73 && turn < 144) {
-        this.selectedAnimal = 'fish'
-      } else if (turn > 145 && turn < 216) {
-        this.selectedAnimal = 'cat'
-      } else if (turn > 217 && turn < 288) {
-        this.selectedAnimal = 'dog'
-      } else if (turn > 289 && turn < 360) {
-        this.selectedAnimal = 'giraffe'
+    setService(turn) {
+      turn = 360 - turn
+      turn -= 90
+      if (turn < 0) {
+        turn = Math.abs(turn)
+        turn = 360 - turn
       }
-      console.log(this.selectedAnimal)
+
+      for (const service of this.data) {
+        if (turn > service.rotate && turn < service.endrotate) {
+          console.log(this.data)
+          console.log('Search for', service.name)
+          console.log('Current angle:', turn)
+          this.selectedService = service.name
+          console.log('Angle to meet:', service.rotate, 'to', service.endrotate)
+        }
+      }
     }
   }
 }
@@ -180,12 +237,14 @@ export default {
   padding-top: 20px;
   text-align: center;
 }
+
 .wheelcircle {
   width: 400px;
   height: 400px;
   margin: 0 auto;
 }
-.animaldiv {
+
+.servicediv {
   display: none;
   margin-top: 50px;
   color: red;
@@ -196,5 +255,17 @@ export default {
   display: flex;
   align-items: center; /* Optional: vertically align items */
   flex-wrap: nowrap; /* Prevents wrapping to new rows */
+}
+
+.serviceDropdown {
+  position: absolute;
+  top: calc(100% + 5px); /* Position below the input box */
+  left: 0; /* Align to the start of the input box */
+  width: 100%; /* Match the width of the input box */
+  z-index: 1000; /* Ensure dropdown is above other elements */
+  background-color: white; /* Set a background color for the dropdown */
+  border: 1px solid #ccc; /* Optional: add a border */
+  max-height: 200px; /* Optional: limit height */
+  overflow-y: auto; /* Optional: enable scrolling */
 }
 </style>
