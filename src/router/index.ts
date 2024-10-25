@@ -62,19 +62,18 @@ const router = createRouter({
   ]
 })
 
-// UNCOMMENT to enable route guard
-// router.beforeEach((to, from, next) => {
-//   const authStore = useAuthStore()
-//   if (authStore.loading) {
-//     authStore.checkAuth()
-//   }
-//   if (to.matched.some((record) => record.meta.requiresAuth === true) && !authStore.user) {
-//     next('/signin')
-//   } else if (to.matched.some((record) => record.meta.requiresAuth === false) && authStore.user) {
-//     next('/')
-//   } else {
-//     next()
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  if (authStore.loading) {
+    authStore.checkAuth()
+  }
+  if (to.matched.some((record) => record.meta.requiresAuth === true) && !authStore.user) {
+    next('/signin')
+  } else if (to.matched.some((record) => record.meta.requiresAuth === false) && authStore.user) {
+    next('/')
+  } else {
+    next()
+  }
+})
 
 export default router
