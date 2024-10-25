@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+import { computed } from 'vue'
 
 const router = useRouter()
+const authStore = useAuthStore()
+const isLoggedIn = computed(() => authStore.user !== null)
+const isLoading = computed(() => authStore.loading)
 
 const navigateToSignIn = () => {
   router.push('/signin') // Navigate to the sign-in page
@@ -10,15 +15,23 @@ const navigateToSignIn = () => {
 const navigateToRegister = () => {
   router.push('/register') // Navigate to the sign-in page
 }
+
+const logout = async () => {
+  try {
+    await authStore.logout()
+    window.location.reload()
+  } catch (error) {
+    console.error('Logout failed', error)
+  }
+}
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-md navbar-light bg-light">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-      <!-- Logo -->
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="../assets/logo.png" alt="HandyMandy Logo" height="40px" />
-        <span class="ms-2 visually-hidden">HandyMandy</span>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <!-- Logo and Search Bar -->
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <span class="ms-2">HandyMandy</span>
       </a>
 
       <!-- Search Bar -->
@@ -92,22 +105,38 @@ const navigateToRegister = () => {
         </ul>
 
         <!-- Sign-in and Register buttons -->
-        <div class="d-flex flex-column align-items-center">
-          <div class="custom-divider d-inline-block d-md-none"></div>
-          <div class="d-flex flex align-items-center mt-2 mb-2">
-            <button class="btn btn-outline-secondary me-2" type="button" @click="navigateToSignIn">
-              Sign In
-            </button>
-            <button class="btn btn-dark" type="button" @click="navigateToRegister">Register</button>
-          </div>
-          <!-- End of just buttons -->
+        <div v-if="!isLoading && !isLoggedIn" class="d-none d-lg-block align-items-center ms-3">
+          <button class="btn btn-outline-secondary me-2" type="button" @click="navigateToSignIn">
+            Sign In
+          </button>
+          <button class="btn btn-dark" type="button" @click="navigateToRegister">Register</button>
         </div>
-        <!--END of buttons + divider-->
+        <div v-if="!isLoading && isLoggedIn" class="d-none d-lg-block align-items-center ms-3">
+          <button class="btn btn-dark" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal">Log out</button>
+        </div>
       </div>
       <!--End of navbar links-->
     </div>
     <!--End for container fluid-->
   </nav>
+
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Log out?</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to log out of your account?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" @click="logout">Log out</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>

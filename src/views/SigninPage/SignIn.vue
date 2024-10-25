@@ -18,16 +18,32 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../stores/auth'
 
 const email = ref('')
 const password = ref('')
+const router = useRouter()
+const authStore = useAuthStore()
 
-const handleSubmit = () => {
-  // Here you would typically send the email and password to your server for authentication
-  console.log('Email:', email.value)
-  console.log('Password:', password.value)
+const handleSubmit = async () => {
+  try {
+    // Authenticate user with email and password using the auth store
+    await authStore.login(email.value, password.value)
+
+    // Check if the user is authenticated
+    if (authStore.user) {
+      // Redirect to another page after successful sign in
+      router.push({ name: 'home' }) // Change 'home' to your desired route
+    } else {
+      alert('Login failed. Please check your credentials.')
+    }
+  } catch (error) {
+    console.error('Error during sign in:', error)
+    alert(error.message) // Show error message to the user
+  }
 }
 </script>
 
