@@ -50,15 +50,32 @@ const router = createRouter({
       component: () => import('../views/Forum/forumpage.vue')
     },
     {
+      path: '/forumpost',
+      name: 'forumpost',
+      component: () => import('../views/Forum/individualPost.vue')
+    },
+    {
+      path: '/addpost',
+      name: 'addpost',
+      component: () => import('../views/Forum/addpostView.vue')
+    },
+    {
       path: '/request/:id',
       name: 'detailedRequest',
       component: () => import('../views/ServiceRequests/DetailedRequestView.vue')
     },
+    // router/index.js
     {
-      path: '/inbox',
-      name: 'inbox',
-      component: () => import('../views/Inbox/ChatView.vue')
-    }
+      path: '/post/:postId',
+      name: 'individualPostView',
+      component: () => import('../views/Forum/individualPost.vue'),
+      props: true, 
+    },
+    // {
+    //   path: '/inbox',
+    //   name: 'inbox',
+    //   component: () => import('../views/Inbox/ChatView.vue')
+    // }
   ]
 })
 

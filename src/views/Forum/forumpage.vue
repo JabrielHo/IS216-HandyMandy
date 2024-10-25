@@ -1,148 +1,73 @@
 <script setup lang="ts">
-// import { ref } from 'vue'
-// import { useRouter } from 'vue-router'
-const posts = [
-  {
-    id: 1,
-    username: 'Kelyn',
-    location: 'Simei',
-    time: '5 hours ago',
-    userImage: 'path_to_image',
-    title: 'How can I post a request for help?',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-    likes: 10,
-    dislikes: 1,
-    comments: 20
-  },
-  // Add more post objects here
-  {
-    id: 2,
-    username: 'Alex',
-    location: 'Dhoby Ghaut',
-    time: '2 hours ago',
-    userImage: 'path_to_image',
-    title: 'Looking for recommendations!',
-    content: 'Any good places to eat around here?',
-    likes: 5,
-    dislikes: 0,
-    comments: 3
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
-  },
-  {
-    id: 3,
-    username: 'Jamie',
-    location: 'Orchard',
-    time: '1 hour ago',
-    userImage: 'path_to_image',
-    title: 'Help with my project!',
-    content: 'I need some assistance with coding...',
-    likes: 15,
-    dislikes: 2,
-    comments: 10
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { setDoc, doc, collection, getDocs } from "firebase/firestore";
+import { db } from '../../firebaseConfig'; // Ensure this path is correct
+
+const router = useRouter();
+
+const posts = ref([]); // Start with an empty array for posts
+
+async function addPost(newPost) {
+  try {
+    await setDoc(doc(db, "posts", newPost.id.toString()), newPost);
+    posts.value.push(newPost); // Add to local posts array
+  } catch (error) {
+    console.error("Error adding post:", error);
   }
-];
+}
+
+onMounted(async () => {
+  await fetchPosts();
+});
+
+async function fetchPosts() {
+  const postsCollection = collection(db, "posts");
+  try {
+    const querySnapshot = await getDocs(postsCollection);
+    posts.value = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+  }
+}
+
+function goToAddPost() {
+  router.push('/addpost'); // Adjust the route as per your route configuration
+}
+
+function goToPostDetail(postId) {
+  router.push({ name: 'individualPostView', params: { postId } });
+}
+
+
+function likePost(postId) {
+  const postIndex = posts.value.findIndex((post) => post.id === postId.toString());
+  
+  if (postIndex !== -1) {
+    const post = posts.value[postIndex];
+    
+    // Toggle liked state and adjust likes count
+    const updatedPost = {
+      ...post,
+      liked: !post.liked,
+      likes: post.likes + (post.liked ? -1 : 1)
+    };
+    
+    // Update the post in the array to trigger reactivity
+    posts.value.splice(postIndex, 1, updatedPost);
+  }
+}
 
 </script>
 
 <template>
   <main class="backdrop">
+    <button class="add-post-button" @click="goToAddPost">Add Post</button>
     <div class="card-container">
-      <div class="card" v-for="post in posts" :key="post.id">
+      <div class="card" v-for="post in posts" :key="post.id" @click="goToPostDetail(post.id)">
         <div class="card-header">
           <img :src="post.userImage" alt="User profile" class="user-image" />
           <div class="user-info">
@@ -155,7 +80,9 @@ const posts = [
           <p>{{ post.content }}</p>
         </div>
         <div class="card-footer">
-          <span><i class="fas fa-thumbs-up"></i> {{ post.likes }}</span>
+          <span @click.stop="likePost(post.id)">
+            <i class="fas fa-thumbs-up" :class="{ liked: post.liked }"></i> {{ post.likes }}
+          </span>
           <span><i class="fas fa-thumbs-down"></i> {{ post.dislikes }}</span>
           <span><i class="fas fa-comment"></i> {{ post.comments }}</span>
         </div>
@@ -180,10 +107,6 @@ const posts = [
   align-items: center; /* Centers content horizontally */
   overflow: hidden; /* Prevents overflow in case of content */
 }
-
-
-
-
 
 .card-container {
   display: flex; /* Enable flexbox */
@@ -254,5 +177,37 @@ const posts = [
 
 .card-footer i {
   margin-right: 5px;
+}
+
+.add-post-button {
+  position: absolute;
+  top: 80px; /* Adjust as per the navbar height */
+  right: 20px;
+  padding: 10px 20px;
+  margin: 5px;
+  background-color: #007bff; /* Initial color */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth transition for hover */
+}
+
+.add-post-button:hover {
+  background-color: #0056b3; /* Change color on hover */
+}
+
+.card {
+  transition: transform 0.2s ease; /* Add a transition for smooth effect */
+}
+
+.card:hover {
+  transform: scale(1.05); /* Scale up the card on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.liked {
+  color: blue; /* Change the color of the icon when liked */
 }
 </style>
