@@ -19,15 +19,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { auth } from '../../firebaseConfig.js'; // Ensure this path is correct
+import { signInWithEmailAndPassword } from 'firebase/auth'; // Import Firebase auth method
 
-const email = ref('')
-const password = ref('')
+const email = ref('');
+const password = ref('');
+const router = useRouter(); // Use the router instance
 
-const handleSubmit = () => {
-  // Here you would typically send the email and password to your server for authentication
-  console.log('Email:', email.value)
-  console.log('Password:', password.value)
+const handleSubmit = async () => {
+  try {
+    // Authenticate user with email and password
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    
+    // Log the authenticated user details (for debugging)
+    console.log('Signed in user:', userCredential.user);
+    
+    // Redirect to another page after successful sign in
+    router.push({ name: 'home' }); // Change '/welcome' to your desired route
+  } catch (error) {
+    console.error('Error during sign in:', error);
+    alert(error.message); // Show error message to the user
+  }
 }
 </script>
 

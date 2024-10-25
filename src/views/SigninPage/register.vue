@@ -1,30 +1,49 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { auth } from '../../firebaseConfig'; // Ensure this path is correct
+import { createUserWithEmailAndPassword } from 'firebase/auth'; // Import Firebase auth method
 
-const router = useRouter()
+
+const router = useRouter();
 
 // Form data
-const name = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
+const name = ref('');
+const email = ref('');
+const password = ref('');
+const confirmPassword = ref('');
 
 // Function to handle form submission
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match!')
-    return
+    alert('Passwords do not match!');
+    return;
   }
-  // Here you would typically send the data to your server for registration
-  console.log('Registering:', {
-    name: name.value,
-    email: email.value,
-    password: password.value
-  })
-  // Redirect to another page after successful registration
-  router.push('/welcome') // Change '/welcome' to your desired route
-}
+
+  try {
+    // Create user with email and password
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    // Log registered user details (for debugging)
+    console.log('Registered user:', {
+      uid: userCredential.user.uid,
+      name: name.value,
+      email: email.value,
+    });
+
+    // Optional: Store additional user details in Firestore if needed
+    // Example:
+    // await setDoc(doc(db, "users", userCredential.user.uid), {
+    //   name: name.value,
+    //   email: email.value,
+    // });
+
+    // Redirect to another page after successful registration
+    router.push('/welcome'); // Change '/welcome' to your desired route
+  } catch (error) {
+    console.error('Error during registration:', error);
+    alert(error.message); // Show error message to the user
+  }
+};
 </script>
 
 <template>
@@ -35,7 +54,7 @@ const handleSubmit = () => {
         <label for="name" class="form-label">Name</label>
         <input type="text" id="name" class="form-control" v-model="name" required />
       </div>
-      <div class="mb-3">
+      <div class="mb-3"> 
         <label for="email" class="form-label">Email</label>
         <input type="email" id="email" class="form-control" v-model="email" required />
       </div>
