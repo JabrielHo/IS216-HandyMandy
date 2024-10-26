@@ -13,11 +13,15 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 class RequestService {
-  async getAllServiceRequests(sortOption, categoryOption) {
+  async getAllServiceRequests(sortOption, categoryOption, locationOption) {
     let q = query(collection(db, 'requests'), where('status', '==', 'Open'))
 
     if (categoryOption !== 'All categories') {
       q = query(q, where('category', '==', categoryOption))
+    }
+
+    if (locationOption !== 'All locations') {
+      q = query(q, where('location', '==', locationOption))
     }
 
     if (sortOption === 'Sort by Newest') {
@@ -56,6 +60,21 @@ class RequestService {
     })
 
     return Array.from(categories)
+  }
+
+  async getAllLocations() {
+    const q = collection(db, 'requests')
+    const querySnapshot = await getDocs(q)
+    const locations = new Set()
+
+    querySnapshot.docs.forEach((doc) => {
+      const data = doc.data()
+      if (data.location) {
+        locations.add(data.location)
+      }
+    })
+
+    return Array.from(locations)
   }
 
   async createServiceRequest(fields, image) {

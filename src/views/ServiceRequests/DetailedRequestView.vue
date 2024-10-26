@@ -1,6 +1,9 @@
 <script setup>
 import { onMounted, ref, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '../../stores/auth'
+import { computed } from 'vue'
+
 import RequestService from '../../services/RequestService'
 import UserService from '../../services/UserService'
 
@@ -12,6 +15,9 @@ const loading = ref(true)
 const formattedDate = ref('')
 const lat = ref('')
 const long = ref('')
+const authStore = useAuthStore()
+const userData = computed(() => authStore.user)
+const isMyRequest = ref(false)
 
 function navigateToServiceRequest() {
   router.push('/requests')
@@ -26,7 +32,16 @@ async function fetchServiceRequest(requestId) {
 }
 
 async function fetchUserData(userId) {
-  user.value = await UserService.getUserData(userId)
+  if (userData.value) {
+    if (userId !== userData.value.uid) {
+      isMyRequest.value = false
+      user.value = await UserService.getUserData(userId)
+    } else {
+      isMyRequest.value = true
+    }
+  } else {
+    user.value = await UserService.getUserData(userId)
+  }
 }
 
 async function initializeMap(x, y) {
@@ -120,7 +135,7 @@ onMounted(async () => {
               <span class="category">{{ serviceRequest.category }}</span>
             </div>
             <div class="right">
-              <span class="category-header">Listed</span><br />
+              <span class="category-header">Created</span><br />
               <span class="category">{{ formattedDate }}</span>
             </div>
           </div>
@@ -129,7 +144,7 @@ onMounted(async () => {
           <span class="desc">{{ serviceRequest.description }}</span>
           <hr />
         </div>
-        <div class="col-md-4 col-sm-12 col-lg-4 mt-3 order-first">
+        <div v-if="!isMyRequest" class="col-md-4 col-sm-12 col-lg-4 mt-3 order-first">
           <div class="card">
             <div class="userInfo">
               <img
@@ -140,7 +155,7 @@ onMounted(async () => {
                 height="40"
               />
               <div class="text-container">
-                <span class="name">{{ user.userName }}</span>
+                <span class="name">{{ user.username }}</span>
                 <span class="location">{{ serviceRequest.location }}</span>
               </div>
             </div>
