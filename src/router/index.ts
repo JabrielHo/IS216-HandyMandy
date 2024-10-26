@@ -42,6 +42,17 @@ const router = createRouter({
       path: '/personalProfile',
       name: 'personalprofile',
       component: () => import('../views/ProfilePage/personalProfile.vue')
+    },
+    {
+      path: '/personalProfile_ExternalPOV',
+      name: 'personalProfile_ExternalPOV',
+      component: () => import('../views/ProfilePage/personalProfile_ExternalPOV.vue')
+      // meta: { requiresAuth: true }
+    },
+    {
+      path: '/plumbing',
+      name: 'plumbing',
+      component: () => import('../views/ProfilePage/plumbing.vue'),
       // meta: { requiresAuth: true }
     },
     {

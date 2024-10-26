@@ -4,10 +4,10 @@
     <p>**** Ratings and Reviews</p>
   </div>
 
-  <h2 style="margin-left: 10px;">Your services</h2>
+  <h2 style="margin-left: 10px;">John's services</h2>
   <div class="services-container">
     <div class="angled-rectangle">
-      <button>Plumbing</button>
+      <button><a href="plumbing.vue">Plumbing</a></button>
     </div>
 
     <div class="angled-rectangle">
@@ -18,12 +18,10 @@
       <button>Furniture Assembly</button>
     </div>
 
-    <div class="angled-rectangle">
-      <button>+</button>
-    </div>
+
   </div>
 
-  <h2 style="margin-left: 10px;">Your Requests</h2>
+  <h2 style="margin-left: 10px;">John's Requests</h2>
   <div class="request-container">
     <div class="angled-rectangle">
       <button>Help me fix my phone</button>
@@ -32,12 +30,9 @@
       <button>Help me paint my room</button>
     </div>
 
-    <div class="angled-rectangle">
-      <button>+</button>
-    </div>
   </div>
 
-  <h2 style="margin-left: 10px;">Your Reviews</h2>
+  <h2 style="margin-left: 10px;">John's Reviews</h2>
   <div class="review-container">
     <div class="angled-rectangle">
       <button>Great Work!</button>
@@ -45,22 +40,19 @@
     <div class="angled-rectangle">
       <button>Very Reliable</button>
     </div>
-    <div class="angled-rectangle">
+    <div class="angled-rectangle" style="width:min-content;">
       <button>Highly Recommended</button>
     </div>
     <div class="angled-rectangle">
       <button>Professional Service</button>
     </div>
 
-    <div class="angled-rectangle">
-      <button>+</button>
-    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "personalProfile",
+  name: "personalProfile_ExternalPOV",
   setup() {}
 };
 </script>
@@ -100,5 +92,11 @@ export default {
 
 .angled-rectangle button:hover {
   background-color: #8fe1ff;   /* Change background on hover */
+}
+
+a {
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
 }
 </style>

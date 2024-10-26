@@ -76,7 +76,7 @@ function selectServicesOption(option) {
             <h6>Years of Experience: <p>{{ card.yearsOfExp }}</p></h6>
           </div>
           <div class="content-center text-center">
-            <button class="btn rounded-pill" type="button"><a href="/personalProfile">View Profile</a></button>
+            <button class="btn rounded-pill" type="button"><a href="/personalProfile_ExternalPOV">View Profile</a></button>
             <button class="btn rounded-pill" type="button"><a href="/services">Chat</a></button>
           </div>
         </div>
