@@ -1,51 +1,106 @@
 <template>
   <div class="signin-container">
-    <h1 class="signin-title">Sign In</h1>
-    <form @submit.prevent="handleSubmit" class="signin-form">
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="email" v-model="email" id="email" required />
+    <div class="signin-card">
+      <h1 class="signin-title">Welcome back</h1>
+      <p class="signin-subtitle">Please enter your details to sign in.</p>
+
+      <button class="google-button" @click="loginWithGoogle">
+        <img src="./googleIcon.png" alt="Google Icon" class="icon-image" />
+        Sign in with Google
+      </button>
+
+      <div class="separator">
+        <span class="separator-line"></span>
+        <span class="separator-text">OR</span>
+        <span class="separator-line"></span>
       </div>
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" v-model="password" id="password" required />
-      </div>
-      <button type="submit" class="signin-button">Sign In</button>
-      <p class="footer-text">
-        Don't have an account? <router-link to="/register">Sign Up</router-link>
+
+      <form @submit.prevent="handleSubmit" class="signin-form">
+        <div class="form-group">
+          <label for="email">E-Mail Address</label>
+          <input type="email" v-model="email" id="email" placeholder="Enter your email..." required />
+        </div>
+        <div class="form-group" style="position: relative;">
+          <label for="password">Password</label>
+          <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" required />
+          <span class="password-toggle" @click="togglePasswordVisibility">
+            <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+          </span>
+        </div>
+        <button type="submit" class="signin-button">Sign in</button>
+      </form>
+
+      <p class="signup-link">
+        Don't have an account yet? <router-link to="/register">Sign Up</router-link>
       </p>
-    </form>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../../stores/auth'
 
-const email = ref('')
-const password = ref('')
-const router = useRouter()
-const authStore = useAuthStore()
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { getAuth, signInWithEmailAndPassword, fetchSignInMethodsForEmail, GoogleAuthProvider, signInWithPopup} from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+
+
+const db = getFirestore();
+
+const email = ref('');
+const password = ref('');
+const showPassword = ref(false);
+const router = useRouter();
+const auth = getAuth(); // Initialize Firebase Auth
 
 const handleSubmit = async () => {
   try {
-    // Authenticate user with email and password using the auth store
-    await authStore.login(email.value, password.value)
-
-    // Check if the user is authenticated
-    if (authStore.user) {
-      // Redirect to another page after successful sign in
-      router.push({ name: 'home' }) // Change 'home' to your desired route
-    } else {
-      alert('Login failed. Please check your credentials.')
+    const methods = await fetchSignInMethodsForEmail(auth, email.value);
+    if (methods.length === 0) {
+      alert('No account found with this email. Please create an account first.');
+      router.push({ name: 'register' });
+      return;
     }
+    
+    await signInWithEmailAndPassword(auth, email.value, password.value);
+    router.push({ name: 'home' });
   } catch (error) {
-    console.error('Error during sign in:', error)
-    alert(error.message) // Show error message to the user
+    console.error('Error during sign in:', error);
+    alert(error.message);
   }
-}
+};
+
+const loginWithGoogle = async () => {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const userDocRef = doc(db, 'users', user.uid); // Reference to the user document
+    const userDoc = await getDoc(userDocRef); // Get the user document
+
+    if (!userDoc.exists()) {
+      // Store user details in Firestore for new users
+      await setDoc(userDocRef, {
+        username: user.displayName || user.email.split('@')[0] || 'Anonymous',
+        userId: user.uid,
+        email: user.email,
+      });
+    }
+
+    // Proceed to the home page
+    router.push({ name: 'home' });
+  } catch (error) {
+    console.error('Error during Google sign in:', error);
+    alert(error.message);
+  }
+};
+
+const togglePasswordVisibility = () => {
+  showPassword.value = !showPassword.value;
+};
 </script>
+
 
 <style scoped>
 .signin-container {
@@ -54,65 +109,171 @@ const handleSubmit = async () => {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f0f0f0; /* Light background for contrast */
+  background-color: #f8f9fa;
+}
+
+.signin-card {
+  background-color: #fff;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 400px;
+  text-align: center;
+  /* Center text within the card */
 }
 
 .signin-title {
-  margin-bottom: 20px;
-  font-size: 2rem;
-  color: #333;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  color: #343a40;
+  /* Darker title color */
+}
+
+.signin-subtitle {
+  font-size: 1rem;
+  color: #6c757d;
+  margin-bottom: 2rem;
 }
 
 .signin-form {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 300px; /* Fixed width for the form */
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
 }
 
 input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.8rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  transition: border-color 0.2s ease;
+  /* Add smooth transition */
+}
+
+input:focus {
+  outline: none;
+  border-color: #80bdff;
+  /* Highlight border on focus */
+}
+
+.form-actions {
+  display: flex;
+  justify-content: center;
+  /* Center the button horizontally */
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .signin-button {
-  width: 100%;
-  padding: 10px;
-  background-color: #007bff; /* Bootstrap primary color */
+  background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  padding: 0.8rem 1.5rem;
   font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.2s ease;
+  /* Add smooth transition */
 }
 
 .signin-button:hover {
-  background-color: #0056b3; /* Darker shade on hover */
+  background-color: #0056b3;
 }
 
-.footer-text {
-  margin-top: 15px;
-  text-align: center;
+.signup-link {
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
-.footer-text a {
+.signup-link a {
   color: #007bff;
   text-decoration: none;
 }
 
-.footer-text a:hover {
+.signup-link a:hover {
   text-decoration: underline;
 }
+
+.logo-container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  width: 80px;
+  /* Adjust size as needed */
+  height: auto;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.separator-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.separator-text {
+  margin: 0 1rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #6c757d;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white; /* Change background to white */
+  color: #4285f4; /* Change text color to Google blue */
+  border: 2px solid #4285f4; /* Add a border for visibility */
+  border-radius: 6px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin: 0 auto; /* Center the button horizontally */
+  width: 100%; /* Optional: make button full width */
+  max-width: 300px; /* Optional: set a max width for the button */
+}
+
+.google-button:hover {
+  background-color: #f1f1f1; /* Light gray background on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+.icon-image{
+  width: 30px;
+}
+
 </style>

@@ -77,33 +77,6 @@ const handleGoogleSignIn = async () => {
   }
 };
 
-const handleFacebookSignIn = async () => {
-  const provider = new FacebookAuthProvider();
-  try {
-    const result = await signInWithPopup(auth, provider);   
-
-    const user = result.user;
-
-    // Check if user is new
-    const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
-
-    if (!userDoc.exists()) {
-      // Store user details in Firestore for new users
-      await setDoc(userDocRef, {
-        username: user.displayName || user.email?.split('@')[0] || 'Anonymous', 
-        userId: user.uid,
-        email: user.email,
-      });
-    }
-
-    router.push('/welcome');
-  } catch (error) {
-    console.error('Error during Facebook sign-in:', error);
-    alert(error.message);
-  }
-};
-
 </script>
 
 
@@ -136,11 +109,11 @@ const handleFacebookSignIn = async () => {
       </div>
 
       <div class="text-center">
-        <div class="icon-image-container">
-          <img src="./googleIcon.png" alt="Profile" class="icon-image" @click="handleGoogleSignIn">
-          <img src="./facebookIcon.png" alt="Profile" class="icon-image" style="width: 65px;" @click="handleFacebookSignIn">
-        </div>
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button class="google-button" @click="handleGoogleSignIn">
+        <img src="./googleIcon.png" alt="Google Icon" class="icon-image" />
+        Register with Google
+      </button>
+        <button type="submit" class="btn btn-primary mt-3">Register</button>
         <p class="mt-3">Already have an account? <router-link to="/signin">Sign In</router-link></p>
       </div>
       
@@ -153,21 +126,29 @@ const handleFacebookSignIn = async () => {
   max-width: 400px;
   /* Set a maximum width for the registration form */
 }
-
-.icon-image {
-  width: 70px;
-  margin: 0px 5px;
+.google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white; /* Change background to white */
+  color: #4285f4; /* Change text color to Google blue */
+  border: 2px solid #4285f4; /* Add a border for visibility */
+  border-radius: 6px;
+  padding: 0.8rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  margin: 0 auto; /* Center the button horizontally */
+  width: 100%; /* Optional: make button full width */
+  max-width: 300px; /* Optional: set a max width for the button */
 }
 
-.icon-image-container {
-  margin: 10px;
-  justify-items: center;
+.google-button:hover {
+  background-color: #f1f1f1; /* Light gray background on hover */
+  transform: translateY(-2px); /* Slight lift effect */
 }
 
-.icon-image-container img:hover {
-  opacity: 0.7; /* Slightly reduce opacity on hover */
-  cursor: pointer; /* Change cursor to pointer to indicate interactivity */
-  transform: scale(1.1); /* Slightly increase size on hover */
-  transition: all 0.2s ease; /* Add a smooth transition effect */
+.icon-image{
+  width: 30px;
 }
 </style>
