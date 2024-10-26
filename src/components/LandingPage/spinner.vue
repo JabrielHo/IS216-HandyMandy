@@ -112,12 +112,13 @@ export default {
           middlerotate: i * (360 / filteredServices.length) + 360 / filteredServices.length / 2
         })
       }
-      console.log(filteredServices)
     },
     drawWheel() {
       const width = 400
       const height = 400
-      const radius = 180
+      const radius = 100
+      const seatradius = 40
+      const seatdistance = radius + seatradius + 10
 
       const arc = d3
         .arc()
@@ -147,17 +148,47 @@ export default {
         .attr('stroke', 'black')
         .style('stroke-width', 3)
 
-      g.append('text')
-        .attr('transform', function (d) {
-          const [x, y] = arc.centroid(d) // Get the segment's centroid coordinates
-          const angle = ((d.startAngle + d.endAngle) / 2) * (180 / Math.PI) // Calculate the midpoint angle of the segment
-          return `translate(${x}, ${y}) rotate(${angle + 90})` // Rotate the text by 90 degrees
-        })
-        .attr('dy', '0.35em') // Center vertically
-        .style('text-anchor', 'middle')
-        .style('font-size', '14px')
-        .style('text-transform', 'uppercase')
-        .text((d) => d.data.name)
+      // g.append('text')
+      //   .attr('transform', function (d) {
+      //     const [x, y] = arc.centroid(d) // Get the segment's centroid coordinates
+      //     const angle = ((d.startAngle + d.endAngle) / 2) * (180 / Math.PI) // Calculate the midpoint angle of the segment
+      //     return `translate(${x}, ${y}) rotate(${angle + 90})` // Rotate the text by 90 degrees
+      //   })
+      //   .attr('dy', '0.35em') // Center vertically
+      //   .style('text-anchor', 'middle')
+      //   .style('font-size', '14px')
+      //   .style('text-transform', 'uppercase')
+      //   .text((d) => d.data.name)
+
+      console.log('Number of seats:', this.data.length)
+
+      for (let i = 0; i < this.data.length; i++) {
+        const angle = this.data[i].middlerotate - 90
+        const x = seatdistance * Math.cos((angle * Math.PI) / 180) // Ensure angle is in radians
+        const y = seatdistance * Math.sin((angle * Math.PI) / 180) // Ensure angle is in radians
+
+        svg
+          .append('circle')
+          .attr('cx', x)
+          .attr('cy', y)
+          .attr('r', seatradius)
+          .style('fill', this.data[i].color)
+          .style('stroke', 'black')
+          .style('stroke-width', 2)
+
+        svg
+          .append('text')
+          .attr('x', x)
+          .attr('y', y)
+          .attr('transform', function () {
+            // Rotate the text based on the angle
+            return `rotate(${angle + 180}, ${x}, ${y})` // Rotate around the circle's center
+          })
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'middle')
+          .style('font-size', '10px')
+          .text(this.data[i].name)
+      }
     },
     initPropeller() {
       this.propellerInstance = new Propeller(document.getElementById('services'), {
@@ -206,7 +237,6 @@ export default {
 
       for (const service of this.data) {
         if (turn > service.rotate && turn < service.endrotate) {
-          console.log(this.data)
           console.log('Search for', service.name)
           console.log('Current angle:', turn)
           this.selectedService = service.name
@@ -228,8 +258,8 @@ export default {
   width: 500px;
   height: 500px;
   position: relative;
-  left: 50%; /* Move to the center of the parent */
-  transform: translateX(-90%); /* Offset by half of its own width */
+  /* left: 50%; 
+  transform: translateX(-110%);  */
 }
 
 .wheelwrapper h2 {

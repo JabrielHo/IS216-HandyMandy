@@ -112,7 +112,14 @@ const logout = async () => {
           <button class="btn btn-dark" type="button" @click="navigateToRegister">Register</button>
         </div>
         <div v-if="!isLoading && isLoggedIn" class="d-none d-lg-block align-items-center ms-3">
-          <button class="btn btn-dark" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal">Log out</button>
+          <button
+            class="btn btn-dark"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#logoutModal"
+          >
+            Log out
+          </button>
         </div>
       </div>
       <!--End of navbar links-->
@@ -120,16 +127,25 @@ const logout = async () => {
     <!--End for container fluid-->
   </nav>
 
-  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="logoutModal"
+    tabindex="-1"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="exampleModalLabel">Log out?</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
-        <div class="modal-body">
-          Are you sure you want to log out of your account?
-        </div>
+        <div class="modal-body">Are you sure you want to log out of your account?</div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-danger" @click="logout">Log out</button>
