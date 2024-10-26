@@ -1,3 +1,24 @@
+<script setup>
+import { useRouter } from 'vue-router'
+
+const props = defineProps({
+  serviceRequest: Object
+})
+
+const router = useRouter()
+
+function navigateToDetailedRequest(id) {
+  router.push('/request/' + id)
+}
+
+function handleMouseDown(event, id) {
+  if (event.button === 1) {
+    event.preventDefault()
+    window.open('/request/' + id, '_blank')
+  }
+}
+</script>
+
 <template>
   <div
     class="card"
@@ -28,29 +49,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { event } from 'jquery'
-import { defineProps } from 'vue'
-import { useRouter } from 'vue-router'
-
-const props = defineProps({
-  serviceRequest: Object
-})
-
-const router = useRouter()
-
-function navigateToDetailedRequest(id) {
-  router.push('/request/' + id)
-}
-
-function handleMouseDown(event, id) {
-  if (event.button === 1) {
-    event.preventDefault()
-    window.open('/request/' + id, '_blank')
-  }
-}
-</script>
 
 <style scoped>
 .standard-img {

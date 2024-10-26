@@ -1,8 +1,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { auth } from '../../firebaseConfig'
-import { onAuthStateChanged } from 'firebase/auth'
+import { useAuthStore } from '../../stores/auth'
+import { computed } from 'vue'
 import UserService from '../../services/UserService'
 import RequestService from '../../services/RequestService'
 import PlaceholderCard from '../../components/PlaceholderCard.vue'
@@ -10,10 +10,14 @@ import ServiceRequestCard from '../../components/ServiceRequestCard.vue'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const selectedSortOption = ref('Sort by Newest')
 const selectedCategoryOption = ref('All categories')
+const selectedLocationOption = ref('All locations')
 const serviceRequests = ref([])
 const categories = ref([])
+const locations = ref([])
+const isLoggedIn = computed(() => authStore.user !== null)
 const loading = ref(true)
 
 function selectSortOption(option) {
@@ -26,6 +30,11 @@ function selectCategoryOption(option) {
   fetchServiceRequests()
 }
 
+function selectLocationOption(option) {
+  selectedLocationOption.value = option
+  fetchServiceRequests()
+}
+
 function navigateToCreateRequest() {
   router.push('/service-request')
 }
@@ -34,12 +43,13 @@ async function fetchServiceRequests() {
   loading.value = true
   const result = await RequestService.getAllServiceRequests(
     selectedSortOption.value,
-    selectedCategoryOption.value
+    selectedCategoryOption.value,
+    selectedLocationOption.value
   )
 
   const requestPromises = result.map((item) => {
     return UserService.getUserData(item.userId).then((userData) => {
-      item.name = userData.userName
+      item.name = userData.username
       item.profilePicture = userData.profilePicture
       return item
     })
@@ -58,18 +68,27 @@ async function populateCategoryFilter() {
   })
 }
 
+async function populateLocationFilter() {
+  const result = await RequestService.getAllLocations()
+  result.map((item) => {
+    locations.value.push(item)
+  })
+}
+
 onMounted(() => {
   // Fetch Data
   fetchServiceRequests()
   populateCategoryFilter()
+  populateLocationFilter()
 })
 </script>
 
 <template>
-  <div class="container">
+  <div class="container mt-2">
     <div id="header">
       <h1>Service Requests</h1>
       <button
+        v-if="isLoggedIn"
         type="button"
         class="createBtn btn btn-danger"
         style="font-weight: bold"
@@ -79,69 +98,97 @@ onMounted(() => {
       </button>
       <div class="fab" @click="navigateToCreateRequest"><i class="bi bi-plus"></i></div>
     </div>
+    <div id="filter" v-if="!loading">
+      <div class="dropdown me-md-2">
+        <button
+          class="btn drop dropdown-toggle rounded-pill"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          {{ selectedLocationOption }}
+        </button>
+        <ul class="dropdown-menu">
+          <li
+            class="dropdown-item"
+            :class="{ active: selectedLocationOption === 'All locations' }"
+            @click="selectLocationOption('All locations')"
+          >
+            All locations
+          </li>
+          <div v-for="location in locations" :key="location">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedLocationOption === location }"
+              @click="selectLocationOption(location)"
+            >
+              {{ location }}
+            </li>
+          </div>
+        </ul>
+      </div>
+      <div class="dropdown me-md-2">
+        <button
+          class="btn drop dropdown-toggle rounded-pill"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          {{ selectedCategoryOption }}
+        </button>
+        <ul class="dropdown-menu">
+          <li
+            class="dropdown-item"
+            :class="{ active: selectedCategoryOption === 'All categories' }"
+            @click="selectCategoryOption('All categories')"
+          >
+            All categories
+          </li>
+          <div v-for="category in categories" :key="category">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedCategoryOption === category }"
+              @click="selectCategoryOption(category)"
+            >
+              {{ category }}
+            </li>
+          </div>
+        </ul>
+      </div>
+      <div class="dropdown">
+        <button
+          class="btn drop dropdown-toggle rounded-pill"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          {{ selectedSortOption }}
+        </button>
+        <ul class="dropdown-menu">
+          <li
+            class="dropdown-item"
+            :class="{ active: selectedSortOption === 'Sort by Newest' }"
+            @click="selectSortOption('Sort by Newest')"
+          >
+            Sort by Newest
+          </li>
+          <li
+            class="dropdown-item"
+            :class="{ active: selectedSortOption === 'Sort by Oldest' }"
+            @click="selectSortOption('Sort by Oldest')"
+          >
+            Sort by Oldest
+          </li>
+        </ul>
+      </div>
+    </div>
     <div v-if="loading" class="row">
       <placeholder-card />
     </div>
-    <div v-if="!loading && serviceRequests.length === 0" style="text-align: center">
-      <h3>No Service Requests</h3>
+    <div v-if="!loading && serviceRequests.length === 0" class="noRequests">
+      <h3>No Service Requests Found</h3>
     </div>
     <div v-else>
-      <div id="filter">
-        <div class="dropdown me-2">
-          <button
-            class="btn drop dropdown-toggle rounded-pill"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {{ selectedSortOption }}
-          </button>
-          <ul class="dropdown-menu">
-            <li
-              class="dropdown-item"
-              :class="{ active: selectedSortOption === 'Sort by Newest' }"
-              @click="selectSortOption('Sort by Newest')"
-            >
-              Sort by Newest
-            </li>
-            <li
-              class="dropdown-item"
-              :class="{ active: selectedSortOption === 'Sort by Oldest' }"
-              @click="selectSortOption('Sort by Oldest')"
-            >
-              Sort by Oldest
-            </li>
-          </ul>
-        </div>
-        <div class="dropdown">
-          <button
-            class="btn drop dropdown-toggle rounded-pill"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {{ selectedCategoryOption }}
-          </button>
-          <ul class="dropdown-menu">
-            <li
-              class="dropdown-item"
-              :class="{ active: selectedCategoryOption === 'All categories' }"
-              @click="selectCategoryOption('All categories')"
-            >
-              All categories
-            </li>
-            <div v-for="category in categories" :key="category">
-              <li
-                class="dropdown-item"
-                :class="{ active: selectedCategoryOption === category }"
-                @click="selectCategoryOption(category)"
-              >
-                {{ category }}
-              </li>
-            </div>
-          </ul>
-        </div>
-      </div>
       <div class="row">
         <div
           class="col-xl-3 col-lg-3 col-md-6 col-sm-6"
@@ -211,6 +258,13 @@ li {
   font-size: 30px;
 }
 
+.noRequests {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
 @media (max-width: 500px) {
   #filter {
     flex-direction: column;
@@ -219,6 +273,14 @@ li {
 
   .dropdown {
     margin-bottom: 8px;
+  }
+
+  .drop {
+    width: 100%;
+  }
+
+  .dropdown-menu {
+    width: 100%;
   }
 
   .fab {

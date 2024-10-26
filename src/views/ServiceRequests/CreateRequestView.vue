@@ -1,24 +1,40 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-
+import { useAuthStore } from '../../stores/auth'
 import RequestService from '../../services/RequestService'
-import { auth } from '../../firebaseConfig'
 import { serverTimestamp } from 'firebase/firestore'
+import useVuelidate from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
 
 const router = useRouter()
+const authStore = useAuthStore()
 const title = ref('')
 const description = ref('')
 const location = ref('')
 const category = ref('')
 const image = ref(null)
+const userData = computed(() => authStore.user)
+
+const rules = {
+  title: { required },
+  description: { required },
+  location: { required },
+  category: { required },
+  image: { required }
+}
+const v$ = useVuelidate(rules, { title, description, location, category, image })
 
 function handleFileChange(event) {
   image.value = event.target.files[0]
 }
 
 async function createRequest() {
-  const user = auth.currentUser
+  await v$.value.$touch()
+  if (v$.value.$invalid) {
+    console.log(v$.value.title)
+    return
+  }
 
   const fields = {
     title: title.value,
@@ -26,7 +42,7 @@ async function createRequest() {
     location: location.value,
     category: category.value,
     status: 'Open',
-    userId: user.uid,
+    userId: userData.value.uid,
     timestamp: serverTimestamp()
   }
 
@@ -34,8 +50,6 @@ async function createRequest() {
 
   if (result.success) {
     router.push('/request/' + result.id)
-  } else {
-    alert(`Failed to create request: ${result.error}`)
   }
 }
 </script>
@@ -45,7 +59,9 @@ async function createRequest() {
     <h3 class="header">Service Request Form</h3>
     <p class="secondary">We just need a few details about your request</p>
     <div class="formgroup">
-      <label for="title" class="form-label">Give your required service request a title</label>
+      <label for="title" class="form-label" :class="{ 'is-invalid': v$.title.$error }">
+        Give your required service request a title
+      </label>
       <input
         type="text"
         id="title"
@@ -53,10 +69,16 @@ async function createRequest() {
         placeholder="Looking for air-con service man"
         aria-label="title"
         v-model="title"
+        :class="{ 'is-invalid': v$.title.$error }"
       />
+      <div v-if="v$.title.$error" class="invalid-feedback">
+        <span>Title is required.</span>
+      </div>
     </div>
     <div class="formgroup">
-      <label for="description" class="form-label">What do you need help with?</label>
+      <label for="description" class="form-label" :class="{ 'is-invalid': v$.description.$error }"
+        >What do you need help with?</label
+      >
       <textarea
         class="form-control"
         id="description"
@@ -64,10 +86,17 @@ async function createRequest() {
         aria-label="description"
         placeholder="I need..."
         v-model="description"
+        :class="{ 'is-invalid': v$.description.$error }"
       ></textarea>
+      <div v-if="v$.description.$error" class="invalid-feedback">
+        <span>Description is required.</span>
+      </div>
     </div>
+
     <div class="formgroup">
-      <label for="location" class="form-label">Provide your general location</label>
+      <label for="location" class="form-label" :class="{ 'is-invalid': v$.location.$error }"
+        >Provide your general location</label
+      >
       <input
         type="text"
         id="location"
@@ -75,25 +104,44 @@ async function createRequest() {
         placeholder="Ang Mo Kio"
         aria-label="location"
         v-model="location"
+        :class="{ 'is-invalid': v$.location.$error }"
       />
+      <div v-if="v$.location.$error" class="invalid-feedback">
+        <span>Location is required.</span>
+      </div>
     </div>
     <div class="formgroup">
-      <label for="category" class="form-label">Which category fits your required service?</label>
-      <select class="form-select" id="category" aria-label="category" v-model="category">
+      <label for="category" class="form-label" :class="{ 'is-invalid': v$.category.$error }"
+        >Which category fits your required service?</label
+      >
+      <select
+        class="form-select"
+        id="category"
+        aria-label="category"
+        v-model="category"
+        :class="{ 'is-invalid': v$.category.$error }"
+      >
         <option disabled selected hidden>Select Category</option>
         <option value="Installation">Installation</option>
         <option value="Repair">Repair</option>
       </select>
+      <div v-if="v$.category.$error" class="invalid-feedback">
+        <span>Location is required.</span>
+      </div>
     </div>
     <div class="formgroup">
-      <label for="image" class="form-label">Attach images of your issue</label>
+      <label for="image" class="form-label" :class="{ 'is-invalid': v$.image.$error }">Attach a image of your issue</label>
       <input
         class="form-control"
         type="file"
         id="image"
         accept="image/*"
+        :class="{ 'is-invalid': v$.image.$error }"
         @change="handleFileChange"
       />
+      <div v-if="v$.image.$error" class="invalid-feedback">
+        <span>Image is required.</span>
+      </div>
     </div>
     <div class="submit-button">
       <button class="btn btn-dark" @click="createRequest()">Submit Request</button>
@@ -125,7 +173,7 @@ async function createRequest() {
 }
 
 label {
-  font-weight: bold;
+  font-weight: 500;
 }
 
 .form-control:focus {
@@ -140,5 +188,15 @@ label {
 .submit-button {
   margin-top: 16px;
   text-align: right;
+}
+
+.is-invalid {
+  border-color: red;
+  color: red;
+}
+
+.invalid-feedback {
+  color: red;
+  font-size: 0.875rem;
 }
 </style>
