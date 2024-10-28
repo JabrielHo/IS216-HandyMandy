@@ -20,6 +20,11 @@ const locations = ref([])
 const isLoggedIn = computed(() => authStore.user !== null)
 const loading = ref(true)
 
+// Pagination state
+const currentPage = ref(1)
+const itemsPerPage = ref(8)
+const totalItems = ref(0)
+
 function selectSortOption(option) {
   selectedSortOption.value = option
   fetchServiceRequests()
@@ -44,10 +49,12 @@ async function fetchServiceRequests() {
   const result = await RequestService.getAllServiceRequests(
     selectedSortOption.value,
     selectedCategoryOption.value,
-    selectedLocationOption.value
+    selectedLocationOption.value,
+    currentPage.value,
+    itemsPerPage.value
   )
 
-  const requestPromises = result.map((item) => {
+  const requestPromises = result.items.map((item) => {
     return UserService.getUserData(item.userId).then((userData) => {
       item.name = userData.username
       item.profilePicture = userData.profilePicture
@@ -57,6 +64,7 @@ async function fetchServiceRequests() {
 
   Promise.all(requestPromises).then((loadedData) => {
     serviceRequests.value = loadedData
+    totalItems.value = result.totalItems
     loading.value = false
   })
 }
@@ -73,6 +81,11 @@ async function populateLocationFilter() {
   result.map((item) => {
     locations.value.push(item)
   })
+}
+
+function changePage(page) {
+  currentPage.value = page
+  fetchServiceRequests()
 }
 
 onMounted(() => {
@@ -198,6 +211,27 @@ onMounted(() => {
           <ServiceRequestCard :serviceRequest="serviceRequest" />
         </div>
       </div>
+      <nav aria-label="pagination" class="d-flex justify-content-end">
+        <ul class="pagination">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" @click="changePage(currentPage - 1)">Previous</a>
+          </li>
+          <li
+            class="page-item"
+            v-for="page in Math.ceil(totalItems / itemsPerPage)"
+            :key="page"
+            :class="{ active: currentPage === page }"
+          >
+            <a class="page-link" @click="changePage(page)">{{ page }}</a>
+          </li>
+          <li
+            class="page-item"
+            :class="{ disabled: currentPage === Math.ceil(totalItems / itemsPerPage) }"
+          >
+            <a class="page-link" @click="changePage(currentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </template>
@@ -263,6 +297,27 @@ li {
   justify-content: center;
   align-items: center;
   height: 50vh;
+}
+
+/* Pagination Styles */
+.pagination .page-item .page-link {
+  color: black; /* Default link color */
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #6c757d;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #f0eeee; /* Active page background color */
+  border-color: lightgray; /* Active page border color */
+  color: black; /* Active page text color */
+}
+
+.pagination .page-item .page-link:hover {
+  background-color: #f0eeee; /* Hover background color */
+  border-color: lightgray; /* Hover border color */
+  color: black; /* Hover text color */
 }
 
 @media (max-width: 500px) {

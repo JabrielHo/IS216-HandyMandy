@@ -13,7 +13,7 @@ import {
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 class RequestService {
-  async getAllServiceRequests(sortOption, categoryOption, locationOption) {
+  async getAllServiceRequests(sortOption, categoryOption, locationOption, page, itemsPerPage) {
     let q = query(collection(db, 'requests'), where('status', '==', 'Open'))
 
     if (categoryOption !== 'All categories') {
@@ -31,11 +31,15 @@ class RequestService {
     }
 
     const querySnapshot = await getDocs(q)
-    const result = querySnapshot.docs.map((doc) => ({
+    const totalItems = querySnapshot.size
+    const startAt = (page - 1) * itemsPerPage
+    const endAt = startAt + itemsPerPage
+
+    const result = querySnapshot.docs.slice(startAt, endAt).map((doc) => ({
       ...doc.data()
     }))
 
-    return result
+    return { items: result, totalItems }
   }
 
   async getServiceRequest(requestId) {

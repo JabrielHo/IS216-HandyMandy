@@ -37,10 +37,10 @@ async function createRequest() {
   }
 
   const fields = {
-    title: title.value,
-    description: description.value,
-    location: location.value,
-    category: category.value,
+    title: title.value.trim(),
+    description: description.value.trim(),
+    location: location.value.trim(),
+    category: category.value.trim(),
     status: 'Open',
     userId: userData.value.uid,
     timestamp: serverTimestamp()
