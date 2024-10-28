@@ -54,21 +54,31 @@ const router = useRouter();
 const auth = getAuth(); // Initialize Firebase Auth
 
 const handleSubmit = async () => {
+  if (!email.value || !password.value) {
+    alert('Please fill in both email and password fields.');
+    return;
+  }
+
   try {
-    const methods = await fetchSignInMethodsForEmail(auth, email.value);
-    if (methods.length === 0) {
-      alert('No account found with this email. Please create an account first.');
-      router.push({ name: 'register' });
-      return;
-    }
-    
-    await signInWithEmailAndPassword(auth, email.value, password.value);
+    // Directly attempt sign-in with email and password
+    await signInWithEmailAndPassword(auth, email.value.toLowerCase(), password.value);
     router.push({ name: 'home' });
   } catch (error) {
-    console.error('Error during sign in:', error);
-    alert(error.message);
+    console.error('Error during direct sign in:', error);
+
+    if (error.code === 'auth/user-not-found') {
+      alert('No account found with this email. Please create an account first.');
+      router.push({ name: 'register' });
+    } else if (error.code === 'auth/wrong-password') {
+      alert('Incorrect password. Please try again.');
+    } else {
+      alert('An error occurred. Please try again.');
+    }
   }
 };
+
+
+
 
 const loginWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
