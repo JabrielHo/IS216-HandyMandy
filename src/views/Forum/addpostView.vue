@@ -2,7 +2,7 @@
 import { ref, defineEmits, onMounted } from 'vue';
 import { useRouter } from 'vue-router'; // Import the router
 import { db, auth } from '../../firebaseConfig'; // Ensure you have your Firebase configuration set up
-import { addDoc, collection } from 'firebase/firestore'; // Import addDoc and collection
+import { addDoc, collection, doc, getDoc } from 'firebase/firestore'; // Import addDoc and collection
 import { onAuthStateChanged } from 'firebase/auth'; // Import for authentication state
 
 const emit = defineEmits();
@@ -37,28 +37,38 @@ async function submitPost() {
     return;
   }
 
-  const newPost = {
-    username: currentUser.value.displayName || 'Anonymous', // Use display name or fallback
-    location: 'UserLocation', // Replace with actual location if available
-    time: new Date().toLocaleString(), // Use a dynamic timestamp
-    userImage: currentUser.value.photoURL || 'path_to_image', // Use user's photoURL or fallback
-    title: title.value,
-    content: description.value,
-    likes: 0,
-    dislikes: 0,
-    comments: 0,
-    liked: false,
-    category: category.value,
-  };
-
   try {
-    // Add the new post to Firestore and get the generated document reference
+    // Fetch user data from Firestore
+    const userDoc = await getDoc(doc(db, "users", currentUser.value.uid));
+    
+    if (!userDoc.exists()) {
+      console.error("User not found in Firestore");
+      alert('User data not found. Please try again.');
+      return;
+    }
+
+    const userData = userDoc.data();
+    
+    const newPost = {
+      username: userData.username || 'Anonymous', // Use display name or fallback
+      userId: currentUser.value.uid,
+      location: 'UserLocation', // Replace with actual location if available
+      time: new Date().toLocaleString(), // Use a dynamic timestamp
+      userImage: userData.profilePicture || 'path_to_image', // Use user's photoURL or fallback
+      title: title.value,
+      content: description.value,
+      likes: 0,
+      dislikes: 0,
+      comments: 0,
+      liked: false,
+      category: category.value,
+    };
+
+    // Add the new post to Firestore
     const docRef = await addDoc(collection(db, "posts"), newPost);
     
-    // Optionally, if you want to store the generated ID in the newPost object:
     newPost.id = docRef.id; // Assign the generated ID to newPost (if needed)
 
-    // Emit the new post to the parent component
     emit('add-post', newPost);
 
     // Reset the form fields
@@ -109,7 +119,7 @@ async function submitPost() {
       </select>
     </div>
     <div class="submit-button">
-      <button class="btn btn-dark" @click="submitPost">Submit Request</button>
+      <button class="btn btn-dark" @click="submitPost">Create Post</button>
     </div>
   </div>
 </template>
