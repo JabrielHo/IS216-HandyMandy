@@ -28,9 +28,12 @@ const authStore = useAuthStore()
 const isLoaded = ref(false)
 const userData = computed(() => authStore.user)
 
+let unsubscribeChatRooms = null
+let unsubscribeChatRoom = null
+
 async function fetchUserChatRooms(uid) {
   const q = query(collection(db, 'chatRoom'), orderBy('createdAt', 'desc'))
-  onSnapshot(q, (querySnapshot) => {
+  unsubscribeChatRooms = onSnapshot(q, (querySnapshot) => {
     if (querySnapshot.empty) {
       isLoaded.value = true
       chatRooms.value = []
@@ -99,7 +102,7 @@ async function populateInbox(uid, requestId, id) {
 
 async function fetchChatRoom(id) {
   const q = doc(db, 'chatRoom', id)
-  onSnapshot(q, async (docSnap) => {
+  unsubscribeChatRoom = onSnapshot(q, async (docSnap) => {
     if (docSnap.exists()) {
       const chatData = docSnap.data()
       selectedChatRoom.value = chatData
@@ -164,6 +167,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
+  if (unsubscribeChatRooms) unsubscribeChatRooms()
+  if (unsubscribeChatRoom) unsubscribeChatRoom()
 })
 </script>
 
@@ -175,7 +180,7 @@ onUnmounted(() => {
         <hr style="margin-bottom: 0px" />
         <div v-if="isLoaded">
           <div v-if="chatRooms.length === 0" class="spinner-container">
-            <p>No chat rooms found.</p>
+            <h5>No chat rooms found.</h5>
           </div>
           <div v-else>
             <div v-if="isMobile">
