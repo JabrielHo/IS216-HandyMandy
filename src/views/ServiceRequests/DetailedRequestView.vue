@@ -3,9 +3,11 @@ import { onMounted, ref, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { computed } from 'vue'
-
+import { db } from '../../firebaseConfig'
+import { collection, query, where, getDocs, setDoc, Timestamp, doc } from 'firebase/firestore'
 import RequestService from '../../services/RequestService'
 import UserService from '../../services/UserService'
+import PlaceholderDetailedRequestView from '@/components/PlaceholderDetailedRequestView.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -46,11 +48,15 @@ async function fetchUserData(userId) {
 
 async function initializeMap(x, y) {
   await nextTick()
-  const map = L.map('map').setView([x, y], 13)
+  const map = L.map('map', {
+    dragging: false,
+    scrollWheelZoom: false,
+    zoomControl: false
+  }).setView([x, y], 13)
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map)
-
+  map.doubleClickZoom.disable()
   L.marker([x, y]).addTo(map)
 }
 
@@ -72,6 +78,7 @@ async function getCoordinates(location) {
     console.error('There has been a problem with your fetch operation:', error)
   }
 }
+
 function formatDate(timestamp) {
   let msgDate
   if (timestamp && timestamp.seconds) {
@@ -90,6 +97,50 @@ function formatDate(timestamp) {
     .replace(',', '')
 }
 
+async function createChat() {
+  const currentUserId = userData.value.uid
+  const requestUserId = serviceRequest.value.userId
+  const requestId = route.params.id
+
+  const chatRoomRef = collection(db, 'chatRoom')
+  const q = query(
+    chatRoomRef,
+    where('userId', '==', currentUserId),
+    where('requestUserId', '==', requestUserId),
+    where('requestId', '==', requestId)
+  )
+  const querySnapshot = await getDocs(q)
+
+  let chatRoomId
+
+  if (querySnapshot.empty) {
+    const newChatRoomRef = doc(chatRoomRef)
+    await setDoc(newChatRoomRef, {
+      id: newChatRoomRef.id,
+      userId: currentUserId,
+      requestUserId: requestUserId,
+      requestId: requestId,
+      messages: [
+        {
+          msg:
+            'Hello, I would like to discuss my service request titled "' +
+            serviceRequest.value.title +
+            '". Could you please assist me with it?',
+          senderId: requestUserId,
+          timestamp: Timestamp.now(),
+          type: 'text'
+        }
+      ],
+      createdAt: Timestamp.now()
+    })
+    chatRoomId = newChatRoomRef.id
+  } else {
+    chatRoomId = querySnapshot.docs[0].id
+  }
+
+  router.push({ name: 'chatView', params: { chatRoomId } })
+}
+
 onMounted(async () => {
   // Fetch Data
   await fetchServiceRequest(route.params.id)
@@ -98,13 +149,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container">
+  <section class="container mt-2">
     <div v-if="loading">
-      <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
+      <PlaceholderDetailedRequestView></PlaceholderDetailedRequestView>
     </div>
     <div v-else>
       <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
@@ -114,16 +161,10 @@ onMounted(async () => {
         </ol>
       </nav>
       <div class="row">
-        <div
-          class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center column rounded-start"
-        >
-          <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img" />
+        <div class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center column">
+          <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded" />
         </div>
-        <div
-          class="col-md-6 col-sm-12 mt-3 mt-md-0 rounded-end"
-          id="map"
-          style="height: 400px"
-        ></div>
+        <div class="col-md-6 col-sm-12 mt-3 mt-md-0 rounded" id="map" style="height: 400px"></div>
       </div>
       <div class="row">
         <div class="col-md-8 col-sm-12 col-lg-8 mt-3 order-md-first">
@@ -159,14 +200,12 @@ onMounted(async () => {
                 <span class="location">{{ serviceRequest.location }}</span>
               </div>
             </div>
-            <button type="button" class="btn btn-danger" style="font-weight: bold" @click="chat">
-              Chat
-            </button>
+            <button type="button" class="btn btn-danger" @click="createChat">Chat</button>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
@@ -181,6 +220,7 @@ onMounted(async () => {
     max-width: 300px;
   }
 }
+
 .contain {
   display: flex;
   gap: 50px;
@@ -200,10 +240,6 @@ onMounted(async () => {
   color: blue;
   text-decoration: underline;
   cursor: pointer;
-}
-
-.column {
-  background-color: lightgray;
 }
 
 .title {

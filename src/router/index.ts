@@ -47,13 +47,11 @@ const router = createRouter({
       path: '/personalProfile_ExternalPOV',
       name: 'personalProfile_ExternalPOV',
       component: () => import('../views/ProfilePage/personalProfile_ExternalPOV.vue')
-      // meta: { requiresAuth: true }
     },
     {
       path: '/plumbing',
       name: 'plumbing',
-      component: () => import('../views/ProfilePage/plumbing.vue'),
-      // meta: { requiresAuth: true }
+      component: () => import('../views/ProfilePage/plumbing.vue')
     },
     {
       path: '/forum',
@@ -75,18 +73,25 @@ const router = createRouter({
       name: 'detailedRequest',
       component: () => import('../views/ServiceRequests/DetailedRequestView.vue')
     },
-    // router/index.js
     {
       path: '/post/:postId',
       name: 'individualPostView',
       component: () => import('../views/Forum/individualPost.vue'),
-      props: true, 
+      props: true
     },
-    // {
-    //   path: '/inbox',
-    //   name: 'inbox',
-    //   component: () => import('../views/Inbox/ChatView.vue')
-    // }
+    {
+      path: '/inbox',
+      name: 'inbox',
+      component: () => import('../views/Inbox/ChatView.vue')
+      // meta: { requiresAuth: true }
+    },
+    {
+      path: '/inbox/:chatRoomId',
+      name: 'chatView',
+      component: () => import('../views/Inbox/ChatView.vue'),
+      props: true
+      // meta: { requiresAuth: true }
+    }
   ]
 })
 
