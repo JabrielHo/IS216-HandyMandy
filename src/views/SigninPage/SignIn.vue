@@ -22,10 +22,12 @@
         </div>
         <div class="form-group" style="position: relative;">
           <label for="password">Password</label>
-          <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" required />
-          <span class="password-toggle" @click="togglePasswordVisibility">
-            <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-          </span>
+          <div class="input-container">
+            <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" required />
+            <button type="button" class="password-toggle" @click="togglePasswordVisibility">
+              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
         </div>
         <button type="submit" class="signin-button">Sign in</button>
       </form>
@@ -41,7 +43,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { getAuth, signInWithEmailAndPassword, fetchSignInMethodsForEmail, GoogleAuthProvider, signInWithPopup} from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, fetchSignInMethodsForEmail, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 
@@ -243,14 +245,25 @@ input:focus {
   color: #6c757d;
 }
 
+.input-container {
+  display: flex;
+  align-items: center; /* Vertically center content */
+  position: relative;
+}
+
 .password-toggle {
   position: absolute;
-  top: 50%;
   right: 10px;
-  transform: translateY(-50%);
-  cursor: pointer;
+  /* Adjusts the vertical position */
+  background: none;
+  border: none;
   color: #6c757d;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
 }
+
 
 .form-options {
   display: flex;
@@ -264,26 +277,33 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white; /* Change background to white */
-  color: #4285f4; /* Change text color to Google blue */
-  border: 2px solid #4285f4; /* Add a border for visibility */
+  background-color: white;
+  /* Change background to white */
+  color: #4285f4;
+  /* Change text color to Google blue */
+  border: 2px solid #4285f4;
+  /* Add a border for visibility */
   border-radius: 6px;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
-  margin: 0 auto; /* Center the button horizontally */
-  width: 100%; /* Optional: make button full width */
-  max-width: 300px; /* Optional: set a max width for the button */
+  margin: 0 auto;
+  /* Center the button horizontally */
+  width: 100%;
+  /* Optional: make button full width */
+  max-width: 300px;
+  /* Optional: set a max width for the button */
 }
 
 .google-button:hover {
-  background-color: #f1f1f1; /* Light gray background on hover */
-  transform: translateY(-2px); /* Slight lift effect */
+  background-color: #f1f1f1;
+  /* Light gray background on hover */
+  transform: translateY(-2px);
+  /* Slight lift effect */
 }
 
-.icon-image{
+.icon-image {
   width: 30px;
 }
-
 </style>

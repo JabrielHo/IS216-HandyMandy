@@ -29,13 +29,18 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; 
+import { getAuth } from 'firebase/auth';
 
 const route = useRoute();
 const postId = route.params.postId;
 const post = ref(null);
-const comments = ref([]); 
+const comments = ref([]);
+const newCommentContent = ref(''); // Track the new comment content
+const likeCount = ref(0); // Initialize likeCount (you can adjust this based on your post data)
+const auth = getAuth();
+const user = auth.currentUser;
 
 onMounted(async () => {
     await fetchPost();
@@ -63,10 +68,17 @@ async function fetchComments() {
         const q = query(commentsRef, where('postID', '==', postId));
         const querySnapshot = await getDocs(q);
 
-        const commentPromises = querySnapshot.docs.map(async (doc) => {
-            const commentData = { id: doc.id, ...doc.data() };
-            const username = await fetchUsername(commentData.userId); 
-            return { ...commentData, username }; 
+        // Sort comments by timestamp in descending order
+        const sortedComments = querySnapshot.docs
+            .map((doc) => {
+                const commentData = { id: doc.id, ...doc.data() };
+                return commentData;
+            })
+            .sort((a, b) => b.timestamp - a.timestamp); // Sort by timestamp (descending)
+
+        const commentPromises = sortedComments.map(async (commentData) => {
+            const username = await fetchUsername(commentData.userId);
+            return { ...commentData, username };
         });
 
         comments.value = await Promise.all(commentPromises);
@@ -92,7 +104,42 @@ async function fetchUsername(userId: string): Promise<string> {
         return 'Anonymous';
     }
 }
+
+// <!-- // Add a new comment to Firestore -->
+async function addComment() {
+    // Check if the user is logged in
+    const user = auth.currentUser;
+
+    if (!user) {
+        alert('You must be logged in to comment.'); // Alert if the user is not logged in
+        return;
+    }
+
+    if (newCommentContent.value.trim() === '') {
+        alert('Comment cannot be empty!'); // Alert if the comment is empty
+        return;
+    }
+
+    try {
+        // Add the comment to Firestore
+        await addDoc(collection(db, 'comments'), {
+            content: newCommentContent.value,
+            postID: postId,
+            userId: user.uid, // Use the current user's ID
+            timestamp: new Date(),
+        });
+
+        newCommentContent.value = ''; // Clear the textarea after submission
+        await fetchComments(); // Fetch updated comments
+    } catch (error) {
+        console.error('Error adding comment:', error);
+    }
+}
+
+
 </script>
+
+
 
 
 <style scoped>
@@ -223,7 +270,7 @@ textarea {
 button {
     margin-top: 15px;
     padding: 10px 20px;
-    background-color: #28a745;
+    background-color: #FF7043;
     color: white;
     border: none;
     border-radius: 5px;
@@ -233,7 +280,7 @@ button {
 }
 
 button:hover {
-    background-color: #218838;
+    background-color: #ff6f439b;
 }
 
 /* Responsive Design */
