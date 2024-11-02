@@ -1,19 +1,23 @@
 <script setup>
 import { ref } from 'vue'
 
-const n = 12
+const n = 8
 const cards = ref(Array(n).fill({}))
 </script>
 
 <template>
-  <div class="col-xl-3 col-lg-3 col-md-6 pt-4" v-for="(card, index) in cards" :key="index">
+  <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6" v-for="(card, index) in cards" :key="index">
     <div class="card placeholder-card">
-      <div class="userInfo">
-        <div class="placeholder-img rounded-circle me-2"></div>
-        <div class="placeholder-text name"></div>
+      <div class="placeholder-glow">
+        <div class="placeholder w-100" style="height: 200px"></div>
       </div>
       <div class="card-body">
-        <div class="placeholder-badge mb-2 me-1"></div>
+        <div class="userInfo">
+          <div class="placeholder-img rounded-circle me-2"></div>
+          <div class="placeholder-text name"></div>
+        </div>
+        <hr />
+        <div class="placeholder-badge title mb-2 me-1"></div>
         <div class="placeholder-text title"></div>
       </div>
     </div>
@@ -22,7 +26,6 @@ const cards = ref(Array(n).fill({}))
 
 <style scoped>
 .placeholder-card {
-  padding: 8px;
   margin-bottom: 16px;
 }
 
@@ -48,30 +51,12 @@ const cards = ref(Array(n).fill({}))
   width: 80%;
 }
 
-.card {
-  padding: 8px;
-  margin-bottom: 16px;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
-}
-
 .card-body {
-  margin-top: 8px;
-  padding-bottom: 0;
+  padding: 16px;
 }
 
 .userInfo {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
-}
-
-.name {
-  font-size: 14px;
-  line-height: 22px;
-  font-weight: 600;
 }
 </style>

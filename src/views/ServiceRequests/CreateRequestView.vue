@@ -56,7 +56,7 @@ async function createRequest() {
 
 <template>
   <div class="container">
-    <h3 class="header">Service Request Form</h3>
+    <h4>Service Request Form</h4>
     <p class="secondary">We just need a few details about your request</p>
     <div class="formgroup">
       <label for="title" class="form-label" :class="{ 'is-invalid': v$.title.$error }">
@@ -159,10 +159,6 @@ async function createRequest() {
 }
 
 .header {
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  font-size: 1.5rem;
-  line-height: 2rem;
 }
 
 .secondary {

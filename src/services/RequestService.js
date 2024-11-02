@@ -16,11 +16,11 @@ class RequestService {
   async getAllServiceRequests(sortOption, categoryOption, locationOption, page, itemsPerPage) {
     let q = query(collection(db, 'requests'), where('status', '==', 'Open'))
 
-    if (categoryOption !== 'All categories') {
+    if (categoryOption !== 'All Categories') {
       q = query(q, where('category', '==', categoryOption))
     }
 
-    if (locationOption !== 'All locations') {
+    if (locationOption !== 'All Locations') {
       q = query(q, where('location', '==', locationOption))
     }
 
@@ -101,6 +101,14 @@ class RequestService {
     } catch (error) {
       return { success: false, error: error.message }
     }
+  }
+
+  async closeServiceRequest(requestId) {
+    const requestRef = doc(db, 'requests', requestId)
+    await updateDoc(requestRef, {
+      status: 'Closed'
+    })
+    return true
   }
 }
 

@@ -28,12 +28,9 @@ const authStore = useAuthStore()
 const isLoaded = ref(false)
 const userData = computed(() => authStore.user)
 
-let unsubscribeChatRooms = null
-let unsubscribeChatRoom = null
-
 async function fetchUserChatRooms(uid) {
   const q = query(collection(db, 'chatRoom'), orderBy('createdAt', 'desc'))
-  unsubscribeChatRooms = onSnapshot(q, (querySnapshot) => {
+  onSnapshot(q, (querySnapshot) => {
     if (querySnapshot.empty) {
       isLoaded.value = true
       chatRooms.value = []
@@ -102,7 +99,7 @@ async function populateInbox(uid, requestId, id) {
 
 async function fetchChatRoom(id) {
   const q = doc(db, 'chatRoom', id)
-  unsubscribeChatRoom = onSnapshot(q, async (docSnap) => {
+  onSnapshot(q, async (docSnap) => {
     if (docSnap.exists()) {
       const chatData = docSnap.data()
       selectedChatRoom.value = chatData
@@ -120,9 +117,10 @@ async function handleSendMessage(message) {
       const data = docSnap.data()
       const messagesArray = data.messages || []
       const newMessage = {
-        msg: message,
+        msg: message.content,
         senderId: myUserId.value,
-        timestamp: Timestamp.now()
+        timestamp: Timestamp.now(),
+        type: message.type
       }
       messagesArray.push(newMessage)
 
@@ -135,6 +133,11 @@ async function handleSendMessage(message) {
   }
 }
 
+async function handleCloseStatus(requestId) {
+  await RequestService.closeServiceRequest(requestId)
+  serviceRequest.value.status = 'Closed'
+}
+
 const selectChatRoom = (id, userData) => {
   selectedUserData.value = userData
   selectedChatId.value = id
@@ -142,7 +145,7 @@ const selectChatRoom = (id, userData) => {
 }
 
 const checkScreenSize = () => {
-  isMobile.value = window.innerWidth <= 768
+  isMobile.value = window.innerWidth <= 991
 }
 
 onMounted(() => {
@@ -167,15 +170,13 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
-  if (unsubscribeChatRooms) unsubscribeChatRooms()
-  if (unsubscribeChatRoom) unsubscribeChatRoom()
 })
 </script>
 
 <template>
-  <div class="container">
+  <div class="container my-2">
     <div class="row">
-      <div class="col-lg-4 col-12 column">
+      <div class="col-lg-4 col-12 column-right">
         <h3 class="header">Inbox</h3>
         <hr style="margin-bottom: 0px" />
         <div v-if="isLoaded">
@@ -228,7 +229,7 @@ onUnmounted(() => {
                 />
                 <div class="text-container">
                   <span class="name">{{ chatRoom.username }}</span>
-                  <span class="title">Request: {{ chatRoom.title }}</span>
+                  <span class="title">Status: {{ chatRoom.status }} {{ chatRoom.title }}</span>
                 </div>
               </li>
             </ul>
@@ -250,6 +251,7 @@ onUnmounted(() => {
             :isLoaded="isLoaded"
             :myUserId="myUserId"
             @sendMessage="handleSendMessage"
+            @closeStatus="handleCloseStatus"
           />
         </div>
         <div v-else class="spinner-container">
@@ -263,9 +265,23 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.column {
+.dropdown-menu {
+  max-height: 300px; /* Adjust the height as needed */
+  overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.column-right {
   padding: 0;
   border-right: 1px solid lightgray;
+}
+
+.column {
+  padding: 0;
+}
+
+.list-group {
+  max-height: 72vh; /* Set maximum height for the list */
+  overflow-y: auto; /* Enable scrolling */
 }
 
 .container {
@@ -273,19 +289,6 @@ onUnmounted(() => {
   background-color: rgb(248, 248, 248);
 }
 
-@media (max-width: 767px) {
-  .column {
-    border-right: none;
-    border-bottom: 1px solid lightgray;
-  }
-  .row {
-    flex-direction: column;
-  }
-  .col-md-4,
-  .col-md-8 {
-    width: 100%;
-  }
-}
 
 .dropdown-toggle[aria-expanded='true']:after {
   transform: rotate(180deg);
@@ -294,6 +297,7 @@ onUnmounted(() => {
 .dropdown-toggle:after {
   transition: 0.1s;
 }
+
 .list-group-item {
   cursor: pointer;
   background-color: rgb(248, 248, 248);
@@ -336,9 +340,18 @@ onUnmounted(() => {
   background-color: rgb(248, 248, 248);
 }
 
-@media (max-width: 768px) {
-  .list-group {
-    display: none;
+@media (max-width: 991px) {
+  .column {
+    border-right: none;
+    border-bottom: 1px solid lightgray;
+    height: auto; /* Adjust height for mobile */
+  }
+  .row {
+    flex-direction: column;
+  }
+  .col-md-4,
+  .col-md-8 {
+    width: 100%;
   }
 }
 

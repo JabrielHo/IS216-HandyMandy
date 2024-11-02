@@ -127,7 +127,8 @@ async function createChat() {
             serviceRequest.value.title +
             '". Could you please assist me with it?',
           senderId: requestUserId,
-          timestamp: Timestamp.now()
+          timestamp: Timestamp.now(),
+          type: 'text'
         }
       ],
       createdAt: Timestamp.now()
@@ -148,7 +149,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mt-2">
+  <section class="container mt-2">
     <div v-if="loading">
       <PlaceholderDetailedRequestView></PlaceholderDetailedRequestView>
     </div>
@@ -160,16 +161,10 @@ onMounted(async () => {
         </ol>
       </nav>
       <div class="row">
-        <div
-          class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center column rounded-start"
-        >
-          <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img" />
+        <div class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center column">
+          <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded" />
         </div>
-        <div
-          class="col-md-6 col-sm-12 mt-3 mt-md-0 rounded-end"
-          id="map"
-          style="height: 400px"
-        ></div>
+        <div class="col-md-6 col-sm-12 mt-3 mt-md-0 rounded" id="map" style="height: 400px"></div>
       </div>
       <div class="row">
         <div class="col-md-8 col-sm-12 col-lg-8 mt-3 order-md-first">
@@ -205,19 +200,12 @@ onMounted(async () => {
                 <span class="location">{{ serviceRequest.location }}</span>
               </div>
             </div>
-            <button
-              type="button"
-              class="btn btn-danger"
-              style="font-weight: bold"
-              @click="createChat"
-            >
-              Chat
-            </button>
+            <button type="button" class="btn btn-danger" @click="createChat">Chat</button>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
@@ -232,6 +220,7 @@ onMounted(async () => {
     max-width: 300px;
   }
 }
+
 .contain {
   display: flex;
   gap: 50px;
@@ -251,10 +240,6 @@ onMounted(async () => {
   color: blue;
   text-decoration: underline;
   cursor: pointer;
-}
-
-.column {
-  background-color: lightgray;
 }
 
 .title {

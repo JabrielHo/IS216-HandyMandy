@@ -17,6 +17,19 @@ function handleMouseDown(event, id) {
     window.open('/request/' + id, '_blank')
   }
 }
+
+function formatDate(timestamp) {
+  let msgDate
+  if (timestamp && timestamp.seconds) {
+    // Convert Firebase timestamp to JavaScript Date
+    msgDate = new Date(timestamp.seconds * 1000)
+  }
+  return msgDate.toLocaleString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  })
+}
 </script>
 
 <template>
@@ -25,27 +38,32 @@ function handleMouseDown(event, id) {
     @click="navigateToDetailedRequest(serviceRequest.id)"
     @mousedown="handleMouseDown($event, serviceRequest.id)"
   >
-    <div class="userInfo">
-      <img
-        :src="serviceRequest.profilePicture"
-        class="rounded-circle me-2"
-        alt="Profile Picture"
-        width="40"
-        height="40"
-      />
-      <div class="text-container">
-        <span class="name">{{ serviceRequest.name }}</span>
-        <span class="location">{{ serviceRequest.location }}</span>
-      </div>
-    </div>
     <div class="img-container">
       <img :src="serviceRequest.imgSrc" class="card-img-top standard-img" alt="Request Image" />
-      <span class="badge rounded-pill text-bg-secondary mb-2 bottom-right">{{
+      <span class="badge rounded-pill text-bg-secondary mb-2 category-badge">{{
         serviceRequest.category
       }}</span>
     </div>
+
     <div class="card-body">
-      <h6 class="truncate">{{ serviceRequest.title }}</h6>
+      <div class="userInfo">
+        <img
+          :src="serviceRequest.profilePicture"
+          class="rounded-circle me-2 profilePic"
+          alt="Profile Picture"
+          width="40"
+          height="40"
+        />
+        <div class="text-container">
+          <span class="name">{{ serviceRequest.name }}</span>
+          <span class="date">{{ formatDate(serviceRequest.timestamp) }}</span>
+        </div>
+      </div>
+      <hr class="my-2" />
+      <span class="title">{{ serviceRequest.title }}</span
+      ><br />
+      <span class="date">{{ serviceRequest.location }}</span>
+      <span class="description">{{ serviceRequest.description }}</span>
     </div>
   </div>
 </template>
@@ -62,7 +80,7 @@ function handleMouseDown(event, id) {
   position: relative;
 }
 
-.bottom-right {
+.category-badge {
   position: absolute;
   bottom: 1px;
   right: 5px;
@@ -73,14 +91,19 @@ function handleMouseDown(event, id) {
   flex-direction: column;
 }
 
-.truncate {
+.title {
+  font-size: 18px;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.profilePic {
+  border: 1px solid rgb(177, 177, 177);
+}
+
 .card {
-  padding: 8px;
   margin-bottom: 16px;
   cursor: pointer;
 }
@@ -90,14 +113,12 @@ function handleMouseDown(event, id) {
 }
 
 .card-body {
-  margin-top: 8px;
-  padding: 0 8px;
+  padding: 16px;
 }
 
 .userInfo {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .name {
@@ -105,8 +126,17 @@ function handleMouseDown(event, id) {
   font-weight: 600;
 }
 
-.location {
+.date {
   font-size: 14px;
   color: rgb(105, 105, 105);
+}
+
+.description {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

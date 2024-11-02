@@ -5,7 +5,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-md-8 col-sm-12 col-lg-8 mt-3 order-md-first">
+    <div class="col-md-8 col-sm-12 col-lg-8 mt-3">
       <h1 class="title placeholder-glow">
         <span class="placeholder col-6"></span>
       </h1>
@@ -18,26 +18,7 @@
       </span>
       <hr />
     </div>
-    <div class="col-md-4 col-sm-12 col-lg-4 mt-3 order-first">
-      <div class="card">
-        <div class="userInfo">
-          <div class="placeholder-glow">
-            <div class="placeholder rounded-circle me-2" style="width: 40px; height: 40px"></div>
-          </div>
-          <div class="text-container">
-            <span class="name placeholder-glow">
-              <span class="placeholder col-6"></span>
-            </span>
-            <span class="location placeholder-glow">
-              <span class="placeholder col-8"></span>
-            </span>
-          </div>
-        </div>
-        <button type="button" class="btn btn-danger placeholder-glow" style="font-weight: bold">
-          <span class="placeholder col-6"></span>
-        </button>
-      </div>
-    </div>
+
   </div>
 </template>
 
