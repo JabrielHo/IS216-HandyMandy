@@ -120,7 +120,7 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style scoped>
 .backgroundcard {
   display: flex;
 }
