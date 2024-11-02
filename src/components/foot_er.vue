@@ -1,60 +1,202 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+// You can add any required imports here
+</script>
 
 <template>
-  <footer class="footer pt-4 pb-5">
-    <div class="container">
-      <div class="row align-items-center">
-        <!-- Logo -->
-        <div class="col-12 col-md-4 text-center text-md-start mb-2 mb-md-0">
-          <h2 class="footer-logo">HandyMandy</h2>
-        </div>
-
-        <!-- Navigation links -->
-        <div class="col-12 col-md-8">
-          <nav class="d-flex justify-content-center justify-content-md-end">
-            <a href="#" class="footer-link mx-3">Join Us Today</a>
-            <a href="#" class="footer-link mx-3">Our Services</a>
-            <a href="#" class="footer-link mx-3">Our Location</a>
-          </nav>
-        </div>
+  <footer class="footer">
+    <div class="footer-content">
+      <!-- Logo and Description -->
+      <div class="footer-brand">
+        <h2 class="footer-logo">HandyMandy</h2>
+        <p class="footer-tagline">Your trusted partner in home solutions</p>
       </div>
 
-      <!-- Indicator section -->
+      <!-- Navigation Links -->
+      <nav class="footer-nav">
+        <div class="nav-group">
+          <h3 class="nav-title">Quick Links</h3>
+          <a href="#" class="footer-link">Join Us Today</a>
+          <a href="#" class="footer-link">Our Services</a>
+          <a href="#" class="footer-link">Our Location</a>
+        </div>
+      </nav>
+
+      <!-- Call to Action -->
+      <div class="footer-cta">
+        <button class="cta-button">Get Started</button>
+      </div>
+    </div>
+
+    <!-- Copyright Bar -->
+    <div class="footer-bottom">
+      <p>&copy; 2024 HandyMandy. All rights reserved.</p>
     </div>
   </footer>
 </template>
 
-<!-- <script>
-export default {
-  name: 'foot_er'
-}
-</script> -->
-
 <style scoped>
-/* styles.css */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
+.footer {
+  background: linear-gradient(135deg, rgba(222, 250, 231, 0.95), rgba(255, 173, 96, 0.95));
+  padding: clamp(2rem, 4vw, 4rem) 0 0 0;
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.footer {
-  background: linear-gradient(to right, #ffcccc, #ccffff);
+.footer-content {
+  width: min(95%, 1400px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: clamp(2rem, 4vw, 4rem);
+  padding: 0 clamp(1rem, 3vw, 2rem);
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .footer-logo {
-  font-size: 24px;
+  font-size: clamp(1.5rem, 3vw + 1rem, 2.5rem);
+  font-weight: 700;
+  color: #2a4338;
+  margin: 0;
+}
+
+.footer-tagline {
+  font-size: clamp(0.875rem, 1vw + 0.5rem, 1.125rem);
+  color: #2a4338;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.nav-title {
+  font-size: clamp(1rem, 1.5vw + 0.5rem, 1.25rem);
+  color: #2a4338;
+  margin: 0;
+  font-weight: 600;
 }
 
 .footer-link {
-  font-weight: bold; /* Bold text */
+  color: #2a4338;
   text-decoration: none;
-  color: black;
+  font-size: clamp(0.875rem, 1vw + 0.5rem, 1rem);
+  transition: all 0.3s ease;
+  width: fit-content;
+  position: relative;
 }
 
-/* Responsive adjustments for smaller screens */
-@media (max-width: 767px) {
-  .footer-logo {
-    margin-bottom: 10px;
+.footer-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: #8a5a00;
+  transition: width 0.3s ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.footer-cta {
+  display: flex;
+  align-items: flex-start;
+}
+
+.cta-button {
+  padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(0.875rem, 1vw + 0.5rem, 1rem);
+  background-color: #8a5a00;
+  color: white;
+  border: none;
+  border-radius: clamp(0.25rem, 0.5vw, 0.5rem);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #6d4700;
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  margin-top: clamp(2rem, 4vw, 4rem);
+  padding: 1rem;
+  text-align: center;
+  background-color: rgba(42, 67, 56, 0.1);
+  color: #2a4338;
+  font-size: clamp(0.75rem, 1vw + 0.5rem, 0.875rem);
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  .cta-button:hover {
+    transform: none;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .footer-content {
+    text-align: center;
+    gap: 2rem;
+  }
+
+  .footer-brand,
+  .nav-group {
+    align-items: center;
+  }
+
+  .footer-cta {
+    justify-content: center;
+  }
+
+  .cta-button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .footer {
+    background: linear-gradient(135deg, rgba(34, 51, 41, 0.95), rgba(138, 90, 0, 0.95));
+  }
+
+  .footer-logo,
+  .footer-tagline,
+  .nav-title,
+  .footer-link,
+  .footer-bottom {
+    color: #e0f5e9;
+  }
+
+  .footer-bottom {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .footer-link::after,
+  .cta-button {
+    transition: none;
   }
 }
 </style>

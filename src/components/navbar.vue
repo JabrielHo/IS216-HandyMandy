@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const isLoggedIn = computed(() => authStore.user !== null)
 const isLoading = computed(() => authStore.loading)
+const searchQuery = ref('')
+const isSearchExpanded = ref(false)
 
 const navigateToSignIn = () => {
-  router.push('/signin') // Navigate to the sign-in page
+  router.push('/signin')
 }
 
 const navigateToRegister = () => {
-  router.push('/register') // Navigate to the sign-in page
+  router.push('/register')
 }
 
 const logout = async () => {
@@ -24,56 +26,73 @@ const logout = async () => {
     console.error('Logout failed', error)
   }
 }
+
+const toggleSearch = () => {
+  isSearchExpanded.value = !isSearchExpanded.value
+}
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-      <!-- Logo and Search Bar -->
-      <a class="navbar-brand d-flex align-items-center" href="/">
-        <span class="ms-2">HandyMandy</span>
+  <nav class="navbar-container">
+    <div class="navbar-content">
+      <!-- Logo Section -->
+      <a href="/" class="logo-section">
+        <span class="brand-name">HandyMandy</span>
       </a>
 
-      <!-- Search Bar -->
-      <div class="input-group me-2 hide" style="flex: 1">
-        <input type="text" class="form-control" placeholder="Search for services here!" />
-        <button class="btn btn-outline-secondary" type="button">
+      <!-- Desktop Search Bar -->
+      <div class="search-section desktop-search">
+        <div class="search-bar">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search for services here!"
+            class="search-input"
+          />
+          <button class="search-button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 16 16"
+              class="search-icon"
+            >
+              <path
+                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Search Dropdown -->
+      <div class="mobile-search">
+        <button @click="toggleSearch" class="mobile-search-button">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="currentColor"
-            class="bi bi-search"
+            width="20"
+            height="20"
             viewBox="0 0 16 16"
+            class="search-icon"
           >
             <path
               d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"
             />
           </svg>
         </button>
+        <div v-show="isSearchExpanded" class="mobile-search-dropdown">
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search for services here!"
+            class="mobile-search-input"
+          />
+        </div>
       </div>
 
-      <!-- Dropdown for Search Bar -->
-      <div class="dropdown appear me-auto">
-        <button
-          class="btn btn-outline-secondary dropdown-toggle"
-          type="button"
-          id="searchDropdown"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          Search
-        </button>
-        <ul class="dropdown-menu dropdown-menu-start" aria-labelledby="searchDropdown">
-          <li class="p-2">
-            <input type="text" class="form-control" placeholder="Search for services here!" />
-          </li>
-        </ul>
-      </div>
-
-      <!-- Toggler for Mobile View -->
+      <!-- Navigation Toggle -->
       <button
-        class="navbar-toggler"
+        class="nav-toggle"
         type="button"
         data-bs-toggle="collapse"
         data-bs-target="#navbarNav"
@@ -81,74 +100,47 @@ const logout = async () => {
         aria-expanded="false"
         aria-label="Toggle navigation"
       >
-        <span class="navbar-toggler-icon"></span>
+        <span class="nav-toggle-icon"></span>
       </button>
 
-      <!-- Navbar Links -->
+      <!-- Navigation Links -->
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/services">Services</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/requests">Requests</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/">Workshops</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/Forum">Forum</a>
-          </li>
+        <ul class="nav-links">
+          <li><a href="/" class="nav-link active">Home</a></li>
+          <li><a href="/services" class="nav-link">Services</a></li>
+          <li><a href="/requests" class="nav-link">Requests</a></li>
+          <li><a href="/" class="nav-link">Workshops</a></li>
+          <li><a href="/Forum" class="nav-link">Forum</a></li>
         </ul>
 
-        <!-- Sign-in and Register buttons -->
-        <div v-if="!isLoading && !isLoggedIn" class="d-none d-lg-block align-items-center ms-3">
-          <button class="btn btn-outline-secondary me-2" type="button" @click="navigateToSignIn">
-            Sign In
-          </button>
-          <button class="btn btn-dark" type="button" @click="navigateToRegister">Register</button>
-        </div>
-        <div v-if="!isLoading && isLoggedIn" class="d-none d-lg-block align-items-center ms-3">
-          <button
-            class="btn btn-dark"
-            type="button"
-            data-bs-toggle="modal"
-            data-bs-target="#logoutModal"
-          >
+        <!-- Auth Buttons -->
+        <div v-if="!isLoading" class="auth-buttons">
+          <template v-if="!isLoggedIn">
+            <button @click="navigateToSignIn" class="sign-in-button">Sign In</button>
+            <button @click="navigateToRegister" class="register-button">Register</button>
+          </template>
+          <button v-else class="logout-button" data-bs-toggle="modal" data-bs-target="#logoutModal">
             Log out
           </button>
         </div>
       </div>
-      <!--End of navbar links-->
     </div>
-    <!--End for container fluid-->
   </nav>
 
-  <div
-    class="modal fade"
-    id="logoutModal"
-    tabindex="-1"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
+  <!-- Logout Modal -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Log out?</h1>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+          <h2 class="modal-title">Log out?</h2>
+          <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close">
+            ×
+          </button>
         </div>
         <div class="modal-body">Are you sure you want to log out of your account?</div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" @click="logout">Log out</button>
+          <button type="button" class="modal-cancel" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="modal-logout" @click="logout">Log out</button>
         </div>
       </div>
     </div>
@@ -156,36 +148,253 @@ const logout = async () => {
 </template>
 
 <style scoped>
-/* Optional custom styles */
-.custom-divider {
-  width: 100%; /* Width of the divider */
-  height: 1px; /* Height of the divider */
-  background-color: rgb(0, 0, 0, 0.2); /* Color of the divider */
-  margin: 20px 15px 20px 15px; /* Space around the divider */
+.navbar-container {
+  background-color: #fff8f0;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.navbar-brand {
-  font-weight: bold;
-  font-size: 1.2rem;
+.navbar-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.input-group {
-  width: 350px; /* Adjust based on desired width */
+.logo-section {
+  text-decoration: none;
+  color: #2d2d2d;
+}
+
+.brand-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.search-section {
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.search-bar:focus-within {
+  border-color: #ff8e53;
+  box-shadow: 0 0 0 2px rgba(255, 142, 83, 0.1);
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.search-button {
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.search-button:hover {
+  color: #ff8e53;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-link {
-  margin-right: 1rem;
+  color: #2d2d2d;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem;
+  transition: color 0.2s ease;
 }
 
-@media (max-width: 880px) {
-  .hide {
-    display: none !important; /* Hide buttons on small screens */
+.nav-link:hover {
+  color: #ff8e53;
+}
+
+.nav-link.active {
+  color: #ff6b6b;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.sign-in-button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ff8e53;
+  background: none;
+  color: #ff8e53;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.sign-in-button:hover {
+  background: rgba(255, 142, 83, 0.1);
+}
+
+.register-button,
+.logout-button {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.register-button:hover,
+.logout-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+}
+
+.mobile-search {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .desktop-search {
+    display: none;
+  }
+
+  .mobile-search {
+    display: block;
+    position: relative;
+  }
+
+  .mobile-search-button {
+    padding: 0.5rem;
+    background: none;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    color: #666;
+  }
+
+  .mobile-search-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 0.5rem;
+  }
+
+  .mobile-search-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    outline: none;
   }
 }
 
-@media (min-width: 880px) {
-  .appear {
-    display: none !important; /* Show buttons on medium and larger screens */
+@media (max-width: 768px) {
+  .navbar-content {
+    flex-wrap: wrap;
   }
+
+  .nav-links {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 1rem 0;
+  }
+
+  .auth-buttons {
+    width: 100%;
+    justify-content: center;
+    padding: 1rem 0;
+  }
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+}
+
+.modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1.25rem;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  color: #666;
+}
+
+.modal-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 1.25rem;
+  gap: 0.75rem;
+}
+
+.modal-cancel {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e0e0e0;
+  background: none;
+  border-radius: 6px;
+  color: #666;
+}
+
+.modal-logout {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: #dc3545;
+  color: white;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.modal-logout:hover {
+  background: #c82333;
 }
 </style>

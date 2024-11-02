@@ -1,16 +1,26 @@
 <template>
   <div class="container-fluid spinnercontainer">
     <div class="row">
-      <div class="col-5 dropdown position-relative">
-        <h1 class="fs-1 text-primary">{{ selectedService }}</h1>
+      <div class="col-5 dropdown position-relative mx-auto">
+        <div class="container mx-auto text-center my-3">
+          <h1 class="display-4 text-primary mb-1 text-start">{{ selectedService }}</h1>
+          <h3
+            class="text-secondary text-start py-2"
+            style="line-height: 1.5; font-weight: 300; border-radius: 10px"
+          >
+            Searching for cleaning services for homes and offices? Look through our endless listings
+            to find a company that suits your cleaning needs!
+          </h3>
+        </div>
         <input
           type="text"
           v-model="typedService"
-          class="input-group-text ms-auto dropdown-toggle"
+          class="input-group-text mx-auto dropdown-toggle"
           @input="filterServices"
-          placeholder="Type a service..."
+          placeholder="Find a service!"
+          style="font-size: 2em"
         />
-        <ul class="list-group serviceDropdown" v-if="filteredServices.length > 0">
+        <ul class="list-group serviceDropdown mx-auto" v-if="filteredServices.length > 0">
           <li
             v-for="service in filteredServices"
             :key="service"
@@ -45,10 +55,14 @@
 
 <script>
 import * as d3 from 'd3'
+import maintableimage from '../../assets/table.png'
+import sidetableimage from '../../assets/Singlechair.png'
 
 export default {
   data() {
     return {
+      maintable: maintableimage,
+      sidetable: sidetableimage,
       services: [
         'plumbing',
         'electrical',
@@ -120,18 +134,6 @@ export default {
       const seatradius = 40
       const seatdistance = radius + seatradius + 10
 
-      const arc = d3
-        .arc()
-        .outerRadius(radius)
-        .innerRadius(radius * 0.4)
-
-      const pie = d3
-        .pie()
-        .sort(null)
-        .value(function (d) {
-          return d.count
-        })
-
       const svg = d3
         .select('#services')
         .append('svg')
@@ -140,13 +142,23 @@ export default {
         .append('g')
         .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
 
-      const g = svg.selectAll('.arc').data(pie(this.data)).enter().append('g')
+      // Append the circle to the SVG
+      svg
+        .append('circle')
+        .attr('cx', 0) // Center the circle on the X-axis
+        .attr('cy', 0) // Center the circle on the Y-axis
+        .attr('r', radius) // Set the radius of the circle
+        .attr('fill', 'none') // Remove the fill or set it to 'none'
 
-      g.append('path')
-        .attr('d', arc)
-        .style('fill', (d, i) => d.data.color)
-        .attr('stroke', 'black')
-        .style('stroke-width', 3)
+      // Append the image inside the circle
+      svg
+        .append('image')
+        .attr('xlink:href', this.maintable) // Use the image URL from maintable
+        .attr('x', -radius) // Set x to -radius to center the image
+        .attr('y', -radius) // Set y to -radius to center the image
+        .attr('width', radius * 2) // Match the width of the image to the circle
+        .attr('height', radius * 2) // Match the height of the image to the circle
+        .attr('preserveAspectRatio', 'xMidYMid slice') // Preserve aspect ratio
 
       // g.append('text')
       //   .attr('transform', function (d) {
@@ -167,26 +179,47 @@ export default {
         const x = seatdistance * Math.cos((angle * Math.PI) / 180) // Ensure angle is in radians
         const y = seatdistance * Math.sin((angle * Math.PI) / 180) // Ensure angle is in radians
 
-        svg
-          .append('circle')
-          .attr('cx', x)
-          .attr('cy', y)
-          .attr('r', seatradius)
-          .style('fill', this.data[i].color)
-          .style('stroke', 'black')
-          .style('stroke-width', 2)
+        // Append a circle for each data point
+        svg.append('circle').attr('cx', x).attr('cy', y).attr('r', seatradius).style('fill', 'none')
 
+        // Append an image for each data point
         svg
-          .append('text')
-          .attr('x', x)
-          .attr('y', y)
+          .append('image')
+          .attr('xlink:href', this.sidetable) // Use the image URL from sidetable
+          .attr('x', x - seatradius) // Center the image horizontally
+          .attr('y', y - seatradius) // Center the image vertically
+          .attr('width', seatradius * 2) // Match the width of the image to the circle
+          .attr('height', seatradius * 2) // Match the height of the image to the circle
+          .attr('preserveAspectRatio', 'xMidYMid slice') // Preserve aspect ratio
+
+        // Append a background rectangle for the text
+        svg
+          .append('rect')
+          .attr('x', x - 30) // Adjust size as needed
+          .attr('y', y - 10) // Adjust size as needed
           .attr('transform', function () {
             // Rotate the text based on the angle
             return `rotate(${angle + 180}, ${x}, ${y})` // Rotate around the circle's center
           })
-          .attr('dy', '0.35em')
-          .attr('text-anchor', 'middle')
+          .attr('width', 60) // Adjust width as needed
+          .attr('height', 20) // Adjust height as needed
+          .attr('fill', 'rgba(0, 0, 0, 0.7)') // Background color with transparency
+          .attr('rx', 5) // Rounded corners
+          .attr('ry', 5) // Rounded corners
+
+        // Append text for each data point in the center of the circle
+        svg
+          .append('text')
+          .attr('x', x) // Center the text horizontally
+          .attr('y', y) // Center the text vertically
+          .attr('transform', function () {
+            // Rotate the text based on the angle
+            return `rotate(${angle + 180}, ${x}, ${y})` // Rotate around the circle's center
+          })
+          .attr('dy', '0.35em') // Align the text vertically
+          .attr('text-anchor', 'middle') // Center the text horizontally
           .style('font-size', '10px')
+          .style('fill', 'white') // Set text color (adjust if necessary)
           .text(this.data[i].name)
       }
     },
@@ -290,7 +323,6 @@ export default {
 .serviceDropdown {
   position: absolute;
   top: calc(100% + 5px); /* Position below the input box */
-  left: 0; /* Align to the start of the input box */
   width: 100%; /* Match the width of the input box */
   z-index: 1000; /* Ensure dropdown is above other elements */
   background-color: white; /* Set a background color for the dropdown */
