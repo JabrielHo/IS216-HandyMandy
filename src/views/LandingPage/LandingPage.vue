@@ -72,7 +72,6 @@ import carousel from '@/components/LandingPage/carousel.vue'
   background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
-  padding: 0;
   width: 100%;
   overflow-x: hidden;
 }
@@ -84,13 +83,13 @@ import carousel from '@/components/LandingPage/carousel.vue'
 
 /* Container styles */
 .container-section {
-  margin: clamp(1rem, 3vw, 2rem) auto;
+  margin: 2rem 10%; /* Added vertical margin */
   padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
-  width: min(95%, 1400px);
+  width: auto; /* Changed from 100% to auto to respect margins */
   border-radius: clamp(1rem, 2vw, 2rem);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 1400px; /* Added max-width for very large screens */
 }
-
 .forum-section {
   background-color: rgba(222, 250, 231, 0.99);
   color: #2a4338;
