@@ -64,11 +64,6 @@ const router = createRouter({
       component: () => import('../views/Forum/individualPost.vue')
     },
     {
-      path: '/addpost',
-      name: 'addpost',
-      component: () => import('../views/Forum/addpostView.vue')
-    },
-    {
       path: '/request/:id',
       name: 'detailedRequest',
       component: () => import('../views/ServiceRequests/DetailedRequestView.vue')

@@ -80,7 +80,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs, addDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs, addDoc, Timestamp, runTransaction, increment } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
@@ -90,6 +90,7 @@ const post = ref(null);
 const comments = ref([]);
 const newCommentContent = ref('');
 const likeCount = ref(0);
+const commentCount = ref(0);
 const auth = getAuth();
 const currentUser = ref(auth.currentUser);
 const isAuthInitialized = ref(false); // Add this to track auth initialization
@@ -246,17 +247,43 @@ async function addComment() {
     }
 
     try {
-        await addDoc(collection(db, 'comments'), {
-            content: newCommentContent.value,
-            postID: postId,
-            userId: user.uid,
-            timestamp: new Date()
+        // Get post reference and data
+        const postRef = doc(db, 'posts', postId);
+        const postSnap = await getDoc(postRef);
+
+        if (!postSnap.exists()) {
+            throw new Error('Post not found');
+        }
+
+        // Start transaction to ensure comment and count update atomically
+        await runTransaction(db, async (transaction) => {
+            // Add the comment
+            const commentRef = doc(collection(db, 'comments'));
+            transaction.set(commentRef, {
+                content: newCommentContent.value,
+                postID: postId,
+                userId: user.uid,
+                timestamp: new Date()
+            });
+
+            // Increment comment count
+            transaction.update(postRef, {
+                comments: increment(1)
+            });
         });
 
+        // Clear comment input
         newCommentContent.value = '';
-        await fetchComments();
+        
+        // Refresh comments and post data
+        await Promise.all([
+            fetchComments(),
+            fetchPost() // Make sure this function exists to refresh post data
+        ]);
+
     } catch (error) {
         console.error('Error adding comment:', error);
+        alert('Failed to add comment. Please try again.');
     }
 }
 
