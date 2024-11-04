@@ -92,7 +92,16 @@ const router = createRouter({
       props: true
       // meta: { requiresAuth: true }
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    // If there is a saved position, return it (for example, when using browser back/forward)
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      // Otherwise, scroll to the top of the page
+      return { top: 0 }
+    }
+  }
 })
 
 router.beforeEach((to, from, next) => {

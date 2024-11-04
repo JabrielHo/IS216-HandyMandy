@@ -15,16 +15,22 @@
       <nav class="footer-nav">
         <div class="nav-group">
           <h3 class="nav-title">Quick Links</h3>
-          <a href="#" class="footer-link">Join Us Today</a>
-          <a href="#" class="footer-link">Our Services</a>
-          <a href="#" class="footer-link">Our Location</a>
+          <router-link to="/register" class="nav-link footer-link" active-class="active"
+            >Join Us Today</router-link
+          >
+          <router-link to="/services" class="nav-link footer-link" active-class="active"
+            >Our Services</router-link
+          >
+          <a
+            href="https://www.google.com.sg/maps/place/Singapore+Changi+Airport/@1.3513098,103.965973,14z/data=!3m2!4b1!5s0x31da17969b92192d:0x26b7e4dc37bb6d88!4m6!3m5!1s0x31da17d693d0cde3:0xd6d6dd5e414e4503!8m2!3d1.358604!4d103.9899436!16zL20vMDEydnN3?entry=ttu&g_ep=EgoyMDI0MTAyOS4wIKXMDSoASAFQAw%3D%3D"
+            class="footer-link"
+            >Our Location</a
+          >
         </div>
       </nav>
 
-      <!-- Call to Action -->
-      <div class="footer-cta">
-        <button class="cta-button">Get Started</button>
-      </div>
+      <!-- Spacing -->
+      <div class="footer-cta"></div>
     </div>
 
     <!-- Copyright Bar -->
