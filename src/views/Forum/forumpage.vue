@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, computed, defineEmits } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, computed, defineEmits, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { setDoc, doc, collection, getDocs, getDoc, query, orderBy, addDoc, where, updateDoc, arrayRemove, arrayUnion, onSnapshot, Timestamp, limit } from "firebase/firestore";
 import { db, app } from '../../firebaseConfig';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import SavedPostsModal from './savedPostModal.vue';
+
 
 const auth = getAuth();
 const currentUser = ref(null); // Initialize as null or empty object
@@ -13,6 +15,11 @@ const posts = ref([]);
 let observer;
 const lastScrollY = ref(0);
 const isScrollingUp = ref(false);
+
+// saved post refs
+const savedPosts = ref([]);
+const isSavingPost = ref(false);
+const showSavedPostsModal = ref(false);
 
 // Pagination related refs
 const currentPage = ref(1);
@@ -27,7 +34,7 @@ const selectedCategory = ref('');
 const selectedFilterCategory = ref('');
 const loading = ref(false);
 const topDiscussion = ref(null);
-
+const searchQuery = ref('');
 
 // Compute total pages based on filtered posts
 const totalPages = computed(() => {
@@ -72,7 +79,90 @@ const pageNumbers = computed(() => {
   return pages;
 });
 
+function showAllSavedPosts() {
+  showSavedPostsModal.value = true;
+}
 
+async function handleUnsavePost(postId) {
+  await toggleSavePost(new Event('click'), postId);
+}
+
+async function fetchSavedPosts() {
+  if (!currentUser.value) return;
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", currentUser.value.uid));
+    const userData = userDoc.data();
+
+    if (userData && userData.savedPosts) {
+      const savedPostPromises = userData.savedPosts.map(async (postId) => {
+        const postDoc = await getDoc(doc(db, "posts", postId));
+        if (postDoc.exists()) {
+          return {
+            id: postDoc.id,
+            ...postDoc.data()
+          };
+        }
+        return null;
+      });
+
+      const fetchedPosts = await Promise.all(savedPostPromises);
+      savedPosts.value = fetchedPosts.filter(post => post !== null);
+    }
+  } catch (error) {
+    console.error("Error fetching saved posts:", error);
+  }
+}
+
+async function toggleSavePost(event, postId) {
+  // Prevent post navigation when clicking save button
+  event.stopPropagation();
+
+  if (!currentUser.value) {
+    alert('You must be logged in to save posts.');
+    return;
+  }
+
+  if (isSavingPost.value) return;
+  isSavingPost.value = true;
+
+  try {
+    const userRef = doc(db, "users", currentUser.value.uid);
+    const userDoc = await getDoc(userRef);
+    const userData = userDoc.data();
+    const savedPostsArray = userData?.savedPosts || [];
+
+    if (savedPostsArray.includes(postId)) {
+      // Remove post from saved posts
+      await updateDoc(userRef, {
+        savedPosts: arrayRemove(postId)
+      });
+      savedPosts.value = savedPosts.value.filter(post => post.id !== postId);
+    } else {
+      // Add post to saved posts
+      await updateDoc(userRef, {
+        savedPosts: arrayUnion(postId)
+      });
+      // Add the post to savedPosts.value
+      const savedPost = posts.value.find(post => post.id === postId);
+      if (savedPost) {
+        savedPosts.value = [savedPost, ...savedPosts.value];
+      }
+    }
+  } catch (error) {
+    console.error("Error toggling saved post:", error);
+    alert('Failed to save/unsave the post. Please try again.');
+  } finally {
+    isSavingPost.value = false;
+  }
+}
+
+const isPostSaved = computed(() => {
+  return (postId) => {
+    if (!currentUser.value || !savedPosts.value) return false;
+    return savedPosts.value.some(post => post.id === postId);
+  };
+});
 
 async function submitPost() {
   // Validate input fields
@@ -252,7 +342,16 @@ function observePosts() {
 
 
 function goToPostDetail(postId) {
-  router.push({ name: 'individualPostView', params: { postId } });
+  router.push({ 
+    name: 'individualPostView', 
+    params: { postId }
+  }).then(() => {
+    // This will execute after navigation is complete
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant' // This makes it jump to top instantly without animation
+    });
+  });
 }
 
 function handleScroll() {
@@ -343,10 +442,24 @@ function toggleFilter(category) {
 }
 
 const filteredPosts = computed(() => {
-  if (!selectedFilterCategory.value) {
-    return posts.value; // Show all posts if no category is selected
+  let filtered = posts.value;
+
+  // Filter by search query
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(post =>
+      post.title.toLowerCase().includes(query)
+    );
   }
-  return posts.value.filter(post => post.category === selectedFilterCategory.value); // Filter posts by category
+
+  // Filter by category (if selected)
+  if (selectedFilterCategory.value) {
+    filtered = filtered.filter(post =>
+      post.category === selectedFilterCategory.value
+    );
+  }
+
+  return filtered;
 });
 
 
@@ -363,6 +476,7 @@ onMounted(() => {
         email: user.email,
         profilePicture: user.photoURL,
       };
+      fetchSavedPosts();
     } else {
       // User is logged out
       currentUser.value = null;
@@ -377,16 +491,32 @@ onMounted(() => {
   <!-- Header Section -->
   <main class="backdrop">
     <div class="topcontainer">
-      <h1>HandyMandy Discussion Forum</h1>
+      <div class="header-wrapper">
+        <h1>HandyMandy Discussion Forum</h1>
+        <p>Join our community of self-help scientists! Start by connecting with like-minded individuals.</p>
+        <div class="searchFilter">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input type="text" v-model="searchQuery" class="form-control" placeholder="Search posts by title...">
+          </div>
+        </div>
+      </div>
+      <div class="header-wrapper2">
+        <img src="./background.svg" alt="">
+      </div>
     </div>
     <div class="mainwrapper">
       <div class="row">
         <div class="col-lg-8">
           <div class="container">
-            <div class="p-4 bg-light rounded mb-3">
-              <h5 class="text-center">Community</h5>
+            <div class="p-4 bg-light mb-3 rounded-5">
+
+              <h5 class="text-start mb-3">Create a post here:</h5>
               <div class="mb-3">
-                <input type="text" v-model="title" class="form-control post-input title-input" placeholder="Add a title">
+                <input type="text" v-model="title" class="form-control post-input title-input"
+                  placeholder="Add a title">
               </div>
               <div class="mb-3">
                 <textarea v-model="description" class="form-control post-input content-input"
@@ -435,31 +565,41 @@ onMounted(() => {
               </div>
               <div v-else>
                 <!-- Display paginated posts -->
-                <div v-for="post in paginatedPosts" :key="post.id" class="mb-3">
-                  <div class="d-flex align-items-start" @click="goToPostDetail(post.id)" style="cursor: pointer;">
+                <div v-for="post in paginatedPosts" :key="post.id" class="mb-3 post-card">
+                  <div class="d-flex align-items-start post-wrapper" @click="goToPostDetail(post.id)"
+                    style="cursor: pointer;">
                     <img :src="post.profilePicture" alt="User profile" class="user-image me-2" />
-                    <div>
+                    <div class="post-content-wrapper">
+                      <h4>{{ post.username }}</h4>
                       <h6>{{ post.title }}</h6>
-                      <div class="post-content" :style="{ 'max-height': expandedPostId === post.id ? '500px' : '4.5rem' }">
+                      <button @click.stop="(event) => toggleSavePost(event, post.id)" class="btn-save">
+                        <i class="bi"
+                          :class="{ 'bi-bookmark-fill': isPostSaved(post.id), 'bi-bookmark': !isPostSaved(post.id) }"></i>
+                      </button>
+                      <div class="post-content"
+                        :style="{ 'max-height': expandedPostId === post.id ? '500px' : '4.5rem' }">
                         <span v-if="post.content.split(/\s+/).length <= 70">{{ post.content }}</span>
                         <span v-else>
                           <span v-if="expandedPostId === post.id">{{ post.content }}</span>
                           <span v-else>{{ truncate(post.content, 65) }}</span>
                         </span>
                       </div>
-                      <button type="button" class="btn btn-outline-secondary btn-sm"
-                        :style="{ color: '#FF7043', border: '1px solid #FF7043', backgroundColor: 'white' }">
+                      <button type="button" class="btn btn-outline-secondary btn-sm category-tag">
                         {{ post.category }}
                       </button>
                       <div v-if="post.content.split(/\s+/).length > 70"
                         class="d-flex justify-content-between align-items-center">
+
                         <div class="likes-comments">
-                          <span @click.stop="likePost(post.id)" :style="{ color: post.isLiked ? 'red' : 'black' }">
-                            <i class="fas fa-thumbs-up"></i> {{ post.likes }}
-                          </span>
+                          <button @click.stop="likePost(post.id)" class="btn-like">
+                            <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
+                            <span class="like-count">{{ post.likes }}</span>
+                          </button>
                           <span>Comments: {{ post.comments }}</span>
                         </div>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" @click.stop="toggleExpand(post.id)">
+
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                          @click.stop="toggleExpand(post.id)">
                           <span>{{ expandedPostId !== post.id ? 'Expand' : 'Collapse' }}</span>
                           <i class="fa-solid"
                             :class="{ 'fa-chevron-down': expandedPostId !== post.id, 'fa-chevron-up': expandedPostId === post.id }"></i>
@@ -467,9 +607,10 @@ onMounted(() => {
                       </div>
                       <div v-else>
                         <div class="likes-comments">
-                          <span @click.stop="likePost(post.id)" :style="{ color: post.isLiked ? 'red' : 'black' }">
-                            <i class="fas fa-thumbs-up"></i> {{ post.likes }}
-                          </span>
+                          <button @click.stop="likePost(post.id)" class="btn-like">
+                            <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
+                            <span class="like-count">{{ post.likes }}</span>
+                          </button>
                           <span>Comments: {{ post.comments }}</span>
                         </div>
                       </div>
@@ -500,9 +641,9 @@ onMounted(() => {
                       </li>
 
                       <!-- Pages around current page -->
-                      <li v-for="page in pageNumbers" :key="page" class="page-item" 
-                          v-if="page !== 1 && page !== totalPages && Math.abs(currentPage - page) <= 1"
-                          :class="{ active: page === currentPage }">
+                      <li v-for="page in pageNumbers" :key="page" class="page-item"
+                        v-if="page !== 1 && page !== totalPages && Math.abs(currentPage - page) <= 1"
+                        :class="{ active: page === currentPage }">
                         <button class="page-link" @click="goToPage(page)">{{ page }}</button>
                       </li>
 
@@ -569,21 +710,68 @@ onMounted(() => {
               </div>
             </div>
           </div>
+          <div class="my-3 p-3 bg-light rounded">
+            <h6 class="d-flex align-items-center gap-2">
+              <i class="bi bi-bookmark"></i>
+              Saved Posts
+            </h6>
+            <div v-if="currentUser">
+              <div v-if="savedPosts.length > 0" class="saved-posts-list">
+                <div v-for="post in savedPosts.slice(0, 3)" :key="post.id"
+                  class="saved-post-item mb-2 p-2 border rounded" @click="goToPostDetail(post.id)"
+                  style="cursor: pointer;">
+                  <div class="d-flex align-items-start">
+                    <img :src="post.userImage || 'default-profile.png'" alt="User profile" class="user-image me-2"
+                      style="width: 32px; height: 32px; border-radius: 50%;" />
+                    <div class="flex-grow-1">
+                      <p class="mb-1 text-truncate fw-bold" style="font-size: 0.9rem;">
+                        {{ post.title }}
+                      </p>
+                      <small class="text-muted">{{ post.username }}</small>
+                    </div>
+                  </div>
+                </div>
+                <button v-if="savedPosts.length > 3" class="btn btn-outline-primary btn-sm w-100 mt-2"
+                  @click="showAllSavedPosts">
+                  View All ({{ savedPosts.length }})
+                </button>
+              </div>
+              <p v-else class="text-muted small">
+                No saved posts yet. Save posts to access them quickly!
+              </p>
+            </div>
+            <div v-else class="text-muted small">
+              Log in to save and access your favorite posts
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    <SavedPostsModal 
+  v-if="showSavedPostsModal"
+  :show="showSavedPostsModal"
+  :posts="savedPosts"
+  @close="showSavedPostsModal = false"
+  @unsave-post="handleUnsavePost"
+  @view-post="goToPostDetail"
+/>
   </main>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 </template>
 
 <style scoped>
 /* Add the background image */
+
 .backdrop {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin: auto;
-  background-color: #FFEEAD;
-  width: 100vw;
+  /* margin: auto; */
+  /* background-color: #FFEEAD; */
+  background: url("../../assets/backdrop.png");
+  background-size: contain;
+  /* background-repeat: no-repeat; */
+  width: 100%;
   min-height: 100vh;
   flex-direction: column;
   /* Added for vertical flexbox */
@@ -592,16 +780,40 @@ onMounted(() => {
 .rightbar {
   position: sticky;
   /* Add margin-top to account for navigation */
-  top: 100px; /* Adjust this value based on your navigation height */
-  max-height: calc(100vh - 120px); /* Viewport height minus top margin and some padding */
-  overflow-y: auto; /* Allow scrolling if content is too long */
+  top: 120px;
+  /* Adjust this value based on your navigation height */
+  max-height: calc(100vh - 120px);
+  /* Viewport height minus top margin and some padding */
+  overflow-y: auto;
+  /* Allow scrolling if content is too long */
   align-self: flex-start;
-  padding-bottom: 20px; /* Add some bottom padding */
+  padding-bottom: 20px;
+  /* Add some bottom padding */
   /* Add smooth scrolling */
   scroll-behavior: smooth;
   /* Style the scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #FF7043 #f1f1f1;
+}
+
+/* search filter styling */
+.searchFilter {
+  max-width: 50%;
+  margin-top: 20px;
+}
+
+.input-group-text {
+  background-color: white;
+  border-right: none;
+}
+
+.input-group input {
+  border-left: none;
+}
+
+.input-group input:focus {
+  box-shadow: none;
+  border-color: #ced4da;
 }
 
 .mainwrapper {
@@ -624,7 +836,7 @@ onMounted(() => {
   .rightbar {
     position: static;
     height: auto;
-    margin-top: 20px;
+    margin-top: 80px;
     max-height: none;
   }
 }
@@ -652,16 +864,68 @@ onMounted(() => {
   padding-top: 10px;
 }
 
-
 .topcontainer {
   width: 100%;
-  height: 400px;
+  height: fit-content;
+  padding-bottom: 500px;
   align-content: center;
   text-align: center;
-  background-color: #6dd2c3;
+  background-color: #a6d7ba;
   position: relative;
-  z-index: 1; /* Ensure the top container stays above other elements */
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* padding: 2rem; */
+  padding-top: 0px;
+  padding-bottom: 4rem;
   clip-path: polygon(100% 0%, 0% 0%, 0.00% 81.65%, 1.00% 81.90%, 2.00% 82.63%, 3.00% 83.79%, 4.00% 85.32%, 5.00% 87.13%, 6.00% 89.10%, 7.00% 91.12%, 8.00% 93.07%, 9.00% 94.83%, 10.00% 96.30%, 11.00% 97.39%, 12.00% 98.03%, 13.00% 98.19%, 14.00% 97.86%, 15.00% 97.05%, 16.00% 95.81%, 17.00% 94.23%, 18.00% 92.39%, 19.00% 90.40%, 20.00% 88.38%, 21.00% 86.45%, 22.00% 84.73%, 23.00% 83.33%, 24.00% 82.31%, 25.00% 81.76%, 26.00% 81.69%, 27.00% 82.11%, 28.00% 83.00%, 29.00% 84.30%, 30.00% 85.94%, 31.00% 87.82%, 32.00% 89.82%, 33.00% 91.83%, 34.00% 93.73%, 35.00% 95.40%, 36.00% 96.74%, 37.00% 97.68%, 38.00% 98.15%, 39.00% 98.13%, 40.00% 97.62%, 41.00% 96.65%, 42.00% 95.28%, 43.00% 93.59%, 44.00% 91.68%, 45.00% 89.67%, 46.00% 87.67%, 47.00% 85.81%, 48.00% 84.19%, 49.00% 82.91%, 50.00% 82.06%, 51.00% 81.67%, 52.00% 81.78%, 53.00% 82.38%, 54.00% 83.42%, 55.00% 84.86%, 56.00% 86.59%, 57.00% 88.53%, 58.00% 90.55%, 59.00% 92.53%, 60.00% 94.36%, 61.00% 95.92%, 62.00% 97.13%, 63.00% 97.90%, 64.00% 98.20%, 65.00% 98.00%, 66.00% 97.32%, 67.00% 96.20%, 68.00% 94.71%, 69.00% 92.93%, 70.00% 90.96%, 71.00% 88.94%, 72.00% 86.98%, 73.00% 85.19%, 74.00% 83.69%, 75.00% 82.56%, 76.00% 81.87%, 77.00% 81.66%, 78.00% 81.94%, 79.00% 82.70%, 80.00% 83.90%, 81.00% 85.45%, 82.00% 87.27%, 83.00% 89.25%, 84.00% 91.27%, 85.00% 93.21%, 86.00% 94.96%, 87.00% 96.40%, 88.00% 97.46%, 89.00% 98.06%, 90.00% 98.19%, 91.00% 97.81%, 92.00% 96.97%, 93.00% 95.70%, 94.00% 94.09%, 95.00% 92.24%, 96.00% 90.24%, 97.00% 88.22%, 98.00% 86.31%, 99.00% 84.61%, 100.00% 83.23%);
+}
+
+
+.header-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.header-wrapper2 {
+  flex: 1;
+  padding: 2rem;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-wrapper2 img {
+
+  width: 30vw;
+  height: auto;
+}
+
+.topcontainer h1 {
+  font-size: 3.5rem;
+  color: #FF7043;
+  margin-top: 0;
+  /* Removed margin-top since we're using flex centering */
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* responsiveness for the waves */
+@media screen and (max-width: 1200px) {
+  .topcontainer {
+    /* Add your alternative clip-path here */
+    padding-bottom: 5rem;
+    clip-path: polygon(100% 0%, 0% 0%, 0.00% 84.53%, 1.00% 84.57%, 2.00% 84.70%, 3.00% 84.91%, 4.00% 85.20%, 5.00% 85.56%, 6.00% 85.99%, 7.00% 86.49%, 8.00% 87.04%, 9.00% 87.63%, 10.00% 88.26%, 11.00% 88.92%, 12.00% 89.59%, 13.00% 90.27%, 14.00% 90.94%, 15.00% 91.60%, 16.00% 92.23%, 17.00% 92.82%, 18.00% 93.37%, 19.00% 93.86%, 20.00% 94.29%, 21.00% 94.66%, 22.00% 94.94%, 23.00% 95.15%, 24.00% 95.28%, 25.00% 95.32%, 26.00% 95.28%, 27.00% 95.15%, 28.00% 94.94%, 29.00% 94.66%, 30.00% 94.29%, 31.00% 93.86%, 32.00% 93.37%, 33.00% 92.82%, 34.00% 92.23%, 35.00% 91.60%, 36.00% 90.94%, 37.00% 90.27%, 38.00% 89.59%, 39.00% 88.92%, 40.00% 88.26%, 41.00% 87.63%, 42.00% 87.04%, 43.00% 86.49%, 44.00% 85.99%, 45.00% 85.56%, 46.00% 85.20%, 47.00% 84.91%, 48.00% 84.70%, 49.00% 84.57%, 50.00% 84.53%, 51.00% 84.57%, 52.00% 84.70%, 53.00% 84.91%, 54.00% 85.20%, 55.00% 85.56%, 56.00% 85.99%, 57.00% 86.49%, 58.00% 87.04%, 59.00% 87.63%, 60.00% 88.26%, 61.00% 88.92%, 62.00% 89.59%, 63.00% 90.27%, 64.00% 90.94%, 65.00% 91.60%, 66.00% 92.23%, 67.00% 92.82%, 68.00% 93.37%, 69.00% 93.86%, 70.00% 94.29%, 71.00% 94.66%, 72.00% 94.94%, 73.00% 95.15%, 74.00% 95.28%, 75.00% 95.32%, 76.00% 95.28%, 77.00% 95.15%, 78.00% 94.94%, 79.00% 94.66%, 80.00% 94.29%, 81.00% 93.86%, 82.00% 93.37%, 83.00% 92.82%, 84.00% 92.23%, 85.00% 91.60%, 86.00% 90.94%, 87.00% 90.27%, 88.00% 89.59%, 89.00% 88.92%, 90.00% 88.26%, 91.00% 87.63%, 92.00% 87.04%, 93.00% 86.49%, 94.00% 85.99%, 95.00% 85.56%, 96.00% 85.20%, 97.00% 84.91%, 98.00% 84.70%, 99.00% 84.57%, 100.00% 84.53%);
+  }
+
+  .topcontainer h1 {
+    font-size: 2rem;
+  }
 }
 
 .post-content {
@@ -721,9 +985,9 @@ onMounted(() => {
 
 .likes-comments {
   display: flex;
-  /* justify-content: space-between; */
-  margin-top: 10px;
-  gap: 10px;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .addpost {
@@ -735,6 +999,123 @@ onMounted(() => {
   margin-top: 10px;
   cursor: pointer;
   float: right;
+}
+
+.post-card {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.post-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+.post-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 12px;
+  background: white;
+  z-index: 0;
+  transition: all 0.3s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 112, 67, 0.1);
+  box-shadow: 0 8px 24px rgba(255, 112, 67, 0.12);
+}
+
+.post-card:hover::before {
+  background: linear-gradient(to bottom right,
+      rgba(255, 112, 67, 0.02),
+      rgba(255, 112, 67, 0.05));
+}
+
+.post-content-wrapper {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.post-card:hover .post-content-wrapper {
+  padding-left: 8px;
+}
+
+.post-card:hover h4 {
+  color: #FF7043;
+}
+
+.category-tag {
+  transition: all 0.3s ease;
+}
+
+.post-card:hover .category-tag {
+  background-color: #FF7043 !important;
+  color: white !important;
+  border-color: #FF7043 !important;
+}
+
+.btn-like {
+  transition: all 0.3s ease;
+}
+
+.post-card:hover .btn-like {
+  transform: scale(1.05);
+}
+
+/* Optional: Smooth transition for the hr element */
+hr {
+  transition: all 0.3s ease;
+  margin: 16px 0;
+  opacity: 0.1;
+}
+
+.post-card:hover hr {
+  background-color: #FF7043;
+  opacity: 0.2;
+}
+
+/* Make sure images maintain their quality during transform */
+.user-image {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Add smooth transition to text elements */
+h4,
+h6,
+.post-content {
+  transition: all 0.3s ease;
+}
+
+/* Optional: Add a subtle scale effect to the profile image on hover */
+.post-card:hover .user-image {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* Enhance visibility of post content on hover */
+.post-card:hover .post-content {
+  color: #2c3e50;
+}
+
+.input-container {
+  border-radius: 50px;
+  background-color: white;
+  /* Assuming you want a white background */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  /* Optional: adds subtle shadow */
 }
 
 .post-input {
@@ -778,17 +1159,50 @@ onMounted(() => {
   /* Align the image to the top */
 }
 
+.btn-like {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.btn-like:hover {
+  background: rgba(255, 0, 0, 0.1);
+}
+
+.btn-like i {
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+/* Hollow heart style */
+.btn-like .bi-heart {
+  color: #ff0000;
+}
+
+/* Filled heart style */
+.btn-like .bi-heart-fill {
+  color: #ff0000;
+}
+
+.like-count {
+  color: #666;
+  font-weight: 500;
+}
 
 .container {
-  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.container head {
-  background-color: #A66E38;
-  width: max-content;
-  height: 500px;
-  margin: 0;
-}
 
 /* Left Sidebar styling */
 .bg-light {
@@ -969,5 +1383,41 @@ onMounted(() => {
   color: #ffffff;
   /* White text when selected */
   border-color: #ff7043;
+}
+
+/* saved post styles */
+
+.saved-posts-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.saved-post-item {
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.saved-post-item:hover {
+  background-color: #f8f9fa;
+}
+
+.btn-save {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  background: none;
+  border: none;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  transition: color 0.2s;
+}
+
+.btn-save:hover {
+  color: #0d6efd;
+}
+
+.btn-save .bi-bookmark-fill {
+  color: #0d6efd;
 }
 </style>
