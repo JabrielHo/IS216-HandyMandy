@@ -23,13 +23,17 @@ import carousel from '@/components/LandingPage/carousel.vue'
         <div class="media-col">
           <div class="image-wrapper">
             <img
-              src="../../assets/photo1.jpg"
+              src="https://media.istockphoto.com/id/1392016982/photo/mixed-group-of-business-people-sitting-around-a-table-and-talking.jpg?s=612x612&w=0&k=20&c=d7mWQhdzKrowHYTWXXcCrNn02uyfLYQYB78M75G8lKg="
               alt="Forum community"
               class="feature-image"
               loading="lazy"
             />
           </div>
-          <button class="cta-button">Discover your community</button>
+          <button class="cta-button">
+            <router-link to="/forum" class="nav-link" active-class="active"
+              >Discover your community</router-link
+            >
+          </button>
         </div>
       </div>
     </section>
@@ -50,13 +54,17 @@ import carousel from '@/components/LandingPage/carousel.vue'
         <div class="media-col">
           <div class="image-wrapper">
             <img
-              src="../../assets/photo1.jpg"
+              src="https://cdn.prod.website-files.com/6361339b831c262ea482dcfa/6579cffd09747cced03ecc70_pipe%20repair.jpg"
               alt="Volunteer"
               class="feature-image"
               loading="lazy"
             />
           </div>
-          <button class="cta-button">Be a volunteer</button>
+          <button class="cta-button">
+            <router-link to="/services" class="nav-link" active-class="active"
+              >Be a volunteer</router-link
+            >
+          </button>
         </div>
       </div>
     </section>

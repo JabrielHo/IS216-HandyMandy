@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -9,6 +9,7 @@ const isLoggedIn = computed(() => authStore.user !== null)
 const isLoading = computed(() => authStore.loading)
 const searchQuery = ref('')
 const isSearchExpanded = ref(false)
+const isMobile = ref(window.innerWidth < 768) // Track mobile state based on initial screen size
 
 const navigateToSignIn = () => {
   router.push('/signin')
@@ -30,6 +31,29 @@ const logout = async () => {
 const toggleSearch = () => {
   isSearchExpanded.value = !isSearchExpanded.value
 }
+
+// Function to handle window resize
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+// Close the navbar dropdown when switching from mobile to desktop
+watch(isMobile, (newValue) => {
+  if (!newValue) {
+    const navbarCollapse = document.getElementById('navbarNav')
+    if (navbarCollapse?.classList.contains('show')) {
+      navbarCollapse.classList.remove('show')
+    }
+  }
+})
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
 
 <template>
@@ -104,7 +128,7 @@ const toggleSearch = () => {
       </button>
 
       <!--Nav Links Desktop-->
-      <div class="d-none d-md-inline">
+      <div class="d-none d-md-inline me-5">
         <ul class="nav-links">
           <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
           <li>
@@ -117,11 +141,7 @@ const toggleSearch = () => {
               >Requests</router-link
             >
           </li>
-          <li>
-            <router-link to="/workshops" class="nav-link" active-class="active"
-              >Workshops</router-link
-            >
-          </li>
+
           <li>
             <router-link to="/forum" class="nav-link" active-class="active">Forum</router-link>
           </li>
@@ -150,11 +170,6 @@ const toggleSearch = () => {
           <li>
             <router-link to="/requests" class="nav-link" active-class="active"
               >Requests</router-link
-            >
-          </li>
-          <li>
-            <router-link to="/workshops" class="nav-link" active-class="active"
-              >Workshops</router-link
             >
           </li>
           <li>
