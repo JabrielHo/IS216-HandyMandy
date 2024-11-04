@@ -15,8 +15,8 @@
 
 ## Technologies Used
 
-- **Front-end**: Vue
-- **Front-end Framework**: Bootstrap
+- **Front-end Framework**: Vue
+- **Front-end UI Library**: Bootstrap
 - **Database**: Firestore Database for data storage
 - **File Storage**: Firebase Storage for file storage
 - **Hosting**: Firebase Hosting for web hosting
