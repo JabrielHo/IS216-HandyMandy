@@ -101,11 +101,13 @@ function formatDate(timestamp) {
 
 .profilePic {
   border: 1px solid rgb(177, 177, 177);
+  object-fit: cover;
 }
 
 .card {
   margin-bottom: 16px;
   cursor: pointer;
+  height: 390px;
 }
 
 .card:hover {

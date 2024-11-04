@@ -127,7 +127,7 @@ function openImage(imageUrl) {
       <div class="card-header">
         <img
           :src="selectedUserData.profilePicture"
-          class="rounded-circle me-2"
+          class="rounded-circle me-2 profilePic"
           alt="Profile Picture"
           width="50"
           height="50"
@@ -150,7 +150,10 @@ function openImage(imageUrl) {
           <span class="title">{{ serviceRequest.title }}</span>
           <span class="location">{{ serviceRequest.location }}</span>
         </div>
-        <div v-if="serviceRequest.status === 'Open' && selectedChatRoom.requestUserId === myUserId" class="dropdown request-status">
+        <div
+          v-if="serviceRequest.status === 'Open' && selectedChatRoom.requestUserId === myUserId"
+          class="dropdown request-status"
+        >
           <div
             role="button"
             class="dropdown-toggle no-caret"
@@ -284,6 +287,11 @@ function openImage(imageUrl) {
 
 
 <style scoped>
+.profilePic {
+  border: 1px solid rgb(177, 177, 177);
+  object-fit: cover;
+}
+
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus {
   background-color: transparent;

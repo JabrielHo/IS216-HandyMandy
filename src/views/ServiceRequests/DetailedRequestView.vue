@@ -191,7 +191,7 @@ onMounted(async () => {
             <div class="userInfo">
               <img
                 :src="user.profilePicture"
-                class="rounded-circle me-2"
+                class="rounded-circle me-2 profilePic"
                 alt="Profile Picture"
                 width="40"
                 height="40"
@@ -210,6 +210,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.profilePic {
+  border: 1px solid rgb(177, 177, 177);
+  object-fit: cover;
+}
+
 .responsive-img {
   width: 100%;
   height: 400px;
