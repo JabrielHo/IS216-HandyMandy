@@ -14,6 +14,7 @@ const props = defineProps({
   myUserId: String,
   isLoaded: Boolean
 })
+
 const fileInput = ref(null)
 const emit = defineEmits(['sendMessage', 'closeStatus'])
 const sendMessage = () => {
@@ -149,7 +150,7 @@ function openImage(imageUrl) {
           <span class="title">{{ serviceRequest.title }}</span>
           <span class="location">{{ serviceRequest.location }}</span>
         </div>
-        <div v-if="serviceRequest.status === 'Open'" class="dropdown request-status">
+        <div v-if="serviceRequest.status === 'Open' && selectedChatRoom.requestUserId === myUserId" class="dropdown request-status">
           <div
             role="button"
             class="dropdown-toggle no-caret"

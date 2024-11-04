@@ -89,6 +89,7 @@ async function populateInbox(uid, requestId, id) {
       profilePicture: userData.profilePicture,
       username: userData.username,
       title: serviceRequest.title,
+      status: serviceRequest.status,
       location: serviceRequest.location,
       id: id,
       userData: userData
@@ -205,7 +206,7 @@ onUnmounted(() => {
                       class="dropdown-item"
                       @click="selectChatRoom(chatRoom.id, chatRoom.userData)"
                     >
-                      {{ chatRoom.username }} - {{ chatRoom.title }}
+                      {{ chatRoom.username }} - {{ chatRoom.title }} - {{ chatRoom.status }}
                     </a>
                   </li>
                 </ul>
@@ -229,7 +230,7 @@ onUnmounted(() => {
                 />
                 <div class="text-container">
                   <span class="name">{{ chatRoom.username }}</span>
-                  <span class="title">Status: {{ chatRoom.status }} {{ chatRoom.title }}</span>
+                  <span class="title">Request: {{ chatRoom.title }} - {{ chatRoom.status }}</span>
                 </div>
               </li>
             </ul>
@@ -288,7 +289,6 @@ onUnmounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.05);
   background-color: rgb(248, 248, 248);
 }
-
 
 .dropdown-toggle[aria-expanded='true']:after {
   transform: rotate(180deg);

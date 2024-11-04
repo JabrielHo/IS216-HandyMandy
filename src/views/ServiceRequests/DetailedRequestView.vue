@@ -19,6 +19,7 @@ const lat = ref('')
 const long = ref('')
 const authStore = useAuthStore()
 const userData = computed(() => authStore.user)
+const isLoggedIn = computed(() => authStore.user !== null)
 const isMyRequest = ref(false)
 
 function navigateToServiceRequest() {
@@ -200,7 +201,7 @@ onMounted(async () => {
                 <span class="location">{{ serviceRequest.location }}</span>
               </div>
             </div>
-            <button type="button" class="btn btn-danger" @click="createChat">Chat</button>
+            <button v-if="isLoggedIn" type="button" class="btn btn-danger mt-2" @click="createChat">Chat</button>
           </div>
         </div>
       </div>
@@ -272,7 +273,6 @@ onMounted(async () => {
 .userInfo {
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
 }
 
 .text-container {
