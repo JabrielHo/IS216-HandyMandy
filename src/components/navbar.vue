@@ -36,9 +36,9 @@ const toggleSearch = () => {
   <nav class="navbar-container">
     <div class="navbar-content">
       <!-- Logo Section -->
-      <a href="/" class="logo-section">
+      <router-link to="/" class="logo-section">
         <span class="brand-name">HandyMandy</span>
-      </a>
+      </router-link>
 
       <!-- Desktop Search Bar -->
       <div class="search-section desktop-search">
@@ -92,7 +92,7 @@ const toggleSearch = () => {
 
       <!-- Navigation Toggle -->
       <button
-        class="nav-toggle"
+        class="nav-toggle d-inline d-md-none"
         type="button"
         data-bs-toggle="collapse"
         data-bs-target="#navbarNav"
@@ -103,14 +103,63 @@ const toggleSearch = () => {
         <span class="nav-toggle-icon"></span>
       </button>
 
-      <!-- Navigation Links -->
+      <!--Nav Links Desktop-->
+      <div class="d-none d-md-inline">
+        <ul class="nav-links">
+          <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
+          <li>
+            <router-link to="/services" class="nav-link" active-class="active"
+              >Services</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/requests" class="nav-link" active-class="active"
+              >Requests</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/workshops" class="nav-link" active-class="active"
+              >Workshops</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/forum" class="nav-link" active-class="active">Forum</router-link>
+          </li>
+        </ul>
+
+        <div v-if="!isLoading" class="auth-buttons">
+          <template v-if="!isLoggedIn">
+            <button @click="navigateToSignIn" class="sign-in-button">Sign In</button>
+            <button @click="navigateToRegister" class="register-button">Register</button>
+          </template>
+          <button v-else class="logout-button" data-bs-toggle="modal" data-bs-target="#logoutModal">
+            Log out
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Links Mobile -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="nav-links">
-          <li><a href="/" class="nav-link active">Home</a></li>
-          <li><a href="/services" class="nav-link">Services</a></li>
-          <li><a href="/requests" class="nav-link">Requests</a></li>
-          <li><a href="/" class="nav-link">Workshops</a></li>
-          <li><a href="/Forum" class="nav-link">Forum</a></li>
+          <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
+          <li>
+            <router-link to="/services" class="nav-link" active-class="active"
+              >Services</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/requests" class="nav-link" active-class="active"
+              >Requests</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/workshops" class="nav-link" active-class="active"
+              >Workshops</router-link
+            >
+          </li>
+          <li>
+            <router-link to="/forum" class="nav-link" active-class="active">Forum</router-link>
+          </li>
         </ul>
 
         <!-- Auth Buttons -->
