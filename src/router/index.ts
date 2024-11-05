@@ -64,6 +64,16 @@ const router = createRouter({
       component: () => import('../views/ProfilePage/phonefix.vue')
     },
     {
+      path: '/paintmyroom',
+      name: 'paintmyroom',
+      component: () => import('../views/ProfilePage/paintmyroom.vue')
+    },
+    {
+      path: '/furnitureassembly',
+      name: 'furnitureassembly',
+      component: () => import('../views/ProfilePage/Furniture_Assembly.vue')
+    },
+    {
       path: '/wifi_fixer',
       name: 'wifi_fixer',
       component: () => import('../views/ProfilePage/Wifi_fixer.vue')

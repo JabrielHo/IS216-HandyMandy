@@ -3,17 +3,9 @@
   <div class="page-container yellowbg">
     <div class="container">
       <!-- Title Section -->
-      <h1 class="page-title">Fix My Phone</h1>
-      
-      <!-- Profile Section -->
-      <section class="profile-section">
-        <img :src="profileImage" alt="Profile of John Doe" class=" profile-pic">
-        <div class="profile-info">
-          <h2><a href="personalProfile_ExternalPOV" class="name">John Doe</a></h2>
-          <p class="star-rating">★★★★☆ <span style="color: #6e4824; font-size: 16px;">(20 reviews)</span></p>
-          <p style="color: #6e4824;"> About me: Reliable handyman with a strong eye for detail and years of experience tackling a wide range of home repairs and improvements. From plumbing and electrical work to general maintenance, I’m here to make your home projects hassle-free and done right the first time. Book now for quality service you can trust! </p>
-        </div>
-      </section>
+     
+    
+      <h1 class="page-title">Fix my Phone</h1>
 
       <!-- Carousel Section -->
       <div id="carouselExampleIndicators" class="carousel slide">
@@ -24,13 +16,13 @@
         </div>
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <img src="./images/PlumbingCarousel1.avif" class="d-block w-100" alt="...">
+            <img src="./images/broken_phone.webp" class="d-block w-100" alt="...">
           </div>
           <div class="carousel-item">
-            <img src="./images/PlumbingCarousel2.jpg" class="d-block w-100" alt="...">
+            <img src="./images/broken_phone2.jpg" class="d-block w-100" alt="...">
           </div>
           <div class="carousel-item">
-            <img src="./images/PlumbingCarousel3.jpg" class="d-block w-100" alt="...">
+            <img src="./images/broken_phone3.jpg" class="d-block w-100" alt="...">
           </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -44,44 +36,22 @@
       </div>
 
       <!-- What's Included Section -->
-      <section class="included-section">
-        <h2>What's Included</h2>
-        <ul class="included-list">
-          <li>Comprehensive leak inspection and repair</li>
-          <li>Pipe replacement and installation</li>
-          <li>Drain cleaning and unclogging</li>
-          <li>Water heater installation and maintenance</li>
-          <li>24/7 emergency services</li>
+      <section class="description-section">
+        <h2>Description of Issue</h2>
+        <ul class="description-list">
+          <li>My phone has a cracked screen and it no longer powers on. I'm looking for help with screen replacement and diagnostic repair. Any guidance or assistance with fixing these issues would be appreciated.</li>
+          <li>I will provide the materials needed to fix my phone. Just let me know what I need to get to fix the phone.</li>
         </ul>
+        <br>
+        <h2>Location</h2>
+        <span style="color: #6e4824;">123 Yishun Avenue 9, #12-345
+        Singapore 760123</span>
       </section>
 
-      <!-- Qualifications and Reviews Section -->
-      <div class="qualifications-reviews">
-        <!-- Qualifications -->
-        <section class="qualifications-section">
-          <h2>Qualifications</h2>
-          <ul>
-            <li>Licensed and insured plumber</li>
-            <li>10+ years of experience in residential and commercial plumbing</li>
-            <li>Specialized in leak repair, pipe installation, and maintenance</li>
-            <li>Certified in eco-friendly plumbing solutions</li>
-          </ul>
-        </section>
-
-        <!-- Reviews Section -->
-        <section class="reviews-section">
-          <h2>Customer Reviews</h2>
-          <ul>
-            <li>"John was prompt and professional, fixing our leak quickly!" - John D.</li>
-            <li>"Excellent service and very knowledgeable. Highly recommend!" - Sarah L.</li>
-            <li>"Reliable and efficient, John is my go-to plumber." - Mike R.</li>
-            <li>"Friendly and provided a lasting solution for our drainage issues." - Emily K.</li>
-          </ul>
-        </section>
-      </div>
+   
 
       <!-- Bottom Book Now Button -->
-      <button class="book-button bottom-button" @click="bookNow">Book Now</button>
+      <button class="book-button bottom-button" @click="bookNow">Chat with John</button>
     </div>
   </div>
 </template>
@@ -90,7 +60,7 @@
 import profilepic from './images/profilepic.png';
 
 export default {
-  name: 'phonefix',
+  name: 'PlumbingServices',
   data() {
     return {
       profileImage: profilepic,
@@ -124,7 +94,7 @@ export default {
   color: #6e4824;
 }
 .page-container {
-  background-color: #FFEEAD;
+  background-color: #FFffff;
   padding: 20px;
   font-family: Arial, sans-serif;
 }
@@ -133,6 +103,8 @@ export default {
   color: #6e4824;
   font-size: 2em;
   margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
 }
 
 /* Profile Section */
@@ -143,6 +115,7 @@ export default {
   background-color: #fff8e6;
   padding: 20px;
   border-radius: 10px;
+  border: 2px solid #c6b4a2;
 }
 
 
@@ -178,34 +151,29 @@ export default {
 }
 
 /* What's Included Section */
-.included-section {
+.description-section {
   background-color: #fff8e6;
   padding: 15px;
   border-radius: 10px;
   margin: 20px 0;
+  border: 2px solid #c6b4a2;
 }
 
-.included-section h2 {
+.description-section h2 {
   color: #6e4824;
   font-size: 1.5em;
-  margin-bottom: 10px; /* Add margin below the title */
+  margin-bottom: 10px; 
+  font-weight: bold;
 }
 
-.included-list {
-  list-style-type: none;
-  padding: 0;
+.description-list {
+  padding-left: 20px;
   color: #6e4824;
   font-size: 1em;
   line-height: 1.6;
   margin-bottom: 10px; /* Ensure space below the list */
 }
 
-.included-list li::before {
-  content: "✔";
-  color: #96CEB4;
-  padding-right: 10px;
-  font-weight: bold;
-}
 
 /* Book Now Button */
 .book-button {
@@ -244,6 +212,7 @@ export default {
   flex: 1;
   overflow-y: auto;
   max-height: 200px;
+  border: 2px solid #c6b4a2;
 }
 
 .qualifications-section h2,

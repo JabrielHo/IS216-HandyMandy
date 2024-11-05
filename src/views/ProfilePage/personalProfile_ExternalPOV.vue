@@ -31,10 +31,10 @@
           <img src="./images/wifi.jpg" alt="Wifi Fixer" class="service-image" />
         </router-link>
 
-        <div class="service-rectangle">
+        <router-link to="./furnitureassembly" class="service-rectangle no-underline col-md-6">
           <div class="label">Furniture Assembly</div>
           <img src="./images/furniture_assembly.webp" alt="Furniture Assembly" class="service-image" />
-        </div>
+        </router-link>
 
         
       </div>
@@ -47,10 +47,10 @@
           <img src="./images/broken_phone.webp" alt="Phone Fix" class="service-image" />
         </router-link>
 
-        <div class="service-rectangle">
+        <router-link to="./paintmyroom" class="service-rectangle no-underline col-md-6">
           <div class="label">Help me paint my room</div>
           <img src="./images/paintroom.jpg" alt="Paint Room" class="service-image" />
-        </div>
+        </router-link>
       </div>
 
       <h2 class="section-title">John's Reviews</h2>
