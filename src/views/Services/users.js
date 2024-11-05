@@ -93,6 +93,10 @@ class Services {
       const docRef = await addDoc(collection(db, 'services'), fields)
       const docId = docRef.id
 
+      await updateDoc(doc(db, 'services', docId), {
+        serviceId: docId
+      })
+
       return { success: true, id: docId }
     } catch (error) {
       return { success: false, error: error.message }
