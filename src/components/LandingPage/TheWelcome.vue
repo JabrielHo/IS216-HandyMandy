@@ -3,8 +3,8 @@
     <!-- LEFT CONTAINER -->
     <div class="jumbo md:flex-column">
       <div class="flex-column">
-        <h1 class="tagline font-bold text-gray-800">HandyMandy</h1>
-        <p class="subtagline text-gray-600">Your Neighbourhood service provider</p>
+        <h1 class="tagline font-bold text-gray-800" id="tagline">HandyMandy</h1>
+        <p class="subtagline text-gray-600" id="taglinetext">Your Neighbourhood service provider</p>
       </div>
       <div :class="showWheel ? 'd-none' : 'd-inline'">
         <h1 class="text-primary mb-1 text-start">{{ selectedService }}</h1>
@@ -18,6 +18,7 @@
           placeholder="Find a service!"
           style="font-size: 2vw"
         />
+        <button class="btncolor my-3 md:ms-2">Go!</button>
       </div>
 
       <div :class="showWheel ? 'd-none' : 'd-inline'">
@@ -52,6 +53,7 @@
           <div>
             <h2 class="wheeltitle text-black text-center mb-2">Wheel Of Services</h2>
           </div>
+          <div id="noservicetext"></div>
           <div class="wheelcircle">
             <div id="services"></div>
           </div>
@@ -72,15 +74,33 @@ export default {
       maintable: maintableimage,
       sidetable: sidetableimage,
       services: [
-        'plumbing',
-        'electrical',
-        'air-con',
-        'cleaning',
-        'gardening',
-        'painting',
-        'repair',
-        'installation'
+        'Plumbing',
+        'Electrical',
+        'Aircon',
+        'Cleaning',
+        'Gardening',
+        'Painting',
+        'Repair',
+        'Installation'
       ], // List of services
+      servicedescriptions: {
+        Plumbing:
+          'Professional services for fixing leaks, unclogging drains, installing and repairing pipes and water systems.',
+        Electrical:
+          'Certified services for wiring, electrical installations, repairs, and troubleshooting power issues.',
+        Aircon:
+          'Installation, maintenance, and repair services for air-conditioning units to ensure optimal cooling performance.',
+        Cleaning:
+          'Thorough cleaning services for homes, offices, and commercial spaces, including deep cleaning and sanitation.',
+        Gardening:
+          'Lawn care, landscaping, planting, and maintenance services to enhance the appearance of gardens and yards.',
+        Painting:
+          'Interior and exterior painting services for homes and businesses, including wall prep and color consultations.',
+        Repair:
+          'General repair services for various household items, furniture, and minor fixes to keep things in top shape.',
+        Installation:
+          'Professional setup and installation of appliances, fixtures, and various home or office equipment.'
+      },
       data: [], // Initially empty
       selectedService: '',
       propellerInstance: null,
@@ -99,7 +119,15 @@ export default {
       this.generateData(service)
       let wheel = document.getElementById('services')
       wheel.innerText = ''
+      // let servicetext = document.getElementById('noservicetext')
+      // servicetext.innerText = ''
       this.drawWheel()
+      if (service == '') {
+        let tagline = document.getElementById('tagline')
+        let taglinetext = document.getElementById('taglinetext')
+        tagline.innerText = 'HandyMandy'
+        taglinetext.innerText = 'Your Neighbourhood service provider'
+      }
     }
   },
   methods: {
@@ -107,9 +135,10 @@ export default {
       this.showWheel = true // Show the wheel when the button is clicked
     },
     filterServices() {
+      console.log(this.typedService)
       if (this.typedService) {
         this.filteredServices = this.services.filter((service) =>
-          service.startsWith(this.typedService.toLowerCase())
+          service.toLowerCase().startsWith(this.typedService.toLowerCase())
         )
       } else {
         this.filteredServices = []
@@ -125,7 +154,7 @@ export default {
       this.data = []
 
       const filteredServices = this.services.filter((service) =>
-        service.startsWith(text.toLowerCase())
+        service.toLowerCase().startsWith(text.toLowerCase())
       )
 
       for (let i = 0; i < filteredServices.length; i++) {
@@ -146,93 +175,107 @@ export default {
       const seatradius = 40
       const seatdistance = radius + seatradius + 10
 
-      const svg = d3
-        .select('#services')
-        .append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
+      console.log(this.data.length)
 
-      // Append the circle to the SVG
-      svg
-        .append('circle')
-        .attr('cx', 0) // Center the circle on the X-axis
-        .attr('cy', 0) // Center the circle on the Y-axis
-        .attr('r', radius) // Set the radius of the circle
-        .attr('fill', 'none') // Remove the fill or set it to 'none'
+      if (this.data.length == 0) {
+        let tagline = document.getElementById('tagline')
+        let taglinetext = document.getElementById('taglinetext')
+        tagline.innerText = 'No Services Found'
+        taglinetext.innerText = 'Try something else'
+      } else {
+        const svg = d3
+          .select('#services')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', 'translate(' + width / 2 + ',' + height / 2 + ')')
 
-      // Append the image inside the circle
-      svg
-        .append('image')
-        .attr('xlink:href', this.maintable) // Use the image URL from maintable
-        .attr('x', -radius) // Set x to -radius to center the image
-        .attr('y', -radius) // Set y to -radius to center the image
-        .attr('width', radius * 2) // Match the width of the image to the circle
-        .attr('height', radius * 2) // Match the height of the image to the circle
-        .attr('preserveAspectRatio', 'xMidYMid slice') // Preserve aspect ratio
+        // Append the circle to the SVG
+        svg
+          .append('circle')
+          .attr('cx', 0) // Center the circle on the X-axis
+          .attr('cy', 0) // Center the circle on the Y-axis
+          .attr('r', radius) // Set the radius of the circle
+          .attr('fill', 'none') // Remove the fill or set it to 'none'
 
-      // g.append('text')
-      //   .attr('transform', function (d) {
-      //     const [x, y] = arc.centroid(d) // Get the segment's centroid coordinates
-      //     const angle = ((d.startAngle + d.endAngle) / 2) * (180 / Math.PI) // Calculate the midpoint angle of the segment
-      //     return `translate(${x}, ${y}) rotate(${angle + 90})` // Rotate the text by 90 degrees
-      //   })
-      //   .attr('dy', '0.35em') // Center vertically
-      //   .style('text-anchor', 'middle')
-      //   .style('font-size', '14px')
-      //   .style('text-transform', 'uppercase')
-      //   .text((d) => d.data.name)
-
-      console.log('Number of seats:', this.data.length)
-
-      for (let i = 0; i < this.data.length; i++) {
-        const angle = this.data[i].middlerotate - 90
-        const x = seatdistance * Math.cos((angle * Math.PI) / 180) // Ensure angle is in radians
-        const y = seatdistance * Math.sin((angle * Math.PI) / 180) // Ensure angle is in radians
-
-        // Append a circle for each data point
-        svg.append('circle').attr('cx', x).attr('cy', y).attr('r', seatradius).style('fill', 'none')
-
-        // Append an image for each data point
+        // Append the image inside the circle
         svg
           .append('image')
-          .attr('xlink:href', this.sidetable) // Use the image URL from sidetable
-          .attr('x', x - seatradius) // Center the image horizontally
-          .attr('y', y - seatradius) // Center the image vertically
-          .attr('width', seatradius * 2) // Match the width of the image to the circle
-          .attr('height', seatradius * 2) // Match the height of the image to the circle
+          .attr('xlink:href', this.maintable) // Use the image URL from maintable
+          .attr('x', -radius) // Set x to -radius to center the image
+          .attr('y', -radius) // Set y to -radius to center the image
+          .attr('width', radius * 2) // Match the width of the image to the circle
+          .attr('height', radius * 2) // Match the height of the image to the circle
           .attr('preserveAspectRatio', 'xMidYMid slice') // Preserve aspect ratio
 
-        // Append a background rectangle for the text
-        svg
-          .append('rect')
-          .attr('x', x - 30) // Adjust size as needed
-          .attr('y', y - 10) // Adjust size as needed
-          .attr('transform', function () {
-            // Rotate the text based on the angle
-            return `rotate(${angle + 180}, ${x}, ${y})` // Rotate around the circle's center
-          })
-          .attr('width', 60) // Adjust width as needed
-          .attr('height', 20) // Adjust height as needed
-          .attr('fill', 'rgba(0, 0, 0, 0.7)') // Background color with transparency
-          .attr('rx', 5) // Rounded corners
-          .attr('ry', 5) // Rounded corners
+        // g.append('text')
+        //   .attr('transform', function (d) {
+        //     const [x, y] = arc.centroid(d) // Get the segment's centroid coordinates
+        //     const angle = ((d.startAngle + d.endAngle) / 2) * (180 / Math.PI) // Calculate the midpoint angle of the segment
+        //     return `translate(${x}, ${y}) rotate(${angle + 90})` // Rotate the text by 90 degrees
+        //   })
+        //   .attr('dy', '0.35em') // Center vertically
+        //   .style('text-anchor', 'middle')
+        //   .style('font-size', '14px')
+        //   .style('text-transform', 'uppercase')
+        //   .text((d) => d.data.name)
 
-        // Append text for each data point in the center of the circle
-        svg
-          .append('text')
-          .attr('x', x) // Center the text horizontally
-          .attr('y', y) // Center the text vertically
-          .attr('transform', function () {
-            // Rotate the text based on the angle
-            return `rotate(${angle + 180}, ${x}, ${y})` // Rotate around the circle's center
-          })
-          .attr('dy', '0.35em') // Align the text vertically
-          .attr('text-anchor', 'middle') // Center the text horizontally
-          .style('font-size', '10px')
-          .style('fill', 'white') // Set text color (adjust if necessary)
-          .text(this.data[i].name)
+        // console.log('Number of seats:', this.data.length)
+
+        for (let i = 0; i < this.data.length; i++) {
+          const angle = this.data[i].middlerotate - 90
+          const x = seatdistance * Math.cos((angle * Math.PI) / 180) // Ensure angle is in radians
+          const y = seatdistance * Math.sin((angle * Math.PI) / 180) // Ensure angle is in radians
+
+          // Append a circle for each data point
+          svg
+            .append('circle')
+            .attr('cx', x)
+            .attr('cy', y)
+            .attr('r', seatradius)
+            .style('fill', 'none')
+
+          // Append an image for each data point
+          svg
+            .append('image')
+            .attr('xlink:href', this.sidetable) // Use the image URL from sidetable
+            .attr('x', x - seatradius) // Center the image horizontally
+            .attr('y', y - seatradius) // Center the image vertically
+            .attr('width', seatradius * 2) // Match the width of the image to the circle
+            .attr('height', seatradius * 2) // Match the height of the image to the circle
+            .attr('preserveAspectRatio', 'xMidYMid slice') // Preserve aspect ratio
+
+          // Append a background rectangle for the text
+          svg
+            .append('rect')
+            .attr('x', x - 30) // Adjust size as needed
+            .attr('y', y - 10) // Adjust size as needed
+            .attr('transform', function () {
+              // Rotate the text based on the angle
+              return `rotate(${angle + 180}, ${x}, ${y})` // Rotate around the circle's center
+            })
+            .attr('width', 60) // Adjust width as needed
+            .attr('height', 20) // Adjust height as needed
+            .attr('fill', 'rgba(0, 0, 0, 0.7)') // Background color with transparency
+            .attr('rx', 5) // Rounded corners
+            .attr('ry', 5) // Rounded corners
+
+          // Append text for each data point in the center of the circle
+          svg
+            .append('text')
+            .attr('x', x) // Center the text horizontally
+            .attr('y', y) // Center the text vertically
+            .attr('transform', function () {
+              // Rotate the text based on the angle
+              return `rotate(${angle + 180}, ${x}, ${y})` // Rotate around the circle's center
+            })
+            .attr('dy', '0.35em') // Align the text vertically
+            .attr('text-anchor', 'middle') // Center the text horizontally
+            .style('font-size', '10px')
+            .style('fill', 'white') // Set text color (adjust if necessary)
+            .text(this.data[i].name)
+        }
       }
     },
     initPropeller() {
@@ -272,6 +315,11 @@ export default {
         }
       })
     },
+    start() {
+      if (this.data.length == 1) {
+        console.log('tests')
+      }
+    },
     setService(turn) {
       turn = 360 - turn
       turn -= 90
@@ -284,7 +332,12 @@ export default {
         if (turn > service.rotate && turn < service.endrotate) {
           console.log('Search for', service.name)
           console.log('Current angle:', turn)
+          let tagline = document.getElementById('tagline')
+          let taglinetext = document.getElementById('taglinetext')
           this.selectedService = service.name
+          tagline.innerText = this.selectedService
+          taglinetext.innerText = this.servicedescriptions[this.selectedService]
+          console.log(this.selectedService)
           console.log('Angle to meet:', service.rotate, 'to', service.endrotate)
         }
       }
@@ -312,6 +365,14 @@ export default {
 
 .responsivescreen {
   flex-direction: row;
+}
+
+.noservicetext {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  font-size: 3vw;
+  transform: translateY(17vw);
 }
 
 @media (max-width: 767px) {
@@ -368,7 +429,9 @@ export default {
   }
 
   .wheelcontainerrep {
-    display: inline;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .dropdownrep {
@@ -400,11 +463,15 @@ export default {
 .wheeltitle {
   font-size: 1.5em;
   padding-bottom: 10px;
+  align-self: top;
 }
 
 .wheelcircle {
   width: 400px;
   height: 400px;
+  /* display: flex;
+  justify-content: center;
+  align-items: center; */
 }
 
 .tagline {
@@ -428,10 +495,24 @@ export default {
   opacity: 0;
 }
 
-.btncolor {
+/* .btncolor {
   background-color: #8a5a00;
   border-radius: 20px;
   font-size: 1.5vw;
   color: white;
+} */
+
+.btncolor {
+  padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.75rem, 1.5vw, 1rem);
+  font-size: clamp(0.875rem, 1vw + 0.5rem, 1.25rem);
+  background-color: #8a5a00;
+  color: white;
+  border: none;
+  border-radius: clamp(0.25rem, 0.5vw, 0.5rem);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: fit-content;
+  min-width: 100px;
+  text-align: center;
 }
 </style>

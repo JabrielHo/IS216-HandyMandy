@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+import ProfileDropdown from './ProfileDropdown.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -61,6 +62,7 @@ onUnmounted(() => {
     <div class="navbar-content">
       <!-- Logo Section -->
       <router-link to="/" class="logo-section">
+        <img src="../assets/HandyMandyLogo1.png" alt="Handy Mandy Logo" class="logo" />
         <span class="brand-name">HandyMandy</span>
       </router-link>
 
@@ -116,7 +118,7 @@ onUnmounted(() => {
 
       <!-- Navigation Toggle -->
       <button
-        class="nav-toggle d-inline d-md-none"
+        class="nav-toggle dropdownres"
         type="button"
         data-bs-toggle="collapse"
         data-bs-target="#navbarNav"
@@ -124,11 +126,14 @@ onUnmounted(() => {
         aria-expanded="false"
         aria-label="Toggle navigation"
       >
-        <span class="nav-toggle-icon"></span>
+        <span class="nav-toggle-icon circle-icon">
+          <img src="../assets/dropdown.png" alt="Dropdown Logo" class="dropdown-logo" />
+          <!-- Logo image -->
+        </span>
       </button>
 
       <!--Nav Links Desktop-->
-      <div class="d-none d-md-inline me-5">
+      <div class="navbarres me-5">
         <ul class="nav-links">
           <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
           <li>
@@ -145,22 +150,25 @@ onUnmounted(() => {
           <li>
             <router-link to="/forum" class="nav-link" active-class="active">Forum</router-link>
           </li>
-        </ul>
 
-        <div v-if="!isLoading" class="auth-buttons">
-          <template v-if="!isLoggedIn">
-            <button @click="navigateToSignIn" class="sign-in-button">Sign In</button>
-            <button @click="navigateToRegister" class="register-button">Register</button>
-          </template>
-          <button v-else class="logout-button" data-bs-toggle="modal" data-bs-target="#logoutModal">
-            Log out
-          </button>
-        </div>
+          <li>
+            <div v-if="!isLoading" class="auth-buttons">
+              <template v-if="!isLoggedIn">
+                <button @click="navigateToSignIn" class="sign-in-button">Sign In</button>
+                <button @click="navigateToRegister" class="register-button">Register</button>
+              </template>
+              <ProfileDropdown v-else :profile-image="authStore.user?.profileImage" />
+            </div>
+          </li>
+        </ul>
       </div>
 
       <!-- Navigation Links Mobile -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="nav-links">
+          <li>
+            <router-link to="/forum" class="nav-link" active-class="active">Profile</router-link>
+          </li>
           <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
           <li>
             <router-link to="/services" class="nav-link" active-class="active"
@@ -348,6 +356,18 @@ onUnmounted(() => {
   display: none;
 }
 
+.profile {
+  display: flex;
+}
+
+.dropdownres {
+  display: none;
+}
+
+.navbarres {
+  display: inline;
+}
+
 @media (max-width: 1024px) {
   .desktop-search {
     display: none;
@@ -403,6 +423,14 @@ onUnmounted(() => {
     width: 100%;
     justify-content: center;
     padding: 1rem 0;
+  }
+
+  .dropdownres {
+    display: inline-flex;
+  }
+
+  .navbarres {
+    display: none;
   }
 }
 
@@ -460,5 +488,39 @@ onUnmounted(() => {
 
 .modal-logout:hover {
   background: #c82333;
+}
+
+.logo {
+  min-width: 3rem;
+  width: 5vw; /* Adjust as needed */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 10px;
+}
+
+.circle-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px; /* Adjust as needed */
+  height: 40px; /* Ensure equal size for circle */
+  border-radius: 50%; /* Makes the container circular */
+  background-color: #fff8f0; /* Optional background color */
+  overflow: hidden; /* Ensure overflow is hidden */
+}
+
+.dropdown-logo {
+  width: 90%; /* Scale the image to fit the container */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 50%; /* Keep the image circular */
+  object-fit: cover; /* Ensure the image covers the container while maintaining aspect ratio */
+}
+
+.nav-toggle {
+  background: none; /* Removes the default button background */
+  border: none; /* Removes the default button border */
+  padding: 0; /* Resets padding */
+  margin: 0; /* Resets margin */
+  cursor: pointer; /* Ensures pointer cursor on hover */
+  align-items: center; /* Center items vertically */
 }
 </style>
