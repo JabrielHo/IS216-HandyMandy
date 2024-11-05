@@ -13,9 +13,8 @@ const selectedServices = ref([])
 const currentStep = ref(0)
 const serviceDetails = ref({})
 const isLoading = ref(false)
-
 const userData = computed(() => authStore.user)
-
+const image = ref(null)
 // Initial step validation rules
 const baseRules = {
   location: { required },
@@ -25,7 +24,7 @@ const baseRules = {
 // Service details validation rules
 const serviceDetailsRules = computed(() => {
   const rules = {}
-  selectedServices.value.forEach(service => {
+  selectedServices.value.forEach((service) => {
     rules[service] = {
       yearsExperience: { required },
       description: { required },
@@ -50,7 +49,7 @@ const serviceOptions = [
 
 // Initialize service details when services are selected
 function initializeServiceDetails() {
-  selectedServices.value.forEach(service => {
+  selectedServices.value.forEach((service) => {
     if (!serviceDetails.value[service]) {
       serviceDetails.value[service] = {
         yearsExperience: 0,
@@ -74,6 +73,7 @@ function initializeServiceDetails() {
 
 function handleFileChange(event) {
   image.value = event.target.files[0]
+  console.log(image.value)
 }
 
 // Navigation functions
@@ -98,17 +98,17 @@ function getCurrentService() {
 async function createRequest() {
   isLoading.value = true
   try {
-    const serviceTypes = selectedServices.value; // Array of selected services
-    const userId = userData.value.uid;
-    const userLocation = location.value.trim();
+    const serviceTypes = selectedServices.value // Array of selected services
+    const userId = userData.value.uid
+    const userLocation = location.value.trim()
 
     // Construct the data object
     const requestData = {
       userId,
       location: userLocation,
       service_type: serviceTypes
-    };
-    
+    }
+
     const result = await Services.createService(requestData)
 
     if (result.success) {
@@ -122,16 +122,18 @@ async function createRequest() {
           serviceId: serviceId,
           service_type: service,
           userId: userId,
-          yearsExperience: details.yearsExperience,
+          yearsExperience: details.yearsExperience
         }
 
         // Upload image and create detailed service
-        if (details.image) {
+        if (image.value) {
           console.log("You've entered the uploading of data is userDetailedServices")
-          const detailedResult = await Services.createDetailedServices({
-            ...detailedRequest,
-            image: details.image // Passing file directly for upload
-          })
+          const detailedResult = await Services.createDetailedServices(
+            {
+              ...detailedRequest
+            },
+            image.value
+          )
 
           if (detailedResult.success) {
             console.log(`Detailed service created with ID: ${detailedResult.id}`)
@@ -155,10 +157,12 @@ async function createRequest() {
   <div class="form-container">
     <!-- Progress bar -->
     <div class="progress-bar">
-      <div class="progress-step" 
-           v-for="(step, index) in selectedServices.length + 1" 
-           :key="index"
-           :class="{ active: currentStep >= index }">
+      <div
+        class="progress-step"
+        v-for="(step, index) in selectedServices.length + 1"
+        :key="index"
+        :class="{ active: currentStep >= index }"
+      >
         {{ index === 0 ? 'Basic Info' : selectedServices[index - 1] }}
       </div>
     </div>
@@ -167,11 +171,9 @@ async function createRequest() {
     <div v-if="currentStep === 0" class="form-step">
       <h4>Basic Information</h4>
       <p class="text-secondary">Let's start with your location and services</p>
-      
+
       <div class="form-group">
-        <label for="location" :class="{ 'is-invalid': v$.location.$error }">
-          Your Location
-        </label>
+        <label for="location" :class="{ 'is-invalid': v$.location.$error }"> Your Location </label>
         <input
           type="text"
           id="location"
@@ -180,23 +182,23 @@ async function createRequest() {
           v-model="location"
           :class="{ 'is-invalid': v$.location.$error }"
         />
-        <div v-if="v$.location.$error" class="invalid-feedback">
-          Location is required.
-        </div>
+        <div v-if="v$.location.$error" class="invalid-feedback">Location is required.</div>
       </div>
 
       <div class="form-group">
-        <label :class="{ 'is-invalid': v$.selectedServices.$error }">
-          Select Services
-        </label>
+        <label :class="{ 'is-invalid': v$.selectedServices.$error }"> Select Services </label>
         <div class="services-grid">
-          <div v-for="service in serviceOptions" 
-               :key="service" 
-               class="service-option"
-               :class="{ selected: selectedServices.includes(service) }"
-               @click="selectedServices.includes(service) ? 
-                      selectedServices = selectedServices.filter(s => s !== service) : 
-                      selectedServices.push(service)">
+          <div
+            v-for="service in serviceOptions"
+            :key="service"
+            class="service-option"
+            :class="{ selected: selectedServices.includes(service) }"
+            @click="
+              selectedServices.includes(service)
+                ? (selectedServices = selectedServices.filter((s) => s !== service))
+                : selectedServices.push(service)
+            "
+          >
             {{ service }}
           </div>
         </div>
@@ -231,7 +233,7 @@ async function createRequest() {
             rows="3"
           ></textarea>
         </div>
-<!-- 
+        <!-- 
         <div class="form-group">
           <label>Hourly Rate (SGD)</label>
           <input
@@ -243,37 +245,37 @@ async function createRequest() {
         </div> -->
 
         <div class="form-group">
-        <label for="image" class="form-label">Attach an image of your service</label>
-        <input
-          class="form-control"
-          type="file"
-          id="image"
-          accept="image/*"
-          @change="handleFileChange"
-        />
-        <div v-if="serviceDetails[getCurrentService()].imagePreview" class="image-preview">
-          <img :src="serviceDetails[getCurrentService()].imagePreview" alt="Preview" />
+          <label for="image" class="form-label">Attach an image of your service</label>
+          <input
+            class="form-control"
+            type="file"
+            id="image"
+            accept="image/*"
+            @change="handleFileChange"
+          />
+          <div v-if="serviceDetails[getCurrentService()].imagePreview" class="image-preview">
+            <img :src="serviceDetails[getCurrentService()].imagePreview" alt="Preview" />
+          </div>
         </div>
-      </div>
       </div>
     </div>
 
     <!-- Navigation Buttons -->
     <div class="form-navigation">
-      <button v-if="currentStep > 0" 
-              class="btn btn-secondary" 
-              @click="prevStep">
-        Previous
-      </button>
-      <button v-if="currentStep < selectedServices.length" 
-              class="btn btn-primary" 
-              @click="nextStep">
+      <button v-if="currentStep > 0" class="btn btn-secondary" @click="prevStep">Previous</button>
+      <button
+        v-if="currentStep < selectedServices.length"
+        class="btn btn-primary"
+        @click="nextStep"
+      >
         Next
       </button>
-      <button v-if="currentStep === selectedServices.length" 
-              class="btn btn-success" 
-              @click="createRequest"
-              :disabled="isLoading">
+      <button
+        v-if="currentStep === selectedServices.length"
+        class="btn btn-success"
+        @click="createRequest"
+        :disabled="isLoading"
+      >
         {{ isLoading ? 'Submitting...' : 'Submit Services' }}
       </button>
     </div>
@@ -322,12 +324,12 @@ async function createRequest() {
 }
 
 .progress-step.active {
-  color: #FFAD60;
+  color: #ffad60;
   font-weight: bold;
 }
 
 .progress-step.active::after {
-  background: #FFAD60;
+  background: #ffad60;
 }
 
 .form-step {
@@ -351,13 +353,13 @@ async function createRequest() {
 }
 
 .service-option:hover {
-  border-color: #FFAD60;
+  border-color: #ffad60;
 }
 
 .service-option.selected {
-  background: #FFAD60;
+  background: #ffad60;
   color: white;
-  border-color: #FFAD60;
+  border-color: #ffad60;
 }
 
 .form-group {
@@ -373,7 +375,7 @@ async function createRequest() {
 }
 
 .form-control:focus {
-  border-color: #FFAD60;
+  border-color: #ffad60;
   outline: none;
 }
 
@@ -439,7 +441,7 @@ async function createRequest() {
 }
 
 .btn-primary {
-  background: #FFAD60;
+  background: #ffad60;
   color: white;
 }
 
@@ -449,7 +451,7 @@ async function createRequest() {
 }
 
 .btn-success {
-  background: #FFAD60;
+  background: #ffad60;
   color: white;
 }
 
