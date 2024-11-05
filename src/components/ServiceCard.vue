@@ -1,37 +1,47 @@
 <template>
-    <div
-      id="profile-card"
-      :class="{ animate: isAnimated }"
-      @mouseenter="isAnimated = true"
-      @mouseleave="isAnimated = false"
-    >
-      <div id="profile-front">
-        <div class="shadow"></div>
+  <div
+    id="profile-card"
+    :class="{ animate: isAnimated }"
+    @mouseenter="isAnimated = true"
+    @mouseleave="isAnimated = false"
+  >
+    <div id="profile-front">
+      <div class="shadow"></div>
+      <div class="image-container">
         <img
           :src="service.profilePicture"
           alt="Profile Picture"
-          class="img-fluid"
+          class="profile-image"
         />
         <div class="image_overlay"></div>
-        <div id="view_details">View Profile</div>
-        <div class="stats">
-          <div class="stats-container">
-            <span class="username">{{ service.username }}</span>
-            <p>{{ service.location }} <br>
+        <div class="view-details-wrapper">
+          <button id="view_details">
+            <span class="button-text">View Profile</span>
+          </button>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stats-container">
+          <span class="username">{{ service.username }}</span>
+          <p class="details">
+            {{ service.location }}
+            <br />
+            <span class="services">
               <span v-for="(ser, index) in service.service_type" :key="index">
-              {{ ser }}
-              <span v-if="index < service.service_type.length - 1">, </span>
+                {{ ser }}
+                <span v-if="index < service.service_type.length - 1">, </span>
+              </span>
             </span>
-            <br>
-              Years of Experience: {{ service.yearsExperience }}
-            </p>
-            <div class="chat-button" v-if="isAnimated">Chat</div>
-          </div>
+            <br />
+            <span class="experience">Years of Experience: {{ service.yearsExperience }}</span>
+          </p>
+          <button class="chat-button" v-if="isAnimated">Chat</button>
         </div>
       </div>
     </div>
+  </div>
 </template>
-      
+
 <script>
 export default {
   name: "ServiceCard",
@@ -53,70 +63,75 @@ export default {
       isAnimated: false,
     };
   },
-  mounted() {
-    console.log("Service data:", this.service);
-  },
 };
-
 </script>
 
 <style scoped>
-body {
-  background: #eaebec;
-  font-family: 'Open Sans', sans-serif;
-}
-
-/* --- Profile Card ---- */
-
-#profile-front {
-  background: #fff;
-  position: relative;
-  transition: all 100ms ease-out;
-}
-
 #profile-card {
   width: 100%;
-  /* max-width: 300px; */
-  height: 490px;
+  height: auto;
+  min-height: 400px;
   position: relative;
   overflow: hidden;
   transform-style: preserve-3d;
   transition: 100ms ease-out;
-  margin: auto;
+  margin: 0 auto 20px;
   border: 1px solid rgb(177, 177, 177);
+  background: #fff;
 }
 
 #profile-card.animate {
   box-shadow: 0px 13px 21px -5px rgba(0, 0, 0, 0.3);
-  transition: 100ms ease-out;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1 Aspect Ratio */
+  overflow: hidden;
+}
+
+.profile-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .stats-container {
   background: #fff;
-  position: absolute;
-  top: 350px;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 200px;
-  padding: 10px 25px 25px;
-  transition: all 200ms ease-out;
-}
-
-#profile-card.animate .stats-container {
-  top: 250px;
+  padding: 15px;
   transition: all 200ms ease-out;
 }
 
 .username {
-  font-size: 22px;
+  font-size: 1.2rem;
   color: #393c45;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
 }
 
-.stats-container p {
-  font-size: 16px;
+.details {
+  font-size: 0.9rem;
   color: #b1b1b3;
-  padding: 2px 0 10px 0;
-  margin-bottom: 10px; 
+  margin: 0;
+  line-height: 1.4;
+}
+
+.services {
+  display: block;
+  margin: 5px 0;
+  word-wrap: break-word;
+}
+
+.experience {
+  display: block;
+  margin-top: 5px;
 }
 
 .image_overlay {
@@ -132,41 +147,40 @@ body {
 
 #profile-card.animate .image_overlay {
   opacity: 0.7;
-  transition: all 200ms ease-out;
 }
 
-.profile-options {
-  padding: 2px 0 0;
-}
-
-.profile-options strong {
-  font-weight: 700;
-  color: #393c45;
-  font-size: 14px;
-}
-
-.profile-options span {
-  color: #969699;
-  font-size: 14px;
-  display: block;
-  margin-bottom: 8px;
+.view-details-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #view_details {
-  position: absolute;
-  top: 112px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   border: 2px solid #fff;
+  background: transparent;
   color: #fff;
-  font-size: 19px;
   text-align: center;
   text-transform: uppercase;
   font-weight: 700;
-  padding: 10px 0;
-  width: 172px;
   opacity: 0;
   transition: all 200ms ease-out;
+  width: min(80%, 200px);
+  padding: min(3%, 12px) min(5%, 20px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-text {
+  font-size: min(3.5vw, 1rem);
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 #view_details:hover {
@@ -177,32 +191,17 @@ body {
 
 #profile-card.animate #view_details {
   opacity: 1;
-  width: 152px;
-  font-size: 15px;
-  top: 115px;
-  transition: all 200ms ease-out;
-}
-
-.shadow {
-  width: 335px;
-  height: 520px;
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 3;
-  display: none;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
 }
 
 .chat-button {
   display: none;
+  width: 100%;
   background-color: #FFAD60;
   color: #fff;
   border: none;
-  padding: 10px 20px;
+  padding: clamp(6px, 1.5vw, 12px);
   text-align: center;
-  font-size: 16px;
+  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
   margin-top: 10px;
   cursor: pointer;
   border-radius: 5px;
@@ -213,43 +212,104 @@ body {
   display: block;
 }
 
-@media (max-width: 1400px) {
+.chat-button:hover {
+  background-color: #ff9f47;
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1199.98px) { /* xl breakpoint */
   #profile-card {
-    max-width: 150px;
+    min-height: 350px;
   }
-
-  .shadow {
-    width: 275px;
-    height: 430px;
+  
+  .username {
+    font-size: 1.1rem;
   }
-
-  .stats-container {
-    top: 150px;
+  
+  .details {
+    font-size: 0.85rem;
   }
-
-  #profile-card.animate .stats-container {
-    top: 190px;
-  }
-
+  
   #view_details {
-    top: 90px;
-    width: 140px;
-    font-size: 16px;
+    width: min(70%, 180px);
+    border-width: 1.5px;
   }
-
-  #profile-card.animate #view_details {
-    top: 95px;
-    width: 130px;
-    font-size: 14px;
+  
+  .button-text {
+    font-size: min(3vw, 0.9rem);
   }
+}
 
-  .profile-options {
-    opacity: 0;
-    transition: opacity 200ms ease-out;
+@media (max-width: 991.98px) { /* lg breakpoint */
+  #profile-card {
+    min-height: 300px;
   }
+  
+  .stats-container {
+    padding: 10px;
+  }
+  
+  #view_details {
+    width: min(65%, 160px);
+    border-width: 1.5px;
+    padding: min(2.5%, 10px) min(4%, 16px);
+  }
+  
+  .button-text {
+    font-size: min(2.8vw, 0.85rem);
+  }
+  
+  .chat-button {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+}
 
-  #profile-card.animate .profile-options {
-    opacity: 1;
+@media (max-width: 767.98px) { /* md breakpoint */
+  #profile-card {
+    min-height: 280px;
+  }
+  
+  .username {
+    font-size: 1rem;
+  }
+  
+  .details {
+    font-size: 0.8rem;
+  }
+  
+  #view_details {
+    width: min(60%, 140px);
+    border-width: 1px;
+    padding: min(2%, 8px) min(3%, 14px);
+  }
+  
+  .button-text {
+    font-size: min(2.5vw, 0.8rem);
+  }
+}
+
+@media (max-width: 575.98px) { /* sm breakpoint */
+  #profile-card {
+    min-height: 250px;
+    margin: 0 auto 15px;
+  }
+  
+  .stats-container {
+    padding: 8px;
+  }
+  
+  #view_details {
+    width: min(55%, 120px);
+    padding: min(1.5%, 6px) min(2.5%, 12px);
+  }
+  
+  .button-text {
+    font-size: min(2.2vw, 0.75rem);
+  }
+  
+  .chat-button {
+    margin-top: 6px;
   }
 }
 </style>

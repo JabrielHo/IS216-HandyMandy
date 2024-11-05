@@ -193,7 +193,7 @@ onMounted(() => {
     <div v-else>
       <div class="row">
         <div
-          class="col-xl-3 col-lg-2 col-md-3 col-sm-3"
+          class="col-xl-3 col-lg-3 col-md-4 col-sm-6"
           v-for="service in services"
           :key="service.userId"
         >
