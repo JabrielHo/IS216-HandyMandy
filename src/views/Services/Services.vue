@@ -1,136 +1,237 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '../../stores/auth'
+import { computed } from 'vue'
+import Services from './users'
+import UserService from '../../services/UserService'
+import ServiceCard from '../../components/ServiceCard.vue'
+import PlaceholderCard from '../../components/PlaceholderCard.vue'
 
-const n = 8
-const cards = ref([])
-for (let i = 1; i <= n; i++) {
-  cards.value.push({
-    name: `User ${i}`,
-    services: `Plumbing`,
-    profileImgSrc: 'src/assets/logo.svg',
-    yearsOfExp: '5 years',
-    location: 'Ang Mo Kio'
+const router = useRouter()
+const authStore = useAuthStore()
+const isLoggedIn = computed(() => authStore.user !== null)
+
+const selectedCategoryOption = ref('All Categories')
+const selectedLocationOption = ref('All Locations')
+const services = ref([])
+const categories = ref([])
+const locations = ref([])
+const loading = ref(false)
+
+// Pagination state
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+const totalItems = ref(0)
+
+async function fetchServices() {
+  loading.value = true;
+  console.log('Fetching services...');
+      const result = await Services.getAllServices(
+      selectedCategoryOption.value,
+      selectedLocationOption.value,
+      currentPage.value,
+      itemsPerPage.value
+    );
+
+    console.log('Fetched result:', result); // Debug fetched result
+
+    const servicePromises = result.items.map((service) => {
+      return UserService.getUserData(service.userId).then((userData)=>{
+        service.username = userData.username
+        service.profilePicture = userData.profilePicture
+        return service
+      })
+    })
+
+    Promise.all(servicePromises).then((loadedData) => {
+    services.value = loadedData
+    totalItems.value = result.totalItems
+    loading.value = false
   })
 }
 
-
-const selectedServicesOption = ref('All services')
-
-
-function selectServicesOption(option) {
-    selectedServicesOption.value = option
+// Fetch Categories and Locations
+async function populateCategoryFilter() {
+  const result = await Services.getAllCategories()
+  categories.value = result
+  console.log("categories", categories.value)
 }
 
+async function populateLocationFilter() {
+  const result = await Services.getAllLocations()
+  locations.value = result
+}
+
+// Create a new service request
+function navigateToCreateService() {
+  if (isLoggedIn.value) {
+    router.push('/create-service')
+  } else {
+    alert('You must be logged in to create a new service.')
+  }
+}
+
+// Handle pagination
+function changePage(page) {
+  if (page >= 1 && page <= Math.ceil(totalItems.value / itemsPerPage.value)) {
+    currentPage.value = page
+    fetchServices()
+  }
+}
+
+onMounted(() => {
+  fetchServices()
+  populateCategoryFilter()
+  populateLocationFilter()
+})
+
+// console.log("this is services : " , services)
 </script>
+
 <template>
-  <div class="container-fluid notice-board">
-    <div id="header">
-      <h2>Services</h2>
+  <section class="text-center container">
+    <div class="row pt-4">
+      <div class="col-lg-6 col-md-8 mx-auto">
+        <h1 class="fw-light">Available Services</h1>
+        <p class="lead text-body-secondary">
+          Discover a variety of services offered by others. Whether you're looking for help or offering services, connect today!
+        </p>
+        <p>
+          <button v-if="isLoggedIn" class="btn btn-danger my-2" @click="navigateToCreateService">
+            Add Your Service!
+          </button>
+        </p>
+      </div>
     </div>
-    <div id="filter">
-      <div class="dropdown">
+  </section>
+
+  <section class="container">
+    <div v-if="!loading" class="my-4 filter">
+      <!-- Filters for Categories and Locations -->
+      <!-- Dropdown for Categories -->
+      <div class="dropdown me-md-2">
         <button
           class="btn drop dropdown-toggle rounded-pill"
           type="button"
           data-bs-toggle="dropdown"
-          aria-expanded="false">
-          {{ selectedServicesOption }}
+          aria-expanded="false"
+        >
+          {{ selectedCategoryOption }}
         </button>
         <ul class="dropdown-menu">
           <li
             class="dropdown-item"
-            :class="{ active: selectedServicesOption === 'All categories' }"
-            @click="selectServicesOption('All categories')"
+            :class="{ active: selectedCategoryOption === 'All Categories' }"
+            @click="selectCategoryOption('All Categories')"
           >
-            All categories
+            All Categories
           </li>
+          <div v-for="category in categories" :key="category">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedCategoryOption === category }"
+              @click="selectCategoryOption(category)"
+            >
+              {{ category }}
+            </li>
+          </div>
+        </ul>
+      </div>
+
+      <!-- Dropdown for Locations -->
+      <div class="dropdown me-md-2">
+        <button
+          class="btn drop dropdown-toggle rounded-pill"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          {{ selectedLocationOption }}
+        </button>
+        <ul class="dropdown-menu">
           <li
             class="dropdown-item"
-            :class="{ active: selectedServicesOption === 'Plumbing' }"
-            @click="selectServicesOption('Plumbing')"
+            :class="{ active: selectedLocationOption === 'All Locations' }"
+            @click="selectLocationOption('All Locations')"
           >
-            Plumbing
+            All Locations
           </li>
+          <div v-for="location in locations" :key="location">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedLocationOption === location }"
+              @click="selectLocationOption(location)"
+            >
+              {{ location }}
+            </li>
+          </div>
         </ul>
       </div>
     </div>
-    <div class="row">
-      <div class="col-xl-3 col-lg-3 col-md-6" v-for="(card, index) in cards" :key="index">
-        <div class="card notice">
-          <!-- Pin image at the top of the card -->
-          <div class="pin"></div>
-          <div class="userInfo">
-            <img
-              :src="card.profileImgSrc"
-              class="rounded-circle me-2"
-              alt="Profile Picture"
-              width="60"
-              height="60"
-            />
-            <span class="name">{{ card.name }}</span>
-          </div>
-          <div class="card-body">
-            <h6>Services: <p>{{ card.services }}</p></h6>
-            <h6>Location: <p>{{ card.location }}</p></h6>
-            <h6>Years of Experience: <p>{{ card.yearsOfExp }}</p></h6>
-          </div>
-          <div class="content-center text-center">
-            <button class="btn rounded-pill" type="button"><a href="/personalProfile_ExternalPOV">View Profile</a></button>
-            <button class="btn rounded-pill" type="button"><a href="/services">Chat</a></button>
-          </div>
+
+    <div v-if="loading" class="row">
+      <PlaceholderCard />
+    </div>
+
+    <div v-if="!loading && services.length === 0" class="noRequests">
+      <h1 class="fw-light">No Services Found</h1>
+    </div>
+
+    <div v-else>
+      <div class="row">
+        <div
+          class="col-xl-3 col-lg-3 col-md-6 col-sm-6"
+          v-for="service in services"
+          :key="service.userId"
+        >
+          <ServiceCard v-if="service" :service="service" />
         </div>
       </div>
+
+      <!-- Pagination Controls -->
+      <nav aria-label="pagination" class="d-flex justify-content-end">
+        <ul class="pagination">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a class="page-link" @click="changePage(currentPage - 1)">Previous</a>
+          </li>
+          <li
+            class="page-item"
+            v-for="page in Math.ceil(totalItems / itemsPerPage)"
+            :key="page"
+            :class="{ active: currentPage === page }"
+          >
+            <a class="page-link" @click="changePage(page)">{{ page }}</a>
+          </li>
+          <li
+            class="page-item"
+            :class="{ disabled: currentPage === Math.ceil(totalItems / itemsPerPage) }"
+          >
+            <a class="page-link" @click="changePage(currentPage + 1)">Next</a>
+          </li>
+        </ul>
+      </nav>
     </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
-#header {
+.filter {
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
-#filter {
-  display: flex;
-  justify-content: end;
-  margin: 8px 0 14px 0;
-}
-
-.card {
-  padding: 8px;
-  margin-bottom: 16px;
-}
-
-.card:hover {
-  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
-}
-
-.card-body {
-  margin-top: 5px;
-  padding-bottom: 0;
-}
-
-.userInfo {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.name {
-  font-size: 20px;
-  line-height: 22px;
-  font-weight: 600;
-}
-
-.drop {
-  background-color: white;
-  border: 1px solid lightgray;
+.ml-auto {
+  margin-left: auto;
+  margin-right: 8px;
 }
 
 li {
   cursor: pointer;
+}
+
+.drop {
+  border: none;
 }
 
 .active {
@@ -138,24 +239,8 @@ li {
   color: black;
 }
 
-.dropdown-item:active {
+.dropdown- .dropdown-item:active {
   background-color: #f0eeee !important;
-}
-
-@media (max-width: 500px) {
-  #filter {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  #header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .dropdown {
-    margin-bottom: 8px;
-  }
 }
 
 .dropdown-toggle[aria-expanded='true']:after {
@@ -166,65 +251,62 @@ li {
   transition: 0.1s;
 }
 
-button {
-    background-color: lightblue;
-    margin: 15px;
+.dropdown-item:active,
+.dropdown-item:focus {
+  background-color: transparent !important;
+  color: inherit !important;
 }
 
-a {
-    text-decoration: none;
-    color: black;
+.fab {
+  display: none;
+  position: fixed;
+  width: 55px;
+  height: 55px;
+  background-color: red;
+  border-radius: 50%;
+  bottom: 20px;
+  right: 20px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+  color: white;
+  font-size: 30px;
 }
 
-/* Notice board styling */
-.notice-board {
-    background-image: url('https://www.transparenttextures.com/patterns/green-fabric.png'); /* Green texture */
-    background-color: #2e8b57; /* Backup solid green */
-    border: 10px solid #4c4c4c; /* Dark grey/black to simulate a frame */
-    border-radius: 10px;
-    padding: 20px;
-    margin: 40px auto;
-    max-width: 1200px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+.noRequests {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
 }
 
-/* Notice/card styling */
-.notice {
-    background-color: white;
-    border: 2px solid black;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden; /* Ensures pin doesn't spill over */
-}
+@media (max-width: 500px) {
+  .filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-/* Pin styling */
-.pin {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 20px;
-    background-color: red;
-    border-radius: 50%;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    z-index: 10;
-}
+  .dropdown {
+    margin-bottom: 8px;
+    margin: 0 0 8px 0;
+    border: 1px solid black;
+  }
 
-h2 {
-    color: white;
-}
+  .drop {
+    width: 100%;
+  }
 
-/* Subtle text changes for more notice board feel */
-h6 {
-    font-family: 'Verdana', sans-serif;
-    color: #333;
-}
+  .dropdown-menu {
+    width: 100%;
+  }
 
-p {
-    font-size: 0.9rem;
+  .fab {
+    display: flex;
+  }
+
+  .createBtn {
+    display: none;
+  }
 }
 </style>

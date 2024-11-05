@@ -1,45 +1,63 @@
 <template>
-  <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6" v-for="(n, index) in 8" :key="n">
     <div
-      id="product-card"
-      :class="{ animate: isAnimated[index] }"
-      @mouseenter="isAnimated[index] = true"
-      @mouseleave="isAnimated[index] = false"
+      id="profile-card"
+      :class="{ animate: isAnimated }"
+      @mouseenter="isAnimated = true"
+      @mouseleave="isAnimated = false"
     >
-      <div id="product-front">
+      <div id="profile-front">
         <div class="shadow"></div>
         <img
-          src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/245657/t-shirt.png"
-          alt=""
+          :src="service.profilePicture"
+          alt="Profile Picture"
           class="img-fluid"
         />
         <div class="image_overlay"></div>
-        <div id="view_details">View details</div>
+        <div id="view_details">View Profile</div>
         <div class="stats">
           <div class="stats-container">
-            <span class="product_price">$39</span>
-            <span class="product_name">Adidas Originals</span>
-            <p>Men's running shirt</p>
-            <div class="product-options">
-              <strong>SIZES</strong>
-              <span>XS, S, M, L, XL, XXL</span>
-            </div>
+            <span class="username">{{ service.username }}</span>
+            <p>{{ service.location }} <br>
+              <span v-for="(ser, index) in service.service_type" :key="index">
+              {{ ser }}
+              <span v-if="index < service.service_type.length - 1">, </span>
+            </span>
+            <br>
+              Years of Experience: {{ service.yearsExperience }}
+            </p>
+            <div class="chat-button" v-if="isAnimated">Chat</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
       
 <script>
 export default {
-  name: 'ProductCard',
+  name: "ServiceCard",
+  props: {
+    service: {
+      type: Object,
+      required: true,
+      default: () => ({
+        profilePicture: 'default-profile-url',
+        username: 'Unknown User',
+        location: 'Unknown Location',
+        service_type: [],
+        yearsExperience: 0,
+      }),
+    },
+  },
   data() {
     return {
-      isAnimated: Array(8).fill(false)
-    }
-  }
-}
+      isAnimated: false,
+    };
+  },
+  mounted() {
+    console.log("Service data:", this.service);
+  },
+};
+
 </script>
 
 <style scoped>
@@ -48,15 +66,15 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
-/* --- Product Card ---- */
+/* --- Profile Card ---- */
 
-#product-front {
+#profile-front {
   background: #fff;
   position: relative;
   transition: all 100ms ease-out;
 }
 
-#product-card {
+#profile-card {
   width: 100%;
   max-width: 300px;
   height: 490px;
@@ -65,9 +83,10 @@ body {
   transform-style: preserve-3d;
   transition: 100ms ease-out;
   margin: auto;
+  border: 1px solid rgb(177, 177, 177);
 }
 
-#product-card.animate {
+#profile-card.animate {
   box-shadow: 0px 13px 21px -5px rgba(0, 0, 0, 0.3);
   transition: 100ms ease-out;
 }
@@ -75,7 +94,7 @@ body {
 .stats-container {
   background: #fff;
   position: absolute;
-  top: 386px;
+  top: 350px;
   left: 0;
   width: 100%;
   height: 300px;
@@ -83,12 +102,12 @@ body {
   transition: all 200ms ease-out;
 }
 
-#product-card.animate .stats-container {
-  top: 272px;
+#profile-card.animate .stats-container {
+  top: 250px;
   transition: all 200ms ease-out;
 }
 
-.product_name {
+.username {
   font-size: 22px;
   color: #393c45;
 }
@@ -97,13 +116,7 @@ body {
   font-size: 16px;
   color: #b1b1b3;
   padding: 2px 0 20px 0;
-}
-
-.product_price {
-  float: right;
-  color: #48cfad;
-  font-size: 22px;
-  font-weight: 600;
+  margin-bottom: 10px; 
 }
 
 .image_overlay {
@@ -112,27 +125,27 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #48daa1;
+  background: #FFAD60;
   opacity: 0;
   transition: all 200ms ease-out;
 }
 
-#product-card.animate .image_overlay {
+#profile-card.animate .image_overlay {
   opacity: 0.7;
   transition: all 200ms ease-out;
 }
 
-.product-options {
+.profile-options {
   padding: 2px 0 0;
 }
 
-.product-options strong {
+.profile-options strong {
   font-weight: 700;
   color: #393c45;
   font-size: 14px;
 }
 
-.product-options span {
+.profile-options span {
   color: #969699;
   font-size: 14px;
   display: block;
@@ -158,11 +171,11 @@ body {
 
 #view_details:hover {
   background: #fff;
-  color: #48cfad;
+  color: #FFAD60;
   cursor: pointer;
 }
 
-#product-card.animate #view_details {
+#profile-card.animate #view_details {
   opacity: 1;
   width: 152px;
   font-size: 15px;
@@ -182,9 +195,27 @@ body {
   background: linear-gradient(to right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.2));
 }
 
+.chat-button {
+  display: none;
+  background-color: #FFAD60;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 16px;
+  margin-top: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 200ms ease-out;
+}
+
+#profile-card.animate .chat-button {
+  display: block;
+}
+
 @media (max-width: 1400px) {
-  #product-card {
-    max-width: 250px;
+  #profile-card {
+    max-width: 150px;
   }
 
   .shadow {
@@ -193,10 +224,10 @@ body {
   }
 
   .stats-container {
-    top: 300px;
+    top: 150px;
   }
 
-  #product-card.animate .stats-container {
+  #profile-card.animate .stats-container {
     top: 190px;
   }
 
@@ -206,18 +237,18 @@ body {
     font-size: 16px;
   }
 
-  #product-card.animate #view_details {
+  #profile-card.animate #view_details {
     top: 95px;
     width: 130px;
     font-size: 14px;
   }
 
-  .product-options {
+  .profile-options {
     opacity: 0;
     transition: opacity 200ms ease-out;
   }
 
-  #product-card.animate .product-options {
+  #profile-card.animate .profile-options {
     opacity: 1;
   }
 }
