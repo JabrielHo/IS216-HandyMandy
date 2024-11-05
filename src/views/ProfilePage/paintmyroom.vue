@@ -3,17 +3,7 @@
   <div class="page-container yellowbg">
     <div class="container">
       <!-- Title Section -->
-      <h1 class="page-title">Furniture Assembly</h1>
-      
-      <!-- Profile Section -->
-      <section class="profile-section">
-        <img :src="profileImage" alt="Profile of John Doe" class=" profile-pic">
-        <div class="profile-info">
-          <h2><a href="personalProfile_ExternalPOV" class="name">John Doe</a></h2>
-          <p class="star-rating">★★★★☆ <span style="color: #6e4824; font-size: 16px;">(20 reviews)</span></p>
-          <p style="color: #6e4824;"> About me: Reliable handyman with a strong eye for detail and years of experience tackling a wide range of home repairs and improvements. From plumbing and electrical work to general maintenance, I’m here to make your home projects hassle-free and done right the first time. Book now for quality service you can trust! </p>
-        </div>
-      </section>
+      <h1 class="page-title">Help me paint my room</h1>
 
       <!-- Carousel Section -->
       <div id="carouselExampleIndicators" class="carousel slide">
@@ -24,13 +14,13 @@
         </div>
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <img src="./images/furniture_assembly.webp" class="d-block w-100" alt="...">
+            <img src="./images/paintroom.jpg" class="d-block w-100" alt="...">
           </div>
           <div class="carousel-item">
-            <img src="./images/furniture_assembly1.webp" class="d-block w-100" alt="...">
+            <img src="./images/paintroom2.jpeg" class="d-block w-100" alt="...">
           </div>
           <div class="carousel-item">
-            <img src="./images/furniture_assembly2.webp" class="d-block w-100" alt="...">
+            <img src="./images/paintroom3.jpg" class="d-block w-100" alt="...">
           </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -44,44 +34,22 @@
       </div>
 
       <!-- What's Included Section -->
-      <section class="included-section">
-  <h2>What's Included</h2>
-  <ul class="included-list">
-    <li>Assembly of flat-pack and pre-fabricated furniture</li>
-    <li>Furniture disassembly and reassembly for moves or storage</li>
-    <li>Installation of shelves, wall-mounted units, and fixtures</li>
-    <li>Secure anchoring and leveling of heavy furniture</li>
-    <li>Cleanup and removal of packaging materials</li>
-  </ul>
-</section>
+      <section class="description-section">
+        <h2>Description of Issue</h2>
+        <ul class="description-list">
+          <li>Help me paint my room to match the aesthetics of the rooms in the images</li>
+          <li>I will provide the paint colours. Let me know if you have any ideas to make my room look nicer.</li>
+        </ul>
+        <br>
+        <h2>Location</h2>
+        <span style="color: #6e4824;">456 Punggol Avenue 8, #14-529
+        Singapore 823567</span>
+      </section>
 
-<!-- Qualifications and Reviews Section -->
-<div class="qualifications-reviews">
-  <!-- Qualifications -->
-  <section class="qualifications-section">
-    <h2>Qualifications</h2>
-    <ul>
-      <li>Experienced in assembling a wide range of furniture brands</li>
-      <li>5+ years in residential and commercial furniture assembly</li>
-      <li>Specialized in secure mounting and leveling of large items</li>
-      <li>Equipped with professional tools for efficient assembly</li>
-    </ul>
-  </section>
-
-  <!-- Reviews Section -->
-  <section class="reviews-section">
-    <h2>Customer Reviews</h2>
-    <ul>
-      <li>"John assembled our new wardrobe perfectly, and it’s super sturdy!" - Emma W.</li>
-      <li>"Efficient and professional! He made quick work of our complex office setup." - David M.</li>
-      <li>"Super helpful and thorough. John even cleaned up all the packaging after!" - Sarah T.</li>
-      <li>"Reliable and detail-oriented. I’m thrilled with how he put together my new furniture!" - Chris P.</li>
-    </ul>
-  </section>
-</div>
+   
 
       <!-- Bottom Book Now Button -->
-      <button class="book-button bottom-button" @click="bookNow">Book Now</button>
+      <button class="book-button bottom-button" @click="bookNow">Chat with John</button>
     </div>
   </div>
 </template>
@@ -124,7 +92,7 @@ export default {
   color: #6e4824;
 }
 .page-container {
-  background-color: #FFEEAD;
+  background-color: #FFffff;
   padding: 20px;
   font-family: Arial, sans-serif;
 }
@@ -133,6 +101,8 @@ export default {
   color: #6e4824;
   font-size: 2em;
   margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
 }
 
 /* Profile Section */
@@ -143,6 +113,7 @@ export default {
   background-color: #fff8e6;
   padding: 20px;
   border-radius: 10px;
+  border: 2px solid #c6b4a2;
 }
 
 
@@ -178,34 +149,29 @@ export default {
 }
 
 /* What's Included Section */
-.included-section {
+.description-section {
   background-color: #fff8e6;
   padding: 15px;
   border-radius: 10px;
   margin: 20px 0;
+  border: 2px solid #c6b4a2;
 }
 
-.included-section h2 {
+.description-section h2 {
   color: #6e4824;
   font-size: 1.5em;
-  margin-bottom: 10px; /* Add margin below the title */
+  margin-bottom: 10px; 
+  font-weight: bold;
 }
 
-.included-list {
-  list-style-type: none;
-  padding: 0;
+.description-list {
+  padding-left: 20px;
   color: #6e4824;
   font-size: 1em;
   line-height: 1.6;
   margin-bottom: 10px; /* Ensure space below the list */
 }
 
-.included-list li::before {
-  content: "✔";
-  color: #96CEB4;
-  padding-right: 10px;
-  font-weight: bold;
-}
 
 /* Book Now Button */
 .book-button {
@@ -244,6 +210,7 @@ export default {
   flex: 1;
   overflow-y: auto;
   max-height: 200px;
+  border: 2px solid #c6b4a2;
 }
 
 .qualifications-section h2,
