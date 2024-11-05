@@ -14,6 +14,17 @@ const description = ref('')
 const location = ref('')
 const category = ref('')
 const image = ref(null)
+const categories = ref([
+  'Plumbing',
+  'Electrical',
+  'Air-con',
+  'Cleaning',
+  'Gardening',
+  'Painting',
+  'Repair',
+  'Installation',
+  'Misc'
+])
 const userData = computed(() => authStore.user)
 
 const rules = {
@@ -55,102 +66,112 @@ async function createRequest() {
 </script>
 
 <template>
-  <div class="container">
-    <h4>Service Request Form</h4>
-    <p class="secondary">We just need a few details about your request</p>
-    <div class="formgroup">
-      <label for="title" class="form-label" :class="{ 'is-invalid': v$.title.$error }">
-        Give your required service request a title
-      </label>
-      <input
-        type="text"
-        id="title"
-        class="form-control"
-        placeholder="Looking for air-con service man"
-        aria-label="title"
-        v-model="title"
-        :class="{ 'is-invalid': v$.title.$error }"
-      />
-      <div v-if="v$.title.$error" class="invalid-feedback">
-        <span>Title is required.</span>
+  <section class="background">
+    <div class="container con-background">
+      <h4>Service Request Form</h4>
+      <p class="secondary">We just need a few details about your request</p>
+      <div class="formgroup">
+        <label for="title" class="form-label" :class="{ 'is-invalid': v$.title.$error }">
+          Give your required service request a title
+        </label>
+        <input
+          type="text"
+          id="title"
+          class="form-control"
+          placeholder="Looking for air-con service man"
+          aria-label="title"
+          v-model="title"
+          :class="{ 'is-invalid': v$.title.$error }"
+        />
+        <div v-if="v$.title.$error" class="invalid-feedback">
+          <span>Title is required.</span>
+        </div>
       </div>
-    </div>
-    <div class="formgroup">
-      <label for="description" class="form-label" :class="{ 'is-invalid': v$.description.$error }"
-        >What do you need help with?</label
-      >
-      <textarea
-        class="form-control"
-        id="description"
-        rows="5"
-        aria-label="description"
-        placeholder="I need..."
-        v-model="description"
-        :class="{ 'is-invalid': v$.description.$error }"
-      ></textarea>
-      <div v-if="v$.description.$error" class="invalid-feedback">
-        <span>Description is required.</span>
+      <div class="formgroup">
+        <label for="description" class="form-label" :class="{ 'is-invalid': v$.description.$error }"
+          >What do you need help with?</label
+        >
+        <textarea
+          class="form-control"
+          id="description"
+          rows="5"
+          aria-label="description"
+          placeholder="I need..."
+          v-model="description"
+          :class="{ 'is-invalid': v$.description.$error }"
+        ></textarea>
+        <div v-if="v$.description.$error" class="invalid-feedback">
+          <span>Description is required.</span>
+        </div>
       </div>
-    </div>
 
-    <div class="formgroup">
-      <label for="location" class="form-label" :class="{ 'is-invalid': v$.location.$error }"
-        >Provide your general location</label
-      >
-      <input
-        type="text"
-        id="location"
-        class="form-control"
-        placeholder="Ang Mo Kio"
-        aria-label="location"
-        v-model="location"
-        :class="{ 'is-invalid': v$.location.$error }"
-      />
-      <div v-if="v$.location.$error" class="invalid-feedback">
-        <span>Location is required.</span>
+      <div class="formgroup">
+        <label for="location" class="form-label" :class="{ 'is-invalid': v$.location.$error }"
+          >Provide your general location</label
+        >
+        <input
+          type="text"
+          id="location"
+          class="form-control"
+          placeholder="Ang Mo Kio"
+          aria-label="location"
+          v-model="location"
+          :class="{ 'is-invalid': v$.location.$error }"
+        />
+        <div v-if="v$.location.$error" class="invalid-feedback">
+          <span>Location is required.</span>
+        </div>
+      </div>
+      <div class="formgroup">
+        <label for="category" class="form-label" :class="{ 'is-invalid': v$.category.$error }"
+          >Which category fits your required service?</label
+        >
+        <select
+          class="form-select"
+          id="category"
+          aria-label="category"
+          v-model="category"
+          :class="{ 'is-invalid': v$.category.$error }"
+        >
+          <option disabled selected hidden>Select Category</option>
+          <template v-for="categori in categories" :key="categori">
+            <option :value="categori">{{ categori }}</option>
+          </template>
+        </select>
+        <div v-if="v$.category.$error" class="invalid-feedback">
+          <span>Location is required.</span>
+        </div>
+      </div>
+      <div class="formgroup">
+        <label for="image" class="form-label" :class="{ 'is-invalid': v$.image.$error }"
+          >Attach a image of your issue</label
+        >
+        <input
+          class="form-control"
+          type="file"
+          id="image"
+          accept="image/*"
+          :class="{ 'is-invalid': v$.image.$error }"
+          @change="handleFileChange"
+        />
+        <div v-if="v$.image.$error" class="invalid-feedback">
+          <span>Image is required.</span>
+        </div>
+      </div>
+      <div class="submit-button">
+        <button class="btn submitBtn" @click="createRequest()">Submit Request</button>
       </div>
     </div>
-    <div class="formgroup">
-      <label for="category" class="form-label" :class="{ 'is-invalid': v$.category.$error }"
-        >Which category fits your required service?</label
-      >
-      <select
-        class="form-select"
-        id="category"
-        aria-label="category"
-        v-model="category"
-        :class="{ 'is-invalid': v$.category.$error }"
-      >
-        <option disabled selected hidden>Select Category</option>
-        <option value="Installation">Installation</option>
-        <option value="Repair">Repair</option>
-      </select>
-      <div v-if="v$.category.$error" class="invalid-feedback">
-        <span>Location is required.</span>
-      </div>
-    </div>
-    <div class="formgroup">
-      <label for="image" class="form-label" :class="{ 'is-invalid': v$.image.$error }">Attach a image of your issue</label>
-      <input
-        class="form-control"
-        type="file"
-        id="image"
-        accept="image/*"
-        :class="{ 'is-invalid': v$.image.$error }"
-        @change="handleFileChange"
-      />
-      <div v-if="v$.image.$error" class="invalid-feedback">
-        <span>Image is required.</span>
-      </div>
-    </div>
-    <div class="submit-button">
-      <button class="btn btn-dark" @click="createRequest()">Submit Request</button>
-    </div>
-  </div>
+  </section>
 </template>
 
 <style scoped>
-.container {
+.submitBtn {
+  background-color: #ffad60;
+  color: white;
+}
+
+.container {  
   max-width: 900px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 0.5rem;
@@ -158,7 +179,12 @@ async function createRequest() {
   background-color: rgb(248, 248, 248);
 }
 
-.header {
+.con-background {
+  background-color: #ffeead;
+}
+
+.background {
+  background-image: url(../../assets/bg1.png);
 }
 
 .secondary {

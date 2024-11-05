@@ -150,66 +150,92 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="container mt-2">
-    <div v-if="loading">
-      <PlaceholderDetailedRequestView></PlaceholderDetailedRequestView>
-    </div>
-    <div v-else>
-      <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item back" @click="navigateToServiceRequest()">Service Requests</li>
-          <li class="breadcrumb-item active" aria-current="page">{{ serviceRequest.title }}</li>
-        </ol>
-      </nav>
-      <div class="row">
-        <div class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center column">
-          <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded" />
-        </div>
-        <div class="col-md-6 col-sm-12 mt-3 mt-md-0 rounded" id="map" style="height: 400px"></div>
+  <div class="background">
+    <section class="container pt-2">
+      <div v-if="loading">
+        <PlaceholderDetailedRequestView></PlaceholderDetailedRequestView>
       </div>
-      <div class="row">
-        <div class="col-md-8 col-sm-12 col-lg-8 mt-3 order-md-first">
-          <h1 class="title">{{ serviceRequest.title }}</h1>
-          <hr />
-          <div class="contain">
-            <div class="left">
-              <span class="category-header">Category</span><br />
-              <span class="category">{{ serviceRequest.category }}</span>
-            </div>
-            <div class="right">
-              <span class="category-header">Created</span><br />
-              <span class="category">{{ formattedDate }}</span>
-            </div>
+      <div v-else>
+        <nav style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item back" @click="navigateToServiceRequest()">
+              Service Requests
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ serviceRequest.title }}</li>
+          </ol>
+        </nav>
+        <div class="row">
+          <div class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center">
+            <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded" />
           </div>
-          <hr />
-          <h1 class="description-header">Description</h1>
-          <span class="desc">{{ serviceRequest.description }}</span>
-          <hr />
+          <div class="col-md-6 col-sm-12 mt-3 mt-md-0 rounded" id="map" style="height: 400px"></div>
         </div>
-        <div v-if="!isMyRequest" class="col-md-4 col-sm-12 col-lg-4 mt-3 order-first">
-          <div class="card">
-            <div class="userInfo">
-              <img
-                :src="user.profilePicture"
-                class="rounded-circle me-2 profilePic"
-                alt="Profile Picture"
-                width="40"
-                height="40"
-              />
-              <div class="text-container">
-                <span class="name">{{ user.username }}</span>
-                <span class="location">{{ serviceRequest.location }}</span>
+        <div class="row pb-2">
+          <div class="col-md-8 col-sm-12 col-lg-8 mt-3 order-md-first">
+            <template class="card">
+              <h1 class="title">{{ serviceRequest.title }}</h1>
+              <hr />
+              <div class="contain">
+                <div class="left">
+                  <span class="category-header">Category</span><br />
+                  <span class="category">{{ serviceRequest.category }}</span>
+                </div>
+                <div class="right">
+                  <span class="category-header">Created</span><br />
+                  <span class="category">{{ formattedDate }}</span>
+                </div>
               </div>
+              <hr />
+              <h1 class="description-header">Description</h1>
+              <span class="desc">{{ serviceRequest.description }}</span>
+              <hr />
+            </template>
+          </div>
+          <div v-if="!isMyRequest" class="col-md-4 col-sm-12 col-lg-4 mt-3 order-first">
+            <div class="card usercard">
+              <div class="userInfo">
+                <img
+                  :src="user.profilePicture"
+                  class="rounded-circle me-2 profilePic"
+                  alt="Profile Picture"
+                  width="40"
+                  height="40"
+                />
+                <div class="text-container">
+                  <span class="name">{{ user.username }}</span>
+                  <span class="location">{{ serviceRequest.location }}</span>
+                </div>
+              </div>
+              <button
+                v-if="isLoggedIn && serviceRequest.status === 'Open'"
+                type="button"
+                class="btn chatBtn mt-2"
+                @click="createChat"
+              >
+                Chat
+              </button>
             </div>
-            <button v-if="isLoggedIn" type="button" class="btn btn-danger mt-2" @click="createChat">Chat</button>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 </template>
 
 <style scoped>
+.card {
+  padding: 18px;
+}
+
+.chatBtn {
+  background-color: #ffad60;
+  color: white;
+}
+
+.background {
+  background-image: url(../../assets/backdrop.png);
+}
+
 .profilePic {
   border: 1px solid rgb(177, 177, 177);
   object-fit: cover;
@@ -270,9 +296,11 @@ onMounted(async () => {
   line-height: 28px;
 }
 
-.card {
+.usercard {
   padding: 10px;
-  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
+  box-shadow:
+    0 5px 10px rgba(154, 160, 185, 0.05),
+    0 15px 40px rgba(166, 173, 201, 0.2);
 }
 
 .userInfo {

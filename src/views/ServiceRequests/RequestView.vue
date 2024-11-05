@@ -99,160 +99,175 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="text-center container">
-    <div class="row pt-4">
-      <div class="col-lg-6 col-md-8 mx-auto">
-        <h1 class="fw-light">Service Requests</h1>
-        <p class="lead text-body-secondary">
-          Wish to lend a hand? This collection brings together all service requests, from quick
-          repairs to full installations. Help someone out today!
-        </p>
-        <p>
-          <a
-            v-if="isLoggedIn"
-            class="createBtn btn btn-danger my-2"
-            @click="navigateToCreateRequest"
-            >New Service Request</a
-          >
-          <a v-if="isLoggedIn" class="fab" @click="navigateToCreateRequest"
-            ><i class="bi bi-plus"></i
-          ></a>
-        </p>
-      </div>
-    </div>
-  </section>
-  <hr />
-  <section class="container">
-    <div v-if="!loading" class="my-4 filter">
-      <div class="dropdown">
-        <button
-          class="btn drop dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          {{ selectedSortOption }}
-        </button>
-        <ul class="dropdown-menu">
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedSortOption === 'Sort by Newest' }"
-            @click="selectSortOption('Sort by Newest')"
-          >
-            Newest
-          </li>
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedSortOption === 'Sort by Oldest' }"
-            @click="selectSortOption('Sort by Oldest')"
-          >
-            Oldest
-          </li>
-        </ul>
-      </div>
-      <div class="dropdown ml-auto">
-        <button
-          class="btn drop dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          {{ selectedLocationOption }}
-        </button>
-        <ul class="dropdown-menu">
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedLocationOption === 'All Locations' }"
-            @click="selectLocationOption('All Locations')"
-          >
-            All Locations
-          </li>
-          <div v-for="location in locations" :key="location">
-            <li
-              class="dropdown-item"
-              :class="{ active: selectedLocationOption === location }"
-              @click="selectLocationOption(location)"
+  <div class="background">
+    <section class="text-center container">
+      <div class="row pt-4">
+        <div class="col-lg-6 col-md-8 mx-auto">
+          <h1 class="fw-light">Service Requests</h1>
+          <p class="lead text-body-secondary">
+            Wish to lend a hand? This collection brings together all service requests, from quick
+            repairs to full installations. Help someone out today!
+          </p>
+          <p>
+            <a v-if="isLoggedIn" class="createBtn btn my-2" @click="navigateToCreateRequest"
+              >New Service Request</a
             >
-              {{ location }}
-            </li>
-          </div>
-        </ul>
-      </div>
-      <div class="dropdown">
-        <button
-          class="btn drop dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          {{ selectedCategoryOption }}
-        </button>
-        <ul class="dropdown-menu">
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedCategoryOption === 'All Categories' }"
-            @click="selectCategoryOption('All Categories')"
-          >
-            All Categories
-          </li>
-          <div v-for="category in categories" :key="category">
-            <li
-              class="dropdown-item"
-              :class="{ active: selectedCategoryOption === category }"
-              @click="selectCategoryOption(category)"
-            >
-              {{ category }}
-            </li>
-          </div>
-        </ul>
-      </div>
-    </div>
-    <div v-if="loading" class="row">
-      <placeholder-card />
-    </div>
-    <div v-if="!loading && serviceRequests.length === 0" class="noRequests">
-      <h1 class="fw-light">No Service Requests Found</h1>
-    </div>
-    <div v-else>
-      <div class="row">
-        <div
-          class="col-xl-3 col-lg-3 col-md-6 col-sm-6"
-          v-for="serviceRequest in serviceRequests"
-          :key="serviceRequest.id"
-        >
-          <ServiceRequestCard :serviceRequest="serviceRequest" />
+            <a v-if="isLoggedIn" class="fab" @click="navigateToCreateRequest"
+              ><i class="bi bi-plus"></i
+            ></a>
+          </p>
         </div>
       </div>
-      <nav aria-label="pagination" class="d-flex justify-content-end">
-        <ul class="pagination">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <a class="page-link" @click="changePage(currentPage - 1)"
-              ><i class="bi bi-chevron-left"></i
-            ></a>
-          </li>
-          <li
-            class="page-item"
-            v-for="page in Math.ceil(totalItems / itemsPerPage)"
-            :key="page"
-            :class="{ active: currentPage === page }"
+    </section>
+    <hr />
+    <section class="container">
+      <div v-if="!loading" class="my-4 filter">
+        <div class="dropdown">
+          <button
+            class="btn drop dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
           >
-            <a class="page-link" @click="changePage(page)">{{ page }}</a>
-          </li>
-          <li
-            class="page-item"
-            :class="{ disabled: currentPage === Math.ceil(totalItems / itemsPerPage) }"
+            {{ selectedSortOption }}
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedSortOption === 'Sort by Newest' }"
+              @click="selectSortOption('Sort by Newest')"
+            >
+              Newest
+            </li>
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedSortOption === 'Sort by Oldest' }"
+              @click="selectSortOption('Sort by Oldest')"
+            >
+              Oldest
+            </li>
+          </ul>
+        </div>
+        <div class="dropdown ml-auto">
+          <button
+            class="btn drop dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
           >
-            <a class="page-link" @click="changePage(currentPage + 1)"
-              ><i class="bi bi-chevron-right"></i
-            ></a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </section>
+            {{ selectedLocationOption }}
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedLocationOption === 'All Locations' }"
+              @click="selectLocationOption('All Locations')"
+            >
+              All Locations
+            </li>
+            <div v-for="location in locations" :key="location">
+              <li
+                class="dropdown-item"
+                :class="{ active: selectedLocationOption === location }"
+                @click="selectLocationOption(location)"
+              >
+                {{ location }}
+              </li>
+            </div>
+          </ul>
+        </div>
+        <div class="dropdown">
+          <button
+            class="btn drop dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            {{ selectedCategoryOption }}
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedCategoryOption === 'All Categories' }"
+              @click="selectCategoryOption('All Categories')"
+            >
+              All Categories
+            </li>
+            <div v-for="category in categories" :key="category">
+              <li
+                class="dropdown-item"
+                :class="{ active: selectedCategoryOption === category }"
+                @click="selectCategoryOption(category)"
+              >
+                {{ category }}
+              </li>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div v-if="loading" class="row">
+        <placeholder-card />
+      </div>
+      <div v-if="!loading && serviceRequests.length === 0" class="noRequests">
+        <h1 class="fw-light">No Service Requests Found</h1>
+      </div>
+      <div v-else>
+        <div class="row">
+          <div
+            class="col-xl-3 col-lg-3 col-md-6 col-sm-6"
+            v-for="serviceRequest in serviceRequests"
+            :key="serviceRequest.id"
+          >
+            <ServiceRequestCard :serviceRequest="serviceRequest" />
+          </div>
+        </div>
+        <nav aria-label="pagination" class="d-flex justify-content-end">
+          <ul class="pagination">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" @click="changePage(currentPage - 1)"
+                ><i class="bi bi-chevron-left"></i
+              ></a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in Math.ceil(totalItems / itemsPerPage)"
+              :key="page"
+              :class="{ active: currentPage === page }"
+            >
+              <a class="page-link" @click="changePage(page)">{{ page }}</a>
+            </li>
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === Math.ceil(totalItems / itemsPerPage) }"
+            >
+              <a class="page-link" @click="changePage(currentPage + 1)"
+                ><i class="bi bi-chevron-right"></i
+              ></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </section>
+  </div>
 </template>
 
 <style scoped>
+.pagination .active .page-link {
+  background-color: #ffad60; /* Desired active background color */
+  border-color: gray; /* Desired active border color */
+  color: #ffffff; /* Desired active text color */
+}
+
+.pagination .page-link {
+  color: black;
+}
+.createBtn {
+  background-color: #ffad60;
+  color: white;
+}
+.background {
+  background-image: url(../../assets/backdrop.png);
+}
 .filter {
   display: flex;
   justify-content: space-between;
@@ -272,12 +287,8 @@ li {
 }
 
 .active {
-  background-color: #f0eeee;
-  color: black;
-}
-
-.dropdown- .dropdown-item:active {
-  background-color: #f0eeee !important;
+  background-color: #ffad60;
+  color: white;
 }
 
 .dropdown-toggle[aria-expanded='true']:after {
@@ -299,7 +310,8 @@ li {
   position: fixed;
   width: 55px;
   height: 55px;
-  background-color: red;
+  background-color: #ffad60;
+  color: white;
   border-radius: 50%;
   bottom: 20px;
   right: 20px;
@@ -307,7 +319,6 @@ li {
   align-items: center;
   cursor: pointer;
   z-index: 100;
-  color: white;
   font-size: 30px;
 }
 
