@@ -50,7 +50,7 @@ const router = createRouter({
     },
     {
       path: '/personalProfile',
-      name: 'personalprofile',
+      name: 'personalProfile',
       component: () => import('../views/ProfilePage/personalProfile.vue')
     },
     {
