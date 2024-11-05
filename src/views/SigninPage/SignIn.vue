@@ -55,6 +55,7 @@ const showPassword = ref(false);
 const router = useRouter();
 const auth = getAuth(); // Initialize Firebase Auth
 
+
 const handleSubmit = async () => {
   if (!email.value || !password.value) {
     alert('Please fill in both email and password fields.');
@@ -62,23 +63,33 @@ const handleSubmit = async () => {
   }
 
   try {
-    // Directly attempt sign-in with email and password
+    // First, check the sign-in methods available for this email
+    const signInMethods = await fetchSignInMethodsForEmail(auth, email.value.toLowerCase());
+    
+    // If the user only has Google sign-in method
+    if (signInMethods.length > 0 && signInMethods.includes('google.com') && !signInMethods.includes('password')) {
+      alert('This email is registered with Google Sign-In. Please use the "Sign in with Google" button.');
+      return;
+    }
+
+    // If email/password sign-in is available, proceed with sign-in
     await signInWithEmailAndPassword(auth, email.value.toLowerCase(), password.value);
-    router.push({ name: 'home' });
+    if (auth.currentUser) {
+      router.push({ name: 'home' });
+    }
   } catch (error) {
     console.error('Error during direct sign in:', error);
 
     if (error.code === 'auth/user-not-found') {
       alert('No account found with this email. Please create an account first.');
       router.push({ name: 'register' });
-    } else if (error.code === 'auth/wrong-password') {
-      alert('Incorrect password. Please try again.');
+    } else if (error.code === 'auth/invalid-credential') {
+      alert('Wrong Password. Please try again.');
     } else {
       alert('An error occurred. Please try again.');
     }
   }
 };
-
 
 
 
