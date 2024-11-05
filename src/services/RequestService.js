@@ -51,6 +51,17 @@ class RequestService {
     }
   }
 
+  async getServiceRequestsByUser(userId) {
+    let q = query(collection(db, 'requests'), where('userId', '==', userId))
+
+    const querySnapshot = await getDocs(q)
+    const result = querySnapshot.docs.map((doc) => ({
+      ...doc.data()
+    }))
+
+    return result
+  }
+
   async getAllCategories() {
     const q = collection(db, 'requests')
     const querySnapshot = await getDocs(q)
