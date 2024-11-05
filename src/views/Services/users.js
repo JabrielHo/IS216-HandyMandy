@@ -56,7 +56,18 @@ class Services {
 
     // Return the items and totalItems
     return { items: services, totalItems };
-}
+  }
+
+  async getServicesByUser(userId) {
+    let q = query(collection(db, 'services'), where('userId', '==', userId))
+
+    const querySnapshot = await getDocs(q)
+    const result = querySnapshot.docs.map((doc) => ({
+      ...doc.data()
+    }))
+
+    return result
+  }
 
 
   async getAllCategories() {
