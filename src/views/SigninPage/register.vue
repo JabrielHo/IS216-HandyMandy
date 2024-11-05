@@ -5,19 +5,16 @@ import { auth, db } from '../../firebaseConfig'; // Import Firestore
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore'; // Import Firestore methods
 import TheWelcome from '@/components/LandingPage/TheWelcome.vue';
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const router = useRouter();
-const storage = getStorage();
 
 // Form data
 const name = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
+
 // const category = ref<string[]>([]); // Keep only the selected categories
-const photoFile = ref(null);
-const photoPreview = ref(null);
 
 // Computed property to check if "None" is selected
 // const isNoneSelected = computed(() => category.value.includes('None'));
