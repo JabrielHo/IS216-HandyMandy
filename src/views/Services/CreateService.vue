@@ -4,21 +4,38 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import Services from '../Services/users'
 import useVuelidate from '@vuelidate/core'
-import { required, minLength } from '@vuelidate/validators'
+import { required, minLength, helpers } from '@vuelidate/validators'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const location = ref('')
 const selectedServices = ref([])
-const yearsExperience = ref(0)
+const currentStep = ref(0)
+const serviceDetails = ref({})
+const isLoading = ref(false)
+
 const userData = computed(() => authStore.user)
 
-const rules = {
+// Initial step validation rules
+const baseRules = {
   location: { required },
-  selectedServices: { required, minLength: minLength(1) },
-  yearsExperience: { required }
+  selectedServices: { required, minLength: minLength(1) }
 }
-const v$ = useVuelidate(rules, { location, selectedServices, yearsExperience })
+
+// Service details validation rules
+const serviceDetailsRules = computed(() => {
+  const rules = {}
+  selectedServices.value.forEach(service => {
+    rules[service] = {
+      yearsExperience: { required },
+      description: { required },
+      image: { required }
+    }
+  })
+  return rules
+})
+
+const v$ = useVuelidate(baseRules, { location, selectedServices })
 
 const serviceOptions = [
   'Plumbing',
@@ -31,116 +48,421 @@ const serviceOptions = [
   'Installation'
 ]
 
+// Initialize service details when services are selected
+function initializeServiceDetails() {
+  selectedServices.value.forEach(service => {
+    if (!serviceDetails.value[service]) {
+      serviceDetails.value[service] = {
+        yearsExperience: 0,
+        description: '',
+        rate: '',
+        image: null,
+        imagePreview: null
+      }
+    }
+  })
+}
+
+// Handle image upload
+function handleImageUpload(event, service) {
+  const file = event.target.files[0]
+  if (file) {
+    serviceDetails.value[service].image = file
+    serviceDetails.value[service].imagePreview = URL.createObjectURL(file)
+  }
+}
+
+// Navigation functions
+function nextStep() {
+  if (currentStep.value === 0) {
+    v$.value.$touch()
+    if (v$.value.$invalid) return
+    initializeServiceDetails()
+  }
+  currentStep.value++
+}
+
+function prevStep() {
+  currentStep.value--
+}
+
+function getCurrentService() {
+  return selectedServices.value[currentStep.value - 1]
+}
+
+// Form submission
 async function createRequest() {
-  await v$.value.$touch()
-  if (v$.value.$invalid) {
-    console.log('Validation failed', v$.value)
-    return
-  }
+  isLoading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('location', location.value.trim())
+    formData.append('userId', userData.value.uid)
+    
+    // Add service details
+    const servicesData = selectedServices.value.map(service => ({
+      type: service,
+      ...serviceDetails.value[service]
+    }))
+    
+    formData.append('services', JSON.stringify(servicesData))
+    
+    // Append images
+    selectedServices.value.forEach((service, index) => {
+      if (serviceDetails.value[service].image) {
+        formData.append(`image_${index}`, serviceDetails.value[service].image)
+      }
+    })
 
-  const fields = {
-    location: location.value.trim(),
-    service_type: selectedServices.value,
-    yearsExperience: yearsExperience.value,
-    userId: userData.value.uid,
-  }
-
-  const result = await Services.createService(fields)
-
-  if (result.success) {
-    router.push('/services')
+    const result = await Services.createService(formData)
+    if (result.success) {
+      router.push('/services')
+    }
+  } catch (error) {
+    console.error('Error creating service:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
 
 <template>
-  <div class="container">
-    <h4>Service Request Form</h4>
-    <p class="secondary">Provide details about your service</p>
-    
-    <div class="formgroup">
-      <label for="location" class="form-label" :class="{ 'is-invalid': v$.location.$error }">
-        Your Location
-      </label>
-      <input
-        type="text"
-        id="location"
-        class="form-control"
-        placeholder="Enter your location"
-        v-model="location"
-        :class="{ 'is-invalid': v$.location.$error }"
-      />
-      <div v-if="v$.location.$error" class="invalid-feedback">
-        Location is required.
+  <div class="form-container">
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-step" 
+           v-for="(step, index) in selectedServices.length + 1" 
+           :key="index"
+           :class="{ active: currentStep >= index }">
+        {{ index === 0 ? 'Basic Info' : selectedServices[index - 1] }}
       </div>
     </div>
 
-    <div class="formgroup">
-      <label class="form-label" :class="{ 'is-invalid': v$.selectedServices.$error }">
-        Service Types
-      </label>
-      <div>
-        <div v-for="service in serviceOptions" :key="service" class="form-check">
-          <input
-            type="checkbox"
-            :id="service"
-            :value="service"
-            v-model="selectedServices"
-            class="form-check-input"
-          />
-          <label :for="service" class="form-check-label">{{ service }}</label>
+    <!-- Step 1: Basic Information -->
+    <div v-if="currentStep === 0" class="form-step">
+      <h4>Basic Information</h4>
+      <p class="text-secondary">Let's start with your location and services</p>
+      
+      <div class="form-group">
+        <label for="location" :class="{ 'is-invalid': v$.location.$error }">
+          Your Location
+        </label>
+        <input
+          type="text"
+          id="location"
+          class="form-control"
+          placeholder="Enter your location"
+          v-model="location"
+          :class="{ 'is-invalid': v$.location.$error }"
+        />
+        <div v-if="v$.location.$error" class="invalid-feedback">
+          Location is required.
         </div>
       </div>
-      <div v-if="v$.selectedServices.$error" class="invalid-feedback">
-        At least one service type is required.
+
+      <div class="form-group">
+        <label :class="{ 'is-invalid': v$.selectedServices.$error }">
+          Select Services
+        </label>
+        <div class="services-grid">
+          <div v-for="service in serviceOptions" 
+               :key="service" 
+               class="service-option"
+               :class="{ selected: selectedServices.includes(service) }"
+               @click="selectedServices.includes(service) ? 
+                      selectedServices = selectedServices.filter(s => s !== service) : 
+                      selectedServices.push(service)">
+            {{ service }}
+          </div>
+        </div>
+        <div v-if="v$.selectedServices.$error" class="invalid-feedback">
+          Please select at least one service.
+        </div>
       </div>
     </div>
 
-    <div class="formgroup">
-      <label for="yearsExperience" class="form-label" :class="{ 'is-invalid': v$.yearsExperience.$error }">
-        Years of Experience
-      </label>
-      <input
-        type="number"
-        id="yearsExperience"
-        class="form-control"
-        placeholder="Enter your years of experience"
-        v-model="yearsExperience"
-        :class="{ 'is-invalid': v$.yearsExperience.$error }"
-      />
-      <div v-if="v$.yearsExperience.$error" class="invalid-feedback">
-        Years of experience is required.
+    <!-- Service Details Steps -->
+    <div v-else class="form-step">
+      <div class="service-details">
+        <h4>{{ getCurrentService() }} Service Details</h4>
+        <p class="text-secondary">Provide specific details for this service</p>
+
+        <div class="form-group">
+          <label>Years of Experience</label>
+          <input
+            type="number"
+            class="form-control"
+            v-model="serviceDetails[getCurrentService()].yearsExperience"
+            placeholder="Enter years of experience"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Service Description</label>
+          <textarea
+            class="form-control"
+            v-model="serviceDetails[getCurrentService()].description"
+            placeholder="Describe your service offerings"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Hourly Rate (SGD)</label>
+          <input
+            type="number"
+            class="form-control"
+            v-model="serviceDetails[getCurrentService()].rate"
+            placeholder="Enter your hourly rate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Service Image</label>
+          <div class="image-upload-container">
+            <div v-if="serviceDetails[getCurrentService()].imagePreview" 
+                 class="image-preview">
+              <img :src="serviceDetails[getCurrentService()].imagePreview" 
+                   alt="Preview" />
+              <button class="remove-image" 
+                      @click="serviceDetails[getCurrentService()].image = null; 
+                             serviceDetails[getCurrentService()].imagePreview = null">
+                ×
+              </button>
+            </div>
+            <div v-else class="upload-placeholder" 
+                 @click="$refs[`imageInput_${getCurrentService()}`].click()">
+              <span>Click to upload image</span>
+            </div>
+            <input
+              type="file"
+              :ref="`imageInput_${getCurrentService()}`"
+              class="hidden"
+              accept="image/*"
+              @change="handleImageUpload($event, getCurrentService())"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="submit-button">
-      <button class="btn btn-dark" @click="createRequest()">Submit Service</button>
+    <!-- Navigation Buttons -->
+    <div class="form-navigation">
+      <button v-if="currentStep > 0" 
+              class="btn btn-secondary" 
+              @click="prevStep">
+        Previous
+      </button>
+      <button v-if="currentStep < selectedServices.length" 
+              class="btn btn-primary" 
+              @click="nextStep">
+        Next
+      </button>
+      <button v-if="currentStep === selectedServices.length" 
+              class="btn btn-success" 
+              @click="createRequest"
+              :disabled="isLoading">
+        {{ isLoading ? 'Submitting...' : 'Submit Services' }}
+      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.container {
-  max-width: 600px;
-  margin: auto;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 24px;
-  background-color: #f8f8f8;
+.form-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.formgroup {
-  margin-bottom: 16px;
+.progress-bar {
+  display: flex;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
 }
 
-.form-label {
+.progress-step {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  color: #6c757d;
+  position: relative;
+}
+
+.progress-step::after {
+  content: '';
+  position: absolute;
+  right: -50%;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background: #dee2e6;
+  z-index: 1;
+}
+
+.progress-step:last-child::after {
+  display: none;
+}
+
+.progress-step.active {
+  color: #FFAD60;
   font-weight: bold;
 }
 
-.is-invalid {
-  border-color: red;
+.progress-step.active::after {
+  background: #FFAD60;
+}
+
+.form-step {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.service-option {
+  padding: 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.service-option:hover {
+  border-color: #FFAD60;
+}
+
+.service-option.selected {
+  background: #FFAD60;
+  color: white;
+  border-color: #FFAD60;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #FFAD60;
+  outline: none;
+}
+
+.image-upload-container {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.upload-placeholder {
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  background: #f8f9fa;
+}
+
+.upload-placeholder:hover {
+  background: #e9ecef;
+}
+
+.image-preview {
+  position: relative;
+  padding: 1rem;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.remove-image {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.hidden {
+  display: none;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: #FFAD60;
+  color: white;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-success {
+  background: #FFAD60;
+  color: white;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .invalid-feedback {
-  color: red;
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
