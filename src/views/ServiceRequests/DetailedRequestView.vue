@@ -118,6 +118,7 @@ async function createChat() {
     const newChatRoomRef = doc(chatRoomRef)
     await setDoc(newChatRoomRef, {
       id: newChatRoomRef.id,
+      status: 'Open',
       userId: currentUserId,
       requestUserId: requestUserId,
       requestId: requestId,
@@ -168,7 +169,11 @@ onMounted(async () => {
           <div class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center">
             <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded" />
           </div>
-          <div class="col-md-6 col-sm-12 mt-3 mt-md-0 rounded" id="map" style="height: 400px"></div>
+          <div
+            class="col-md-6 col-sm-12 mt-3 mt-md-0 d-flex justify-content-center align-items-center"
+          >
+            <div id="map" class="responsive-map rounded"></div>
+          </div>
         </div>
         <div class="row pb-2">
           <div class="col-md-8 col-sm-12 col-lg-8 mt-3 order-md-first">
@@ -242,14 +247,18 @@ onMounted(async () => {
 }
 
 .responsive-img {
+  height: 100%;
   width: 100%;
-  height: 400px;
 }
 
-@media (max-width: 768px) {
-  .responsive-img {
-    height: auto;
-    max-width: 300px;
+.responsive-map {
+  height: 100%;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .responsive-map {
+    min-height: 300px;
   }
 }
 
@@ -298,9 +307,7 @@ onMounted(async () => {
 
 .usercard {
   padding: 10px;
-  box-shadow:
-    0 5px 10px rgba(154, 160, 185, 0.05),
-    0 15px 40px rgba(166, 173, 201, 0.2);
+  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
 }
 
 .userInfo {

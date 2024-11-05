@@ -8,7 +8,9 @@ import {
   onSnapshot,
   Timestamp,
   updateDoc,
-  orderBy
+  orderBy,
+  or,
+  where
 } from 'firebase/firestore'
 import { useRoute } from 'vue-router'
 import { db } from '../../firebaseConfig'
@@ -21,7 +23,7 @@ const chatRooms = ref([])
 const selectedChatId = ref('')
 const selectedChatRoom = ref({})
 const selectedUserData = ref({})
-const serviceRequest = ref({})
+const selectedServiceRequest = ref({})
 const myUserId = ref('')
 const isMobile = ref(false)
 const authStore = useAuthStore()
@@ -29,70 +31,90 @@ const isLoaded = ref(false)
 const userData = computed(() => authStore.user)
 
 async function fetchUserChatRooms(uid) {
-  const q = query(collection(db, 'chatRoom'), orderBy('createdAt', 'desc'))
+  const q = query(
+    collection(db, 'chatRoom'),
+    or(where('requestUserId', '==', uid), where('userId', '==', uid)),
+    orderBy('createdAt', 'desc')
+  )
   onSnapshot(q, (querySnapshot) => {
     if (querySnapshot.empty) {
-      isLoaded.value = true
       chatRooms.value = []
       selectedChatId.value = ''
       selectedChatRoom.value = {}
       selectedUserData.value = {}
-      serviceRequest.value = {}
+      selectedServiceRequest.value = {}
+      isLoaded.value = true
       return
     }
-
-    const currentChatRoomIds = new Set(chatRooms.value.map((room) => room.id))
-    let defaultSelection = null
-
-    querySnapshot.forEach((doc) => {
-      const userId = doc.data().userId
-      const requestUserId = doc.data().requestUserId
-      const requestId = doc.data().requestId
-      const id = doc.data().id
-
-      if (userId === uid || requestUserId === uid) {
-        if (!defaultSelection) {
-          defaultSelection = id
-        }
-        if (!currentChatRoomIds.has(id)) {
-          if (userId === uid) {
-            populateInbox(requestUserId, requestId, id)
-          } else if (requestUserId === uid) {
-            populateInbox(userId, requestId, id)
-          }
-        }
-        currentChatRoomIds.delete(id)
-      }
-    })
-
-    chatRooms.value = chatRooms.value.filter((room) => !currentChatRoomIds.has(room.id))
-
-    if (selectedChatId.value == '') {
-      selectedChatId.value = defaultSelection
-      fetchChatRoom(defaultSelection)
-    } else {
-      fetchChatRoom(selectedChatId.value)
-    }
+    populateInbox(querySnapshot)
   })
 }
 
-async function populateInbox(uid, requestId, id) {
-  const q = doc(db, 'users', uid)
-  const docSnap = await getDoc(q)
-  const serviceRequest = await RequestService.getServiceRequest(requestId)
-  if (docSnap.exists()) {
-    const userData = docSnap.data()
-    if (!selectedUserData.value.username) {
-      selectedUserData.value = userData
+async function populateInbox(querySnapshot) {
+  const incomingIds = querySnapshot.docs.map((doc) => doc.id)
+
+  // Remove chatRooms that no longer exist in the querySnapshot
+  chatRooms.value = chatRooms.value.filter((chat) => {
+    const exists = incomingIds.includes(chat.id)
+    return exists
+  })
+
+  if (chatRooms.value.length === 0) {
+    selectedChatId.value = ''
+    selectedServiceRequest.value = {}
+    selectedUserData.value = {}
+  }
+
+  for (const document of querySnapshot.docs) {
+    const data = document.data()
+    const opponentId = data.requestUserId === myUserId.value ? data.userId : data.requestUserId
+    const userDocRef = doc(db, 'users', opponentId)
+
+    try {
+      const docSnap = await getDoc(userDocRef)
+      if (!docSnap.exists()) {
+        console.warn(`User document for ID ${opponentId} does not exist.`)
+        continue
+      }
+      const opponentData = docSnap.data()
+
+      const serviceReq = await RequestService.getServiceRequest(data.requestId)
+      if (!serviceReq) {
+        console.warn(`Service request for ID ${data.requestId} not found.`)
+        continue
+      }
+
+      const exists = chatRooms.value.some((chat) => chat.id === document.id)
+      if (!exists) {
+        chatRooms.value.push({
+          serviceRequest: serviceReq,
+          createdAt: data.createdAt,
+          id: document.id,
+          userData: opponentData
+        })
+      }
+      if (selectedChatId.value === '') {
+        selectedChatId.value = document.id
+        selectedServiceRequest.value = serviceReq
+        selectedUserData.value = opponentData
+        fetchChatRoom(document.id)
+      }
+    } catch (error) {
+      console.error(`Error processing chat room ${doc.id}:`, error)
     }
-    chatRooms.value.push({
-      profilePicture: userData.profilePicture,
-      username: userData.username,
-      title: serviceRequest.title,
-      location: serviceRequest.location,
-      id: id,
-      userData: userData
-    })
+  }
+  chatRooms.value.sort((a, b) => b.createdAt - a.createdAt)
+
+  // Check for chatId in route after loading chatRooms
+  const chatIdFromRoute = route.params.chatRoomId
+  if (chatIdFromRoute) {
+    const targetChat = chatRooms.value.find((chat) => chat.id === chatIdFromRoute)
+    if (targetChat) {
+      selectedChatId.value = targetChat.id
+      selectedUserData.value = targetChat.userData
+      selectedServiceRequest.value = targetChat.serviceRequest
+      fetchChatRoom(targetChat.id)
+    }
   }
   isLoaded.value = true
 }
@@ -104,7 +126,7 @@ async function fetchChatRoom(id) {
       const chatData = docSnap.data()
       selectedChatRoom.value = chatData
       const request = await RequestService.getServiceRequest(chatData.requestId)
-      serviceRequest.value = request
+      selectedServiceRequest.value = request
     }
   })
 }
@@ -133,13 +155,17 @@ async function handleSendMessage(message) {
   }
 }
 
-async function handleCloseStatus(requestId) {
+async function handleCloseStatus(requestId, chatId) {
   await RequestService.closeServiceRequest(requestId)
-  serviceRequest.value.status = 'Closed'
+  const chatRef = doc(db, 'chatRoom', chatId)
+  await updateDoc(chatRef, {
+    status: 'Closed'
+  })
 }
 
-const selectChatRoom = (id, userData) => {
+const selectChatRoom = (id, userData, serviceRequest) => {
   selectedUserData.value = userData
+  selectedServiceRequest.value = serviceRequest
   selectedChatId.value = id
   fetchChatRoom(id)
 }
@@ -153,10 +179,6 @@ onMounted(() => {
     userData,
     (newVal) => {
       if (newVal) {
-        const chatIdFromRoute = route.params.chatRoomId
-        if (chatIdFromRoute) {
-          selectedChatId.value = chatIdFromRoute
-        }
         myUserId.value = newVal.uid
         fetchUserChatRooms(newVal.uid)
       }
@@ -167,96 +189,95 @@ onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
 })
-
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
 })
 </script>
 
 <template>
-  <div class="container my-2">
-    <div class="row">
-      <div class="col-lg-4 col-12 column-right">
-        <h3 class="header">Inbox</h3>
-        <hr style="margin-bottom: 0px" />
-        <div v-if="isLoaded">
-          <div v-if="chatRooms.length === 0" class="spinner-container">
-            <h5>No chat rooms found.</h5>
-          </div>
-          <div v-else>
-            <div v-if="isMobile">
-              <div class="dropdown">
-                <button
-                  class="btn dropdown-toggle w-100 custom-dropdown-button"
-                  type="button"
-                  id="dropdownMenuButton"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  {{
-                    selectedChatId
-                      ? selectedUserData.username + ' - ' + serviceRequest.title
-                      : 'Select User'
-                  }}
-                </button>
-                <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
-                  <li v-for="chatRoom in chatRooms" :key="chatRoom.id">
-                    <a
-                      class="dropdown-item"
-                      @click="selectChatRoom(chatRoom.id, chatRoom.userData)"
-                    >
-                      {{ chatRoom.username }} - {{ chatRoom.title }}
-                    </a>
-                  </li>
-                </ul>
-              </div>
+  <div class="background py-2">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 col-12 column-right">
+          <h3 class="header">Inbox</h3>
+          <hr style="margin-bottom: 0px" />
+          <div v-if="isLoaded">
+            <div v-if="chatRooms.length === 0" class="spinner-container">
+              <h5>No chat rooms found.</h5>
             </div>
-            <ul v-else class="list-group list-group-flush">
-              <li
-                href="#"
-                class="list-group-item list-group-item-action"
-                v-for="chatRoom in chatRooms"
-                :key="chatRoom.id"
-                :class="{ active: chatRoom.id === selectedChatId }"
-                @click="selectChatRoom(chatRoom.id, chatRoom.userData)"
-              >
-                <img
-                  :src="chatRoom.profilePicture"
-                  class="rounded-circle me-2 profilePic"
-                  alt="Profile Picture"
-                  width="50"
-                  height="50"
-                />
-                <div class="text-container">
-                  <span class="name">{{ chatRoom.username }}</span>
-                  <span class="title">Request: {{ chatRoom.title }}</span>
+            <div v-else>
+              <div v-if="isMobile">
+                <div class="dropdown">
+                  <button
+                    class="btn dropdown-toggle w-100 custom-dropdown-button"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    {{ selectedUserData.username + ' - ' + selectedServiceRequest.title }}
+                  </button>
+                  <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
+                    <li v-for="chatRoom in chatRooms" :key="chatRoom.id">
+                      <a
+                        class="dropdown-item"
+                        @click="
+                          selectChatRoom(chatRoom.id, chatRoom.userData, chatRoom.serviceRequest)
+                        "
+                      >
+                        {{ chatRoom.userData.username }} - {{ chatRoom.serviceRequest.title }}
+                      </a>
+                    </li>
+                  </ul>
                 </div>
-              </li>
-            </ul>
+              </div>
+              <ul v-else class="list-group list-group-flush">
+                <li
+                  href="#"
+                  class="list-group-item list-group-item-action"
+                  v-for="chatRoom in chatRooms"
+                  :key="chatRoom.id"
+                  :class="{ active: chatRoom.id === selectedChatId }"
+                  @click="selectChatRoom(chatRoom.id, chatRoom.userData, chatRoom.serviceRequest)"
+                >
+                  <img
+                    :src="chatRoom.userData.profilePicture"
+                    class="rounded-circle me-2 profilePic"
+                    alt="Profile Picture"
+                    width="50"
+                    height="50"
+                  />
+                  <div class="text-container">
+                    <span class="name">{{ chatRoom.userData.username }}</span>
+                    <span class="title">Request: {{ chatRoom.serviceRequest.title }}</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div v-else class="spinner-container">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
           </div>
         </div>
-        <div v-else class="spinner-container">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <div class="col-lg-8 col-12 column">
+          <div v-if="isLoaded">
+            <ChatWindow
+              v-if="chatRooms.length !== 0"
+              :selectedChatRoom="selectedChatRoom"
+              :selectedUserData="selectedUserData"
+              :selectedServiceRequest="selectedServiceRequest"
+              :isLoaded="isLoaded"
+              :myUserId="myUserId"
+              @sendMessage="handleSendMessage"
+              @closeStatus="handleCloseStatus"
+            />
           </div>
-        </div>
-      </div>
-      <div class="col-lg-8 col-12 column">
-        <div v-if="isLoaded">
-          <ChatWindow
-            v-if="chatRooms.length !== 0"
-            :selectedChatRoom="selectedChatRoom"
-            :selectedUserData="selectedUserData"
-            :serviceRequest="serviceRequest"
-            :isLoaded="isLoaded"
-            :myUserId="myUserId"
-            @sendMessage="handleSendMessage"
-            @closeStatus="handleCloseStatus"
-          />
-        </div>
-        <div v-else class="spinner-container">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+          <div v-else class="spinner-container">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
           </div>
         </div>
       </div>
@@ -265,6 +286,10 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.background {
+  background-image: url(../../assets/backdrop.png);
+}
+
 .profilePic {
   border: 1px solid rgb(177, 177, 177);
   object-fit: cover;
@@ -277,7 +302,8 @@ onUnmounted(() => {
 
 .column-right {
   padding: 0;
-  border-right: 1px solid lightgray;
+  background-color: white;
+  border-right: 1px solid black;
 }
 
 .column {
@@ -290,8 +316,7 @@ onUnmounted(() => {
 }
 
 .container {
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  background-color: rgb(248, 248, 248);
+  border: 1px solid rgb(0, 0, 0);
 }
 
 .dropdown-toggle[aria-expanded='true']:after {
@@ -304,9 +329,9 @@ onUnmounted(() => {
 
 .list-group-item {
   cursor: pointer;
-  background-color: rgb(248, 248, 248);
   display: flex;
   align-items: center;
+  
 }
 
 .header {
@@ -315,7 +340,7 @@ onUnmounted(() => {
 }
 
 .list-group-item.active {
-  background-color: #dedfdf !important;
+  background-color: #ffad60 !important;
   border: 0px;
   color: black;
 }
@@ -360,8 +385,7 @@ onUnmounted(() => {
 }
 
 .custom-dropdown-button {
-  background-color: rgb(248, 248, 248);
-  border: none;
+  background-color: #FFAD60;
   text-align: left;
   color: black;
 }

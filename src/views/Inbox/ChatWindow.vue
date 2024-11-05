@@ -10,7 +10,7 @@ const chatContainer = ref(null)
 const props = defineProps({
   selectedChatRoom: Object,
   selectedUserData: Object,
-  serviceRequest: Object,
+  selectedServiceRequest: Object,
   myUserId: String,
   isLoaded: Boolean
 })
@@ -30,7 +30,7 @@ function attachImage() {
 }
 
 function closeRequest() {
-  emit('closeStatus', props.serviceRequest.id)
+  emit('closeStatus', props.selectedServiceRequest.id, props.selectedChatRoom.id)
 }
 
 async function handleFileChange(event) {
@@ -117,133 +117,138 @@ function openImage(imageUrl) {
 
 
 <template>
-  <div v-if="!isLoaded" class="spinner-container">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
-  <div v-else>
-    <div class="card">
-      <div class="card-header">
-        <img
-          :src="selectedUserData.profilePicture"
-          class="rounded-circle me-2 profilePic"
-          alt="Profile Picture"
-          width="50"
-          height="50"
-        />
-        <div class="text-container">
-          <span class="name">{{ selectedUserData.username }}</span>
-          <span class="location">Status: {{ serviceRequest.status }}</span>
-        </div>
+  <div class="background">
+    <div v-if="!isLoaded" class="spinner-container">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
-      <div class="card-header">
-        <img
-          :src="serviceRequest.imgSrc"
-          class="me-2 requestClass"
-          alt="Request Img"
-          width="50"
-          height="50"
-          @click="goToRequestPage(serviceRequest.id)"
-        />
-        <div class="text-container requestClass" @click="goToRequestPage(serviceRequest.id)">
-          <span class="title">{{ serviceRequest.title }}</span>
-          <span class="location">{{ serviceRequest.location }}</span>
+    </div>
+    <div v-else>
+      <div class="card">
+        <div class="card-header">
+          <img
+            :src="selectedUserData.profilePicture"
+            class="rounded-circle me-2 profilePic"
+            alt="Profile Picture"
+            width="50"
+            height="50"
+          />
+          <div class="text-container">
+            <span class="name">{{ selectedUserData.username }}</span>
+            <span class="location">Status: {{ selectedChatRoom.status }}</span>
+          </div>
         </div>
-        <div
-          v-if="serviceRequest.status === 'Open' && selectedChatRoom.requestUserId === myUserId"
-          class="dropdown request-status"
-        >
+        <div class="card-header request">
+          <img
+            :src="selectedServiceRequest.imgSrc"
+            class="me-2 requestClass"
+            alt="Request Img"
+            width="50"
+            height="50"
+            @click="goToRequestPage(selectedServiceRequest.id)"
+          />
           <div
-            role="button"
-            class="dropdown-toggle no-caret"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+            class="text-container requestClass"
+            @click="goToRequestPage(selectedServiceRequest.id)"
           >
-            <i class="bi bi-three-dots-vertical"></i>
+            <span class="title">{{ selectedServiceRequest.title }}</span>
+            <span class="location">{{ selectedServiceRequest.location }}</span>
           </div>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-              <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#closeModal"
-                >Close Request</a
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class="card-body" ref="chatContainer">
-        <div v-for="(message, index) in processedMessages" :key="index" class="mb-2">
-          <div v-if="message.showTimestamp" class="conversation-timestamp">
-            {{ message.formattedDate }}
-          </div>
-          <div v-if="message.type === 'text'">
-            <div v-if="message.senderId === myUserId" class="text-end">
-              <div class="chat-bubble me">
-                <span>{{ message.msg }}</span>
-              </div>
+          <div
+            v-if="selectedChatRoom.status === 'Open' && selectedChatRoom.requestUserId === myUserId"
+            class="dropdown request-status"
+          >
+            <div
+              role="button"
+              class="dropdown-toggle no-caret"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-three-dots-vertical"></i>
             </div>
-            <div v-else class="d-flex align-items-start">
-              <img
-                :src="selectedUserData.profilePicture"
-                class="rounded-circle me-2 profilePic"
-                alt="User Profile"
-                width="36"
-                height="36"
-              />
-              <div class="chat-bubble other">
-                <span>{{ message.msg }}</span>
-              </div>
-            </div>
-          </div>
-          <div v-else-if="message.type === 'image'">
-            <div v-if="message.senderId === myUserId" class="text-end">
-              <div class="chat-bubble-img me" @click="openImage(message.msg)">
-                <img
-                  :src="message.msg"
-                  alt="Sent Image"
-                  class="chat-image"
-                  @load="scrollToBottom"
-                />
-              </div>
-            </div>
-            <div v-else class="d-flex align-items-start">
-              <img
-                :src="selectedUserData.profilePicture"
-                class="rounded-circle me-2 profilePic"
-                alt="User Profile"
-                width="36"
-                height="36"
-              />
-              <div class="chat-bubble-img other" @click="openImage(message.msg)">
-                <img
-                  :src="message.msg"
-                  alt="Received Image"
-                  class="chat-image"
-                  @load="scrollToBottom"
-                />
-              </div>
-            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#closeModal"
+                  >Close Request</a
+                >
+              </li>
+            </ul>
           </div>
         </div>
+        <div class="card-body" ref="chatContainer">
+          <div v-for="(message, index) in processedMessages" :key="index" class="mb-2">
+            <div v-if="message.showTimestamp" class="conversation-timestamp">
+              {{ message.formattedDate }}
+            </div>
+            <div v-if="message.type === 'text'">
+              <div v-if="message.senderId === myUserId" class="text-end">
+                <div class="chat-bubble me">
+                  <span>{{ message.msg }}</span>
+                </div>
+              </div>
+              <div v-else class="d-flex align-items-start">
+                <img
+                  :src="selectedUserData.profilePicture"
+                  class="rounded-circle me-2 profilePic"
+                  alt="User Profile"
+                  width="36"
+                  height="36"
+                />
+                <div class="chat-bubble other">
+                  <span>{{ message.msg }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else-if="message.type === 'image'">
+              <div v-if="message.senderId === myUserId" class="text-end">
+                <div class="chat-bubble-img me" @click="openImage(message.msg)">
+                  <img
+                    :src="message.msg"
+                    alt="Sent Image"
+                    class="chat-image"
+                    @load="scrollToBottom"
+                  />
+                </div>
+              </div>
+              <div v-else class="d-flex align-items-start">
+                <img
+                  :src="selectedUserData.profilePicture"
+                  class="rounded-circle me-2 profilePic"
+                  alt="User Profile"
+                  width="36"
+                  height="36"
+                />
+                <div class="chat-bubble-img other" @click="openImage(message.msg)">
+                  <img
+                    :src="message.msg"
+                    alt="Received Image"
+                    class="chat-image"
+                    @load="scrollToBottom"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div v-if="serviceRequest.status === 'Open'" class="input-group">
-      <div class="input-wrapper">
-        <input
-          type="text"
-          class="form-control"
-          v-model="message"
-          @keyup.enter="sendMessage"
-          placeholder="Type a message..."
-        />
-        <span class="clip-icon" @click="attachImage"><i class="bi bi-image"></i></span>
-        <input
-          type="file"
-          ref="fileInput"
-          @change="handleFileChange"
-          accept="image/*"
-          style="display: none"
-        />
+      <div v-if="selectedChatRoom.status === 'Open'" class="input-group">
+        <div class="input-wrapper">
+          <input
+            type="text"
+            class="form-control"
+            v-model="message"
+            @keyup.enter="sendMessage"
+            placeholder="Type a message..."
+          />
+          <span class="clip-icon" @click="attachImage"><i class="bi bi-image"></i></span>
+          <input
+            type="file"
+            ref="fileInput"
+            @change="handleFileChange"
+            accept="image/*"
+            style="display: none"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -287,6 +292,14 @@ function openImage(imageUrl) {
 
 
 <style scoped>
+.background {
+  background-color: #ffeead;
+}
+
+.request {
+  background-color: #ffad60;
+}
+
 .profilePic {
   border: 1px solid rgb(177, 177, 177);
   object-fit: cover;
@@ -395,7 +408,7 @@ function openImage(imageUrl) {
 .chat-bubble {
   display: inline-block;
   padding: 5px 10px 5px 10px;
-  border-radius: 20px;
+  border-radius: 15px;
   max-width: 60%;
   word-wrap: break-word;
   text-align: left;
@@ -403,22 +416,23 @@ function openImage(imageUrl) {
 
 .chat-bubble-img {
   display: inline-block;
-  border-radius: 20px;
+  border-radius: 15px;
   max-width: 60%;
   word-wrap: break-word;
   text-align: left;
 }
 
 .chat-bubble.me {
+  background-color: #ffad60;
   border: 1px solid lightgray;
-  background-color: #efefef;
   color: black;
   align-self: flex-end;
 }
 
 .chat-bubble.other {
-  border: 1px solid lightgray;
   background-color: #ffffff;
+  border: 1px solid lightgray;
+
   color: black;
   align-self: flex-start;
 }
