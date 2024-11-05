@@ -20,15 +20,16 @@
     
       <h2 class="section-title">John's Services</h2>
       <div class="row services-container col-12 ">
+
         <router-link to="./plumbing" class="service-rectangle no-underline col-md-6">
           <div class="label">Plumbing</div>
           <img src="./images/plumbingimage.jpg" alt="Plumbing Service" class="service-image" />
         </router-link>
 
-        <div class="service-rectangle">
+        <router-link to="./wifi_fixer" class="service-rectangle no-underline col-md-6">
           <div class="label">Wifi Fixer</div>
           <img src="./images/wifi.jpg" alt="Wifi Fixer" class="service-image" />
-        </div>
+        </router-link>
 
         <div class="service-rectangle">
           <div class="label">Furniture Assembly</div>
@@ -40,10 +41,11 @@
 
       <h2 class="section-title">John's Requests</h2>
       <div class="row request-container col-12">
-        <div class="service-rectangle col-md-6">
+
+        <router-link to="./phonefix" class="service-rectangle no-underline col-md-6">
           <div class="label">Help me fix my phone</div>
           <img src="./images/broken_phone.webp" alt="Phone Fix" class="service-image" />
-        </div>
+        </router-link>
 
         <div class="service-rectangle">
           <div class="label">Help me paint my room</div>
@@ -114,7 +116,7 @@ export default {
 .overall {
   position: relative;
   z-index: 3;
-  background-color: #fff6c3;
+  background-color: #fff8e6;
   border: 2px solid #ffc935;
   padding: 20px;
   width: 100%;

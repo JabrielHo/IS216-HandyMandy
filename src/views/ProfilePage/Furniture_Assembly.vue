@@ -3,7 +3,7 @@
   <div class="page-container yellowbg">
     <div class="container">
       <!-- Title Section -->
-      <h1 class="page-title">Plumbing Service</h1>
+      <h1 class="page-title">Furniture Assembly</h1>
       
       <!-- Profile Section -->
       <section class="profile-section">
@@ -45,40 +45,40 @@
 
       <!-- What's Included Section -->
       <section class="included-section">
-        <h2>What's Included</h2>
-        <ul class="included-list">
-          <li>Comprehensive leak inspection and repair</li>
-          <li>Pipe replacement and installation</li>
-          <li>Drain cleaning and unclogging</li>
-          <li>Water heater installation and maintenance</li>
-          <li>24/7 emergency services</li>
-        </ul>
-      </section>
+  <h2>What's Included</h2>
+  <ul class="included-list">
+    <li>Assembly of flat-pack and pre-fabricated furniture</li>
+    <li>Furniture disassembly and reassembly for moves or storage</li>
+    <li>Installation of shelves, wall-mounted units, and fixtures</li>
+    <li>Secure anchoring and leveling of heavy furniture</li>
+    <li>Cleanup and removal of packaging materials</li>
+  </ul>
+</section>
 
-      <!-- Qualifications and Reviews Section -->
-      <div class="qualifications-reviews">
-        <!-- Qualifications -->
-        <section class="qualifications-section">
-          <h2>Qualifications</h2>
-          <ul>
-            <li>Licensed and insured plumber</li>
-            <li>10+ years of experience in residential and commercial plumbing</li>
-            <li>Specialized in leak repair, pipe installation, and maintenance</li>
-            <li>Certified in eco-friendly plumbing solutions</li>
-          </ul>
-        </section>
+<!-- Qualifications and Reviews Section -->
+<div class="qualifications-reviews">
+  <!-- Qualifications -->
+  <section class="qualifications-section">
+    <h2>Qualifications</h2>
+    <ul>
+      <li>Experienced in assembling a wide range of furniture brands</li>
+      <li>5+ years in residential and commercial furniture assembly</li>
+      <li>Specialized in secure mounting and leveling of large items</li>
+      <li>Equipped with professional tools for efficient assembly</li>
+    </ul>
+  </section>
 
-        <!-- Reviews Section -->
-        <section class="reviews-section">
-          <h2>Customer Reviews</h2>
-          <ul>
-            <li>"John was prompt and professional, fixing our leak quickly!" - John D.</li>
-            <li>"Excellent service and very knowledgeable. Highly recommend!" - Sarah L.</li>
-            <li>"Reliable and efficient, John is my go-to plumber." - Mike R.</li>
-            <li>"Friendly and provided a lasting solution for our drainage issues." - Emily K.</li>
-          </ul>
-        </section>
-      </div>
+  <!-- Reviews Section -->
+  <section class="reviews-section">
+    <h2>Customer Reviews</h2>
+    <ul>
+      <li>"John assembled our new wardrobe perfectly, and it’s super sturdy!" - Emma W.</li>
+      <li>"Efficient and professional! He made quick work of our complex office setup." - David M.</li>
+      <li>"Super helpful and thorough. John even cleaned up all the packaging after!" - Sarah T.</li>
+      <li>"Reliable and detail-oriented. I’m thrilled with how he put together my new furniture!" - Chris P.</li>
+    </ul>
+  </section>
+</div>
 
       <!-- Bottom Book Now Button -->
       <button class="book-button bottom-button" @click="bookNow">Book Now</button>
@@ -143,7 +143,6 @@ export default {
   background-color: #fff8e6;
   padding: 20px;
   border-radius: 10px;
-  border: 2px solid #c6b4a2;
 }
 
 
@@ -184,7 +183,6 @@ export default {
   padding: 15px;
   border-radius: 10px;
   margin: 20px 0;
-  border: 2px solid #c6b4a2;
 }
 
 .included-section h2 {
@@ -246,7 +244,6 @@ export default {
   flex: 1;
   overflow-y: auto;
   max-height: 200px;
-  border: 2px solid #c6b4a2;
 }
 
 .qualifications-section h2,

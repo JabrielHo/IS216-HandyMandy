@@ -3,7 +3,7 @@
   <div class="page-container yellowbg">
     <div class="container">
       <!-- Title Section -->
-      <h1 class="page-title">Plumbing Service</h1>
+      <h1 class="page-title">Fix My Phone</h1>
       
       <!-- Profile Section -->
       <section class="profile-section">
@@ -90,7 +90,7 @@
 import profilepic from './images/profilepic.png';
 
 export default {
-  name: 'PlumbingServices',
+  name: 'phonefix',
   data() {
     return {
       profileImage: profilepic,
@@ -143,7 +143,6 @@ export default {
   background-color: #fff8e6;
   padding: 20px;
   border-radius: 10px;
-  border: 2px solid #c6b4a2;
 }
 
 
@@ -184,7 +183,6 @@ export default {
   padding: 15px;
   border-radius: 10px;
   margin: 20px 0;
-  border: 2px solid #c6b4a2;
 }
 
 .included-section h2 {
@@ -246,7 +244,6 @@ export default {
   flex: 1;
   overflow-y: auto;
   max-height: 200px;
-  border: 2px solid #c6b4a2;
 }
 
 .qualifications-section h2,

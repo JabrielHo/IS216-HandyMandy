@@ -3,7 +3,7 @@
   <div class="page-container yellowbg">
     <div class="container">
       <!-- Title Section -->
-      <h1 class="page-title">Plumbing Service</h1>
+      <h1 class="page-title">Wifi Fixing</h1>
       
       <!-- Profile Section -->
       <section class="profile-section">
@@ -24,13 +24,13 @@
         </div>
         <div class="carousel-inner">
           <div class="carousel-item active">
-            <img src="./images/PlumbingCarousel1.avif" class="d-block w-100" alt="...">
+            <img src="./images/wifi_fixing1.webp" class="d-block w-100" alt="...">
           </div>
           <div class="carousel-item">
-            <img src="./images/PlumbingCarousel2.jpg" class="d-block w-100" alt="...">
+            <img src="./images/wifi_fixing2.jpg" class="d-block w-100" alt="...">
           </div>
           <div class="carousel-item">
-            <img src="./images/PlumbingCarousel3.jpg" class="d-block w-100" alt="...">
+            <img src="./images/wifi_fixing3.jpg" class="d-block w-100" alt="...">
           </div>
         </div>
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -44,41 +44,41 @@
       </div>
 
       <!-- What's Included Section -->
-      <section class="included-section">
-        <h2>What's Included</h2>
-        <ul class="included-list">
-          <li>Comprehensive leak inspection and repair</li>
-          <li>Pipe replacement and installation</li>
-          <li>Drain cleaning and unclogging</li>
-          <li>Water heater installation and maintenance</li>
-          <li>24/7 emergency services</li>
-        </ul>
-      </section>
+    <section class="included-section">
+  <h2>What's Included</h2>
+  <ul class="included-list">
+    <li>Wi-Fi network setup and optimization</li>
+    <li>Router and modem installation and configuration</li>
+    <li>Signal strength analysis and range extension</li>
+    <li>Troubleshooting connectivity issues</li>
+    <li>24/7 support for Wi-Fi-related emergencies</li>
+  </ul>
+</section>
 
-      <!-- Qualifications and Reviews Section -->
-      <div class="qualifications-reviews">
-        <!-- Qualifications -->
-        <section class="qualifications-section">
-          <h2>Qualifications</h2>
-          <ul>
-            <li>Licensed and insured plumber</li>
-            <li>10+ years of experience in residential and commercial plumbing</li>
-            <li>Specialized in leak repair, pipe installation, and maintenance</li>
-            <li>Certified in eco-friendly plumbing solutions</li>
-          </ul>
-        </section>
+<!-- Qualifications and Reviews Section -->
+<div class="qualifications-reviews">
+  <!-- Qualifications -->
+  <section class="qualifications-section">
+    <h2>Qualifications</h2>
+    <ul>
+      <li>Certified network technician with 5+ years of experience</li>
+      <li>Specialized in residential and commercial Wi-Fi solutions</li>
+      <li>Experienced in troubleshooting and optimizing network performance</li>
+      <li>Trained in the latest Wi-Fi technology and security standards</li>
+    </ul>
+  </section>
 
-        <!-- Reviews Section -->
-        <section class="reviews-section">
-          <h2>Customer Reviews</h2>
-          <ul>
-            <li>"John was prompt and professional, fixing our leak quickly!" - John D.</li>
-            <li>"Excellent service and very knowledgeable. Highly recommend!" - Sarah L.</li>
-            <li>"Reliable and efficient, John is my go-to plumber." - Mike R.</li>
-            <li>"Friendly and provided a lasting solution for our drainage issues." - Emily K.</li>
-          </ul>
-        </section>
-      </div>
+  <!-- Reviews Section -->
+  <section class="reviews-section">
+    <h2>Customer Reviews</h2>
+    <ul>
+      <li>"John quickly diagnosed and fixed our Wi-Fi issues—now our entire house has strong coverage!" - Alex R.</li>
+      <li>"Professional and knowledgeable. Set up our home network in no time!" - Lisa P.</li>
+      <li>"Excellent service. John helped us extend our Wi-Fi range seamlessly." - Michael T.</li>
+      <li>"Reliable and efficient. Great experience with a true Wi-Fi expert!" - Rachel K.</li>
+    </ul>
+  </section>
+</div>
 
       <!-- Bottom Book Now Button -->
       <button class="book-button bottom-button" @click="bookNow">Book Now</button>
@@ -143,7 +143,6 @@ export default {
   background-color: #fff8e6;
   padding: 20px;
   border-radius: 10px;
-  border: 2px solid #c6b4a2;
 }
 
 
@@ -184,7 +183,6 @@ export default {
   padding: 15px;
   border-radius: 10px;
   margin: 20px 0;
-  border: 2px solid #c6b4a2;
 }
 
 .included-section h2 {
@@ -246,7 +244,6 @@ export default {
   flex: 1;
   overflow-y: auto;
   max-height: 200px;
-  border: 2px solid #c6b4a2;
 }
 
 .qualifications-section h2,

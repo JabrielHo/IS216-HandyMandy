@@ -54,6 +54,16 @@ const router = createRouter({
       component: () => import('../views/ProfilePage/plumbing.vue')
     },
     {
+      path: '/phonefix',
+      name: 'phonefix',
+      component: () => import('../views/ProfilePage/phonefix.vue')
+    },
+    {
+      path: '/wifi_fixer',
+      name: 'wifi_fixer',
+      component: () => import('../views/ProfilePage/Wifi_fixer.vue')
+    },
+    {
       path: '/forum',
       name: 'forumpage',
       component: () => import('../views/Forum/forumpage.vue')
