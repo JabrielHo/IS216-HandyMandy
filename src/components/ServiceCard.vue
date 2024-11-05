@@ -76,7 +76,7 @@ body {
 
 #profile-card {
   width: 100%;
-  max-width: 300px;
+  /* max-width: 300px; */
   height: 490px;
   position: relative;
   overflow: hidden;
@@ -97,8 +97,8 @@ body {
   top: 350px;
   left: 0;
   width: 100%;
-  height: 300px;
-  padding: 27px 35px 35px;
+  height: 200px;
+  padding: 10px 25px 25px;
   transition: all 200ms ease-out;
 }
 
@@ -115,7 +115,7 @@ body {
 .stats-container p {
   font-size: 16px;
   color: #b1b1b3;
-  padding: 2px 0 20px 0;
+  padding: 2px 0 10px 0;
   margin-bottom: 10px; 
 }
 

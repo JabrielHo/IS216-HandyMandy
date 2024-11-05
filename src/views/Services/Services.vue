@@ -1,8 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-import { computed } from 'vue'
 import Services from './users'
 import UserService from '../../services/UserService'
 import ServiceCard from '../../components/ServiceCard.vue'
@@ -27,24 +26,25 @@ const totalItems = ref(0)
 async function fetchServices() {
   loading.value = true;
   console.log('Fetching services...');
-      const result = await Services.getAllServices(
-      selectedCategoryOption.value,
-      selectedLocationOption.value,
-      currentPage.value,
-      itemsPerPage.value
-    );
 
-    console.log('Fetched result:', result); // Debug fetched result
+  const result = await Services.getAllServices(
+    selectedCategoryOption.value,
+    selectedLocationOption.value,
+    currentPage.value,
+    itemsPerPage.value
+  );
 
-    const servicePromises = result.items.map((service) => {
-      return UserService.getUserData(service.userId).then((userData)=>{
-        service.username = userData.username
-        service.profilePicture = userData.profilePicture
-        return service
-      })
+  console.log('Fetched result:', result); // Debug fetched result
+
+  const servicePromises = result.items.map((service) => {
+    return UserService.getUserData(service.userId).then((userData) => {
+      service.username = userData.username
+      service.profilePicture = userData.profilePicture
+      return service
     })
+  })
 
-    Promise.all(servicePromises).then((loadedData) => {
+  Promise.all(servicePromises).then((loadedData) => {
     services.value = loadedData
     totalItems.value = result.totalItems
     loading.value = false
@@ -80,13 +80,25 @@ function changePage(page) {
   }
 }
 
+// Handle selection of category option
+function selectCategoryOption(category) {
+  selectedCategoryOption.value = category
+  currentPage.value = 1 // Reset to the first page when changing the filter
+  fetchServices() // Fetch services with the new filter
+}
+
+// Handle selection of location option
+function selectLocationOption(location) {
+  selectedLocationOption.value = location
+  currentPage.value = 1 // Reset to the first page when changing the filter
+  fetchServices() // Fetch services with the new filter
+}
+
 onMounted(() => {
   fetchServices()
   populateCategoryFilter()
   populateLocationFilter()
 })
-
-// console.log("this is services : " , services)
 </script>
 
 <template>
@@ -181,7 +193,7 @@ onMounted(() => {
     <div v-else>
       <div class="row">
         <div
-          class="col-xl-3 col-lg-3 col-md-6 col-sm-6"
+          class="col-xl-3 col-lg-2 col-md-3 col-sm-3"
           v-for="service in services"
           :key="service.userId"
         >
