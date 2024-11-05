@@ -47,7 +47,8 @@ const handleSubmit = async () => {
       username: name.value,
       userId: userCredential.user.uid,
       email: email.value,
-      profilePicture: "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
+      profilePicture: "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
+      loginMethod: 'email'
     });
 
     // Redirect to photo upload page instead of home
@@ -74,7 +75,8 @@ const handleGoogleSignIn = async () => {
         username: user.displayName || user.email?.split('@')[0] || 'Anonymous',
         userId: user.uid,
         email: user.email,
-        profilePicture: user.photoURL || "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
+        profilePicture: user.photoURL || "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
+        loginMethod: 'google'
       });
       
       // Redirect new Google users to photo upload page

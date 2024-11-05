@@ -44,7 +44,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAuth, signInWithEmailAndPassword, fetchSignInMethodsForEmail, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where} from 'firebase/firestore';
 
 
 const db = getFirestore();
@@ -63,16 +63,29 @@ const handleSubmit = async () => {
   }
 
   try {
-    // First, check the sign-in methods available for this email
+    // Check sign-in methods for the email
     const signInMethods = await fetchSignInMethodsForEmail(auth, email.value.toLowerCase());
     
-    // If the user only has Google sign-in method
-    if (signInMethods.length > 0 && signInMethods.includes('google.com') && !signInMethods.includes('password')) {
-      alert('This email is registered with Google Sign-In. Please use the "Sign in with Google" button.');
-      return;
+    // If email exists, check the login method in Firestore
+    if (signInMethods.length === 0) {
+      // Query Firestore to find user with this email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email.value.toLowerCase()));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        
+        // Check if user was created with Google
+        if (userData.loginMethod === 'google') {
+          alert('This account was created with Google. Please use the "Sign in with Google" button.');
+          return;
+        }
+      }
     }
 
-    // If email/password sign-in is available, proceed with sign-in
+    // Proceed with email/password login
     await signInWithEmailAndPassword(auth, email.value.toLowerCase(), password.value);
     if (auth.currentUser) {
       router.push({ name: 'home' });
