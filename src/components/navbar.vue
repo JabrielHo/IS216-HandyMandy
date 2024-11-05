@@ -59,9 +59,9 @@ onUnmounted(() => {
 
 <template>
   <nav class="navbar-container">
-    <div class="navbar-content">
+    <div class="navbar-content no-wrap">
       <!-- Logo Section -->
-      <router-link to="/" class="logo-section">
+      <router-link to="/" class="logo-section no-wrap">
         <img src="../assets/HandyMandyLogo1.png" alt="Handy Mandy Logo" class="logo" />
         <span class="brand-name">HandyMandy</span>
       </router-link>
@@ -146,7 +146,6 @@ onUnmounted(() => {
               >Requests</router-link
             >
           </li>
-
           <li>
             <router-link to="/forum" class="nav-link" active-class="active">Forum</router-link>
           </li>
@@ -166,10 +165,13 @@ onUnmounted(() => {
       <!-- Navigation Links Mobile -->
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="nav-links">
-          <li>
-            <router-link to="/forum" class="nav-link" active-class="active">Profile</router-link>
-          </li>
           <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
+          <li>
+            <router-link to="/profile" class="nav-link" active-class="active">Profile</router-link>
+          </li>
+          <li>
+            <router-link to="/inbox" class="nav-link" active-class="active">Inbox</router-link>
+          </li>
           <li>
             <router-link to="/services" class="nav-link" active-class="active"
               >Services</router-link
@@ -236,6 +238,11 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  white-space: nowrap;
+}
+
+.no-wrap {
+  white-space: nowrap;
 }
 
 .logo-section {
@@ -249,6 +256,7 @@ onUnmounted(() => {
   background: linear-gradient(45deg, #ff6b6b, #ff8e53);
   -webkit-background-clip: text;
   color: transparent;
+  white-space: nowrap;
 }
 
 .search-section {

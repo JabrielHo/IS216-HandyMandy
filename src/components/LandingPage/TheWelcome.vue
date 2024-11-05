@@ -15,10 +15,12 @@
           v-model="typedService"
           class="input-group-text dropdown-toggle inputbox"
           @input="filterServices"
-          placeholder="Find a service!"
+          :placeholder="serviceplaceholder"
           style="font-size: 2vw"
         />
-        <button class="btncolor my-3 md:ms-2">Go!</button>
+        <router-Link :to="`/services/${selectedService}`">
+          <button class="btncolor my-3 md:ms-2">Go!</button>
+        </router-Link>
       </div>
 
       <div :class="showWheel ? 'd-none' : 'd-inline'">
@@ -54,9 +56,11 @@
             <h2 class="wheeltitle text-black text-center mb-2">Wheel Of Services</h2>
           </div>
           <div id="noservicetext"></div>
+
           <div class="wheelcircle">
             <div id="services"></div>
           </div>
+          <div class="wheel-arrow"></div>
         </div>
       </div>
     </Transition>
@@ -67,6 +71,7 @@
 import * as d3 from 'd3'
 import maintableimage from '../../assets/table.png'
 import sidetableimage from '../../assets/Singlechair.png'
+import { RouterLink } from 'vue-router'
 
 export default {
   data() {
@@ -106,7 +111,8 @@ export default {
       propellerInstance: null,
       typedService: '',
       filteredServices: [],
-      showWheel: false
+      showWheel: false,
+      serviceplaceholder: ''
     }
   },
   mounted() {
@@ -127,6 +133,15 @@ export default {
         let taglinetext = document.getElementById('taglinetext')
         tagline.innerText = 'HandyMandy'
         taglinetext.innerText = 'Your Neighbourhood service provider'
+      }
+    },
+    selectedService(newService) {
+      // Watching selectedService instead of inputplaceholder
+      if (newService) {
+        this.serviceplaceholder = newService
+        console.log('Placeholder updated to selected service')
+      } else {
+        this.serviceplaceholder = 'Enter a service!'
       }
     }
   },
@@ -375,6 +390,18 @@ export default {
   transform: translateY(17vw);
 }
 
+.wheel-arrow {
+  width: 0;
+  height: 0;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+  border-left: 20px solid #272f2f; /* Color of the arrow */
+  position: absolute;
+  left: 25px; /* Position it to the right of the wheel */
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 @media (max-width: 767px) {
   .left-container {
     /* Adjustments for screens below 768px */
@@ -416,6 +443,10 @@ export default {
 
   .yellowbg {
     min-height: 15rem;
+  }
+
+  .btncolor {
+    margin-left: 2vw;
   }
 }
 
@@ -503,7 +534,7 @@ export default {
 } */
 
 .btncolor {
-  padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.75rem, 1.5vw, 1rem);
+  padding: clamp(0rem, 1vw, 0.5rem) clamp(0.3rem, 1.5vw, 1rem);
   font-size: clamp(0.875rem, 1vw + 0.5rem, 1.25rem);
   background-color: #8a5a00;
   color: white;

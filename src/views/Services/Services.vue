@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router' // Import useRouter and useRoute
 import { useAuthStore } from '../../stores/auth'
 import Services from './users'
 import UserService from '../../services/UserService'
@@ -8,10 +8,11 @@ import ServiceCard from '../../components/ServiceCard.vue'
 import PlaceholderCard from '../../components/PlaceholderCard.vue'
 
 const router = useRouter()
+const route = useRoute() // Use useRoute to access route params
 const authStore = useAuthStore()
 const isLoggedIn = computed(() => authStore.user !== null)
 
-const selectedCategoryOption = ref('All Categories')
+const selectedCategoryOption = ref(route.params.selectedservice || 'All Categories')
 const selectedLocationOption = ref('All Locations')
 const services = ref([])
 const categories = ref([])
@@ -24,17 +25,17 @@ const itemsPerPage = ref(10)
 const totalItems = ref(0)
 
 async function fetchServices() {
-  loading.value = true;
-  console.log('Fetching services...');
-
+  loading.value = true
+  console.log('Fetching services...')
+  console.log(selectCategoryOption.value)
   const result = await Services.getAllServices(
     selectedCategoryOption.value,
     selectedLocationOption.value,
     currentPage.value,
     itemsPerPage.value
-  );
+  )
 
-  console.log('Fetched result:', result); // Debug fetched result
+  console.log('Fetched result:', result) // Debug fetched result
 
   const servicePromises = result.items.map((service) => {
     return UserService.getUserData(service.userId).then((userData) => {
@@ -55,7 +56,7 @@ async function fetchServices() {
 async function populateCategoryFilter() {
   const result = await Services.getAllCategories()
   categories.value = result
-  console.log("categories", categories.value)
+  console.log('categories', categories.value)
 }
 
 async function populateLocationFilter() {
@@ -98,7 +99,20 @@ onMounted(() => {
   fetchServices()
   populateCategoryFilter()
   populateLocationFilter()
+  // inisetup()
 })
+
+// Access the selected service from the route
+// function inisetup() {
+//   const serviceParam = route.params.selectedservice // Access the route parameter
+//   console.log('Selected service:', serviceParam)
+//   if (typeof serviceParam !== 'undefined') {
+//     console.log('success')
+//     selectCategoryOption(serviceParam)
+//   } else {
+//     console.log('failed')
+//   }
+// }
 </script>
 
 <template>
@@ -107,7 +121,8 @@ onMounted(() => {
       <div class="col-lg-6 col-md-8 mx-auto">
         <h1 class="fw-light">Available Services</h1>
         <p class="lead text-body-secondary">
-          Discover a variety of services offered by others. Whether you're looking for help or offering services, connect today!
+          Discover a variety of services offered by others. Whether you're looking for help or
+          offering services, connect today!
         </p>
         <p>
           <button v-if="isLoggedIn" class="btn btn-danger my-2" @click="navigateToCreateService">

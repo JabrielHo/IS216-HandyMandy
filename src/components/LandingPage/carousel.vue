@@ -13,14 +13,16 @@
           :key="index"
           class="px-2 maincard"
         >
-          <div class="card" :style="{ backgroundImage: 'url(' + item.image + ')' }">
-            <div class="titlecontainer">
-              <h5 class="cardtitle text-center">{{ item.alt }}</h5>
+          <RouterLink :to="`/services/${item.service}`">
+            <div class="card" :style="{ backgroundImage: 'url(' + item.image + ')' }">
+              <div class="titlecontainer">
+                <h5 class="cardtitle text-center">{{ item.alt }}</h5>
+              </div>
+              <div class="card-content">
+                <!-- Add more content here if needed -->
+              </div>
             </div>
-            <div class="card-content">
-              <!-- Optional: Add more content here if needed -->
-            </div>
-          </div>
+          </RouterLink>
         </div>
       </div>
     </div>
@@ -34,48 +36,53 @@ import 'slick-carousel'
 
 const slides = ref([
   {
-    image:
-      'https://images.pexels.com/photos/1707820/pexels-photo-1707820.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    image: 'https://pluggedinatl.com/wp-content/uploads/2021/06/iStock-1025303196-scaled.jpg',
     alt: 'Electrical',
-    caption: 'This is the first slide'
+    caption: 'This is the first slide',
+    service: 'Electrical'
   },
   {
-    image:
-      'https://images.pexels.com/photos/1707820/pexels-photo-1707820.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    image: 'https://www.socool.sg/wp-content/uploads/2022/11/Ac-service-3-2-1080x675.jpg',
     alt: 'Air-Con',
-    caption: 'This is the second slide'
+    caption: 'This is the second slide',
+    service: 'Aircon'
   },
   {
-    image:
-      'https://images.pexels.com/photos/1707820/pexels-photo-1707820.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    image: 'https://hw-singaporeplumbing.com.sg/wp-content/uploads/2018/12/sanitary-repair.png',
     alt: 'Plumbing',
-    caption: 'This is the third slide'
+    caption: 'This is the third slide',
+    service: 'Plumbing'
   },
   {
     image:
-      'https://images.pexels.com/photos/1707820/pexels-photo-1707820.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      'https://megafurniture.sg/cdn/shop/articles/the-top-5-refrigerator-singapore-repair-services-review-megafurniture.png?v=1721303860&width=1200',
     alt: 'Repair',
-    caption: 'This is the fourth slide'
+    caption: 'This is the fourth slide',
+    service: 'Repair'
   },
   {
-    image: 'https://via.placeholder.com/300x200?text=Slide+1',
+    image: 'https://www.ikea.com/ext/ingkadam/m/7c8d0ce75bda3d21/original/PH186193-crop001.jpg?f=s',
     alt: 'Installation',
-    caption: 'This is the fifth slide'
+    caption: 'This is the fifth slide',
+    service: 'Installation'
   },
   {
-    image: 'https://via.placeholder.com/300x200?text=Slide+2',
+    image: 'https://www.paintingservicesingapore.sg/wp-content/uploads/2020/12/67766.jpg',
     alt: 'Painting',
-    caption: 'This is the sixth slide'
+    caption: 'This is the sixth slide',
+    service: 'Painting'
   },
   {
-    image: 'https://via.placeholder.com/300x200?text=Slide+3',
+    image: 'https://www.helpling.com.sg/wp-content/uploads/2023/06/Helpling-gardening_bg.webp',
     alt: 'Gardening',
-    caption: 'This is the seventh slide'
+    caption: 'This is the seventh slide',
+    service: 'Gardening'
   },
   {
-    image: 'https://via.placeholder.com/300x200?text=Slide+4',
+    image: 'https://cleanlab.com.sg/wp-content/uploads//House-cleaning.jpg',
     alt: 'Cleaning',
-    caption: 'This is the eight slide'
+    caption: 'This is the eight slide',
+    service: 'Cleaning'
   }
 ])
 
@@ -185,6 +192,7 @@ onMounted(() => {
   top: 50%; /* Center them vertically */
   transform: translateY(-50%); /* Adjust vertical alignment */
   z-index: 999999; /* Ensure arrows are above other elements */
+  color: black !important;
 }
 
 .slick-prev:before,

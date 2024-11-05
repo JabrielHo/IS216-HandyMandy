@@ -33,6 +33,12 @@
         </li>
         <li><hr class="dropdown-divider" /></li>
         <li>
+          <router-link to="/inbox" class="dropdown-item">
+            <i class="fa fa-inbox me-2" aria-hidden="true"></i>Inbox
+          </router-link>
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
           <button
             class="dropdown-item text-danger"
             data-bs-toggle="modal"
@@ -128,7 +134,7 @@ defineProps({
 }
 
 .dropdown-divider {
-  margin: 0.5rem 0;
+  margin: 0.2rem 0;
   border-color: #f0f0f0;
 }
 </style>
