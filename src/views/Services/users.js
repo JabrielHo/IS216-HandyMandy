@@ -69,7 +69,6 @@ class Services {
     return result
   }
 
-
   async getAllCategories() {
     const q = collection(db, 'services')
     const querySnapshot = await getDocs(q)
@@ -84,6 +83,7 @@ class Services {
 
     return Array.from(categories)
   }
+
   async getAllLocations() {
     const q = collection(db, 'services')
     const querySnapshot = await getDocs(q)
@@ -106,6 +106,28 @@ class Services {
 
       await updateDoc(doc(db, 'services', docId), {
         serviceId: docId
+      })
+
+      return { success: true, id: docId }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  async createDetailedServices(field, image) {
+    try {
+      const docRef = await addDoc(collection(db, "userServiceDetails"),field)
+      const docId = docRef.id
+
+      // Upload the image to Firebase Storage
+      const storage = getStorage()
+      const storageRef = ref(storage, `userServiceDetails/${docId}`)
+      await uploadBytes(storageRef, image)
+      const imageUrl = await getDownloadURL(storageRef)
+
+      await updateDoc(doc(db, 'userServiceDetails', docId), {
+        userServiceDetailsId: docId,
+        serviceImg: imageUrl
       })
 
       return { success: true, id: docId }

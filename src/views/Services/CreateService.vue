@@ -55,7 +55,7 @@ function initializeServiceDetails() {
       serviceDetails.value[service] = {
         yearsExperience: 0,
         description: '',
-        rate: '',
+        // rate: '',
         image: null,
         imagePreview: null
       }
@@ -64,12 +64,16 @@ function initializeServiceDetails() {
 }
 
 // Handle image upload
-function handleImageUpload(event, service) {
-  const file = event.target.files[0]
-  if (file) {
-    serviceDetails.value[service].image = file
-    serviceDetails.value[service].imagePreview = URL.createObjectURL(file)
-  }
+// function handleImageUpload(event, service) {
+//   const file = event.target.files[0]
+//   if (file) {
+//     serviceDetails.value[service].image = file
+//     serviceDetails.value[service].imagePreview = URL.createObjectURL(file)
+//   }
+// }
+
+function handleFileChange(event) {
+  image.value = event.target.files[0]
 }
 
 // Navigation functions
@@ -94,29 +98,51 @@ function getCurrentService() {
 async function createRequest() {
   isLoading.value = true
   try {
-    const formData = new FormData()
-    formData.append('location', location.value.trim())
-    formData.append('userId', userData.value.uid)
-    
-    // Add service details
-    const servicesData = selectedServices.value.map(service => ({
-      type: service,
-      ...serviceDetails.value[service]
-    }))
-    
-    formData.append('services', JSON.stringify(servicesData))
-    
-    // Append images
-    selectedServices.value.forEach((service, index) => {
-      if (serviceDetails.value[service].image) {
-        formData.append(`image_${index}`, serviceDetails.value[service].image)
-      }
-    })
+    const serviceTypes = selectedServices.value; // Array of selected services
+    const userId = userData.value.uid;
+    const userLocation = location.value.trim();
 
-    const result = await Services.createService(formData)
+    // Construct the data object
+    const requestData = {
+      userId,
+      location: userLocation,
+      service_type: serviceTypes
+    };
+    
+    const result = await Services.createService(requestData)
+
     if (result.success) {
-      router.push('/services')
+      const serviceId = result.id // Capture serviceId from the created service
+      // Now create detailed services
+      for (const service of serviceTypes) {
+        const details = serviceDetails.value[service]
+
+        const detailedRequest = {
+          description: details.description,
+          serviceId: serviceId,
+          service_type: service,
+          userId: userId,
+          yearsExperience: details.yearsExperience,
+        }
+
+        // Upload image and create detailed service
+        if (details.image) {
+          console.log("You've entered the uploading of data is userDetailedServices")
+          const detailedResult = await Services.createDetailedServices({
+            ...detailedRequest,
+            image: details.image // Passing file directly for upload
+          })
+
+          if (detailedResult.success) {
+            console.log(`Detailed service created with ID: ${detailedResult.id}`)
+          } else {
+            console.error('Error creating detailed service:', detailedResult.error)
+          }
+        }
+      }
     }
+    console.log(result)
+    router.push('/services')
   } catch (error) {
     console.error('Error creating service:', error)
   } finally {
@@ -205,7 +231,7 @@ async function createRequest() {
             rows="3"
           ></textarea>
         </div>
-
+<!-- 
         <div class="form-group">
           <label>Hourly Rate (SGD)</label>
           <input
@@ -214,34 +240,21 @@ async function createRequest() {
             v-model="serviceDetails[getCurrentService()].rate"
             placeholder="Enter your hourly rate"
           />
-        </div>
+        </div> -->
 
         <div class="form-group">
-          <label>Service Image</label>
-          <div class="image-upload-container">
-            <div v-if="serviceDetails[getCurrentService()].imagePreview" 
-                 class="image-preview">
-              <img :src="serviceDetails[getCurrentService()].imagePreview" 
-                   alt="Preview" />
-              <button class="remove-image" 
-                      @click="serviceDetails[getCurrentService()].image = null; 
-                             serviceDetails[getCurrentService()].imagePreview = null">
-                ×
-              </button>
-            </div>
-            <div v-else class="upload-placeholder" 
-                 @click="$refs[`imageInput_${getCurrentService()}`].click()">
-              <span>Click to upload image</span>
-            </div>
-            <input
-              type="file"
-              :ref="`imageInput_${getCurrentService()}`"
-              class="hidden"
-              accept="image/*"
-              @change="handleImageUpload($event, getCurrentService())"
-            />
-          </div>
+        <label for="image" class="form-label">Attach an image of your service</label>
+        <input
+          class="form-control"
+          type="file"
+          id="image"
+          accept="image/*"
+          @change="handleFileChange"
+        />
+        <div v-if="serviceDetails[getCurrentService()].imagePreview" class="image-preview">
+          <img :src="serviceDetails[getCurrentService()].imagePreview" alt="Preview" />
         </div>
+      </div>
       </div>
     </div>
 
