@@ -15,48 +15,24 @@ const name = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const category = ref<string[]>([]); // Keep only the selected categories
-  const photoFile = ref(null);
-  const photoPreview = ref(null);
+// const category = ref<string[]>([]); // Keep only the selected categories
+const photoFile = ref(null);
+const photoPreview = ref(null);
 
 // Computed property to check if "None" is selected
-const isNoneSelected = computed(() => category.value.includes('None'));
+// const isNoneSelected = computed(() => category.value.includes('None'));
 
-// Watch for changes in the category array
-watch(category, (newValue, oldValue) => {
-  if (newValue.includes('None') && newValue.length > 1) {
-    category.value = ['None'];
-  } else if (oldValue?.includes('None') && !newValue.includes('None')) {
-    // When "None" is unchecked, clear the array to uncheck all
-    category.value = [];
-  }
-  // No need for an else block here, as we're only concerned with "None"
-});
+// // Watch for changes in the category array
+// watch(category, (newValue, oldValue) => {
+//   if (newValue.includes('None') && newValue.length > 1) {
+//     category.value = ['None'];
+//   } else if (oldValue?.includes('None') && !newValue.includes('None')) {
+//     // When "None" is unchecked, clear the array to uncheck all
+//     category.value = [];
+//   }
+//   // No need for an else block here, as we're only concerned with "None"
+// });
 
-const handlePhotoUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    photoFile.value = file;
-    photoPreview.value = URL.createObjectURL(file);
-  }
-};
-
-// Function to upload photo to Firebase Storage
-const uploadPhoto = async (userId) => {
-  if (!photoFile.value) return null;
-
-  const fileExtension = photoFile.value.name.split('.').pop();
-  const photoRef = storageRef(storage, `profile-photos/${userId}.${fileExtension}`);
-  
-  try {
-    const snapshot = await uploadBytes(photoRef, photoFile.value);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return downloadURL;
-  } catch (error) {
-    console.error('Error uploading photo:', error);
-    throw error;
-  }
-};
 
 
 // Function to handle form submission
@@ -67,34 +43,20 @@ const handleSubmit = async () => {
   }
 
   try {
-    // Create user with email and password
     const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
-    let profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
     
-    if (photoFile.value) {
-      profilePictureUrl = await uploadPhoto(userCredential.user.uid);
-    }
-
-    // Store user details in Firestore
+    // Store user details in Firestore with default profile picture
     await setDoc(doc(db, "users", userCredential.user.uid), {
       username: name.value,
       userId: userCredential.user.uid,
       email: email.value,
-      profilePicture: profilePictureUrl,
-      category: category.value // Adds the selected categories array
+      profilePicture: "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
     });
 
-    // Log registered user details (for debugging)
-    console.log('Registered user:', {
-      uid: userCredential.user.uid,
-      name: name.value,
-      email: email.value,
-    });
-
-    // Redirect to another page after successful registration
-    router.push('/');
+    // Redirect to photo upload page instead of home
+    router.push('/photo-upload');
   } catch (error) {
-    console.log('Error during registration:', error);
+    console.error('Error during registration:', error);
     alert(error.message);
   }
 };
@@ -107,30 +69,29 @@ const handleGoogleSignIn = async () => {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    // Check if the user is new (first time signing in)
     const userDocRef = doc(db, "users", user.uid);
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
-      // Store user details in Firestore for new users
       await setDoc(userDocRef, {
         username: user.displayName || user.email?.split('@')[0] || 'Anonymous',
         userId: user.uid,
         email: user.email,
-        profilePicture: "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
-        category: category.value // Adds the selected categories array
+        profilePicture: user.photoURL || "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg"
       });
+      
+      // Redirect new Google users to photo upload page
+      router.push('/photo-upload');
+    } else {
+      // Existing users go directly to home
+      router.push('/');
     }
-
-    // Redirect after successful login
-    router.push('/welcome');
   } catch (error) {
     console.error('Error during Google sign-in:', error);
     alert(error.message);
   }
 };
 
-const categories = ["Repair", "Installation", "None"];
 </script>
 
 
@@ -158,19 +119,19 @@ const categories = ["Repair", "Installation", "None"];
             <label for="confirmPassword" class="form-label">Confirm Password</label>
             <input type="password" id="confirmPassword" class="form-control" v-model="confirmPassword" required />
           </div>
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label>Categories:</label>
             <div v-for="cat in categories" :key="cat">
               <input type="checkbox" :id="cat" :value="cat" v-model="category"
                 :disabled="cat !== 'None' && isNoneSelected" />
               <label :for="cat">{{ cat }}</label>
             </div>
-          </div>
-          <div class="form-group mb-3">
+          </div> -->
+          <!-- <div class="form-group mb-3">
             <label for="photo">Profile Photo</label>
             <input type="file" id="photo" class="form-control" @change="handlePhotoUpload" accept="image/*">
             <img v-if="photoPreview" :src="photoPreview" class="mt-2" style="max-width: 200px;">
-          </div>
+          </div> -->
           <div style="text-align: center">
             <button type="submit" class="btn btn-primary mt-3 mb-3">Register</button>
           </div>

@@ -111,6 +111,11 @@ const router = createRouter({
       component: () => import('../views/Inbox/ChatView.vue'),
       props: true
       // meta: { requiresAuth: true }
+    },
+    {
+      path: '/photo-upload',
+      name: 'photoUpload',
+      component: () => import('../views/SigninPage/PhotoUpload.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {
