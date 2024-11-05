@@ -5,8 +5,10 @@ import { auth, db } from '../../firebaseConfig'; // Import Firestore
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore'; // Import Firestore methods
 import TheWelcome from '@/components/LandingPage/TheWelcome.vue';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const router = useRouter();
+const storage = getStorage();
 
 // Form data
 const name = ref('');
@@ -14,6 +16,8 @@ const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const category = ref<string[]>([]); // Keep only the selected categories
+  const photoFile = ref(null);
+  const photoPreview = ref(null);
 
 // Computed property to check if "None" is selected
 const isNoneSelected = computed(() => category.value.includes('None'));
@@ -21,13 +25,39 @@ const isNoneSelected = computed(() => category.value.includes('None'));
 // Watch for changes in the category array
 watch(category, (newValue, oldValue) => {
   if (newValue.includes('None') && newValue.length > 1) {
-    category.value = ['None']; 
-  } else if (oldValue?.includes('None') && !newValue.includes('None')) { 
+    category.value = ['None'];
+  } else if (oldValue?.includes('None') && !newValue.includes('None')) {
     // When "None" is unchecked, clear the array to uncheck all
     category.value = [];
-  } 
+  }
   // No need for an else block here, as we're only concerned with "None"
 });
+
+const handlePhotoUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    photoFile.value = file;
+    photoPreview.value = URL.createObjectURL(file);
+  }
+};
+
+// Function to upload photo to Firebase Storage
+const uploadPhoto = async (userId) => {
+  if (!photoFile.value) return null;
+
+  const fileExtension = photoFile.value.name.split('.').pop();
+  const photoRef = storageRef(storage, `profile-photos/${userId}.${fileExtension}`);
+  
+  try {
+    const snapshot = await uploadBytes(photoRef, photoFile.value);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    throw error;
+  }
+};
+
 
 // Function to handle form submission
 const handleSubmit = async () => {
@@ -39,13 +69,18 @@ const handleSubmit = async () => {
   try {
     // Create user with email and password
     const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
+    let profilePictureUrl = "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg";
+    
+    if (photoFile.value) {
+      profilePictureUrl = await uploadPhoto(userCredential.user.uid);
+    }
 
     // Store user details in Firestore
     await setDoc(doc(db, "users", userCredential.user.uid), {
       username: name.value,
       userId: userCredential.user.uid,
       email: email.value,
-      profilePicture: "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
+      profilePicture: profilePictureUrl,
       category: category.value // Adds the selected categories array
     });
 
@@ -57,7 +92,7 @@ const handleSubmit = async () => {
     });
 
     // Redirect to another page after successful registration
-    router.push('/welcome');
+    router.push('/');
   } catch (error) {
     console.log('Error during registration:', error);
     alert(error.message);
@@ -101,7 +136,7 @@ const categories = ["Repair", "Installation", "None"];
 
 
 <template>
-  <div class="register-container">
+ <div class="register-container">
     <div class="register-card">
       <div class="card-body">
         <h1 class="text-center">Register</h1>
@@ -125,11 +160,16 @@ const categories = ["Repair", "Installation", "None"];
           </div>
           <div class="mb-3">
             <label>Categories:</label>
-            <div v-for="cat in categories" :key="cat"> 
+            <div v-for="cat in categories" :key="cat">
               <input type="checkbox" :id="cat" :value="cat" v-model="category"
                 :disabled="cat !== 'None' && isNoneSelected" />
               <label :for="cat">{{ cat }}</label>
             </div>
+          </div>
+          <div class="form-group mb-3">
+            <label for="photo">Profile Photo</label>
+            <input type="file" id="photo" class="form-control" @change="handlePhotoUpload" accept="image/*">
+            <img v-if="photoPreview" :src="photoPreview" class="mt-2" style="max-width: 200px;">
           </div>
           <div style="text-align: center">
             <button type="submit" class="btn btn-primary mt-3 mb-3">Register</button>
@@ -142,7 +182,7 @@ const categories = ["Repair", "Installation", "None"];
           </div>
 
           <div class="text-center">
-            <button class="google-button" @click="handleGoogleSignIn">
+            <button type="button" class="google-button" @click="handleGoogleSignIn">
               <img src="./googleIcon.png" alt="Google Icon" class="icon-image" />
               Register with Google
             </button>
