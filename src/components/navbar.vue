@@ -10,7 +10,7 @@ const isLoggedIn = computed(() => authStore.user !== null)
 const isLoading = computed(() => authStore.loading)
 const searchQuery = ref('')
 const isSearchExpanded = ref(false)
-const isMobile = ref(window.innerWidth < 768) // Track mobile state based on initial screen size
+const isMobile = ref(window.innerWidth < 900) // Track mobile state based on initial screen size
 const navbarNav = ref<HTMLElement | null>(null)
 
 const navigateToSignIn = () => {
@@ -36,7 +36,7 @@ const toggleSearch = () => {
 
 // Function to handle window resize
 const handleResize = () => {
-  isMobile.value = window.innerWidth < 768
+  isMobile.value = window.innerWidth < 900
 }
 
 const collapseNavbar = () => {
@@ -428,6 +428,7 @@ onUnmounted(() => {
   .mobile-search {
     display: block;
     position: relative;
+    margin-right: auto;
   }
 
   .mobile-search-button {
@@ -459,7 +460,7 @@ onUnmounted(() => {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 900px) {
   .navbar-content {
     flex-wrap: wrap;
   }
