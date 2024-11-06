@@ -27,7 +27,8 @@ const totalItems = ref(0)
 async function fetchServices() {
   loading.value = true
   console.log('Fetching services...')
-  console.log(selectCategoryOption.value)
+  console.log(selectedCategoryOption.value)
+  console.log(route.params.selectedservice)
   const result = await Services.getAllServices(
     selectedCategoryOption.value,
     selectedLocationOption.value,

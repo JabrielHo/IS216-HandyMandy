@@ -15,6 +15,7 @@
           v-model="typedService"
           class="input-group-text dropdown-toggle inputbox"
           @input="filterServices"
+          @keyup.enter="navigateToService"
           :placeholder="serviceplaceholder"
           style="font-size: 2vw"
         />
@@ -71,7 +72,7 @@
 import * as d3 from 'd3'
 import maintableimage from '../../assets/table.png'
 import sidetableimage from '../../assets/Singlechair.png'
-import { RouterLink } from 'vue-router'
+import { useRouter, RouterLink } from 'vue-router'
 
 export default {
   data() {
@@ -127,6 +128,7 @@ export default {
       wheel.innerText = ''
       // let servicetext = document.getElementById('noservicetext')
       // servicetext.innerText = ''
+      this.selectedService = service
       this.drawWheel()
       if (service == '') {
         let tagline = document.getElementById('tagline')
@@ -146,6 +148,13 @@ export default {
     }
   },
   methods: {
+    navigateToService() {
+      if (this.selectedService) {
+        this.$router.push(`/services/${this.selectedService}`).catch((err) => {
+          console.error('Navigation error:', err)
+        })
+      }
+    },
     startWheel() {
       this.showWheel = true // Show the wheel when the button is clicked
     },

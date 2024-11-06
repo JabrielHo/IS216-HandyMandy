@@ -73,6 +73,8 @@ import carousel from '@/components/LandingPage/carousel.vue'
 
 <style scoped>
 /* Base styles */
+
+
 .maincontainer {
   min-height: 100vh;
   background: url('../../assets/backdrop.png') black;
