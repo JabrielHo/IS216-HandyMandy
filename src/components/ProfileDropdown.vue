@@ -67,8 +67,6 @@
 </template>
 
 <script setup lang="ts">
-// import { computed } from 'vue'
-// import { useAuthStore } from '../stores/auth'
 
 defineProps({
   profileImage: {
@@ -77,11 +75,6 @@ defineProps({
   }
 })
 
-// const authStore = useAuthStore()
-// const userId = computed(() => {
-//   const id = authStore.user?.uid
-//   console.log("current user ID:", id)
-//   return id})
 
 </script>
 
