@@ -29,7 +29,7 @@ const postsPerPage = 10;
 const expandedPostId = ref(null);
 const title = ref('');
 const description = ref('');
-const categories = ref(['Repair', 'Maintenance', 'Installation']); // Example categories
+const categories = ref(['Repair', 'Installation', "Plumbing", "Electrical", "Aircon", "Cleaning", "Gardening", "Painting"]); // Example categories
 const selectedCategory = ref('');
 const selectedFilterCategory = ref('');
 const loading = ref(false);
@@ -244,11 +244,13 @@ async function fetchPosts() {
         ...postData,
         profilePicture: userProfilePic,
         isVisible: false,
-        isLiked: isLiked, // Add isLiked property to each post object
+        isLiked: isLiked, // Add isLiked property to each post object,
+        lastEdited: postData.lastEdited // Add this line to include the lastEdited field
       };
     });
 
     const postsWithProfiles = await Promise.all(postPromises);
+
 
     // Fetch comment counts in parallel after posts have been fetched
     const commentCountPromises = postsWithProfiles.map(async post => {
@@ -342,8 +344,8 @@ function observePosts() {
 
 
 function goToPostDetail(postId) {
-  router.push({ 
-    name: 'individualPostView', 
+  router.push({
+    name: 'individualPostView',
     params: { postId }
   }).then(() => {
     // This will execute after navigation is complete
@@ -462,6 +464,55 @@ const filteredPosts = computed(() => {
   return filtered;
 });
 
+function formatPostDate(post) {
+  try {
+    // Check if lastEdited field is available
+    if (post?.lastEdited) {
+      // Use lastEdited field if available
+      const lastEditedDate = post.lastEdited.toDate();
+      return `Last edited: ${new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'Asia/Hong_Kong',
+        hour12: true
+      }).format(lastEditedDate)}`;
+    } else {
+      // Fallback to using the original time timestamp
+      let date;
+      if (post.time instanceof Date) {
+        date = post.time;
+      } else if (post.time.toDate) {
+        date = post.time.toDate();
+      } else {
+        date = new Date(post.time);
+      }
+
+      // Validate date
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        timeZone: 'Asia/Hong_Kong',
+        hour12: true
+      }).format(date);
+    }
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return 'Invalid date';
+  }
+}
+
 
 onMounted(() => {
   fetchPosts();
@@ -509,7 +560,7 @@ onMounted(() => {
     </div>
     <div class="mainwrapper">
       <div class="row">
-        <div class="col-lg-8">
+        <div class="col-lg-8 col-md-12">
           <div class="container">
             <div class="p-4 bg-light mb-3 rounded-5">
 
@@ -555,7 +606,7 @@ onMounted(() => {
             </li>
           </ul>
 
-          <div class="tab-content p-4 bg-white border rounded-bottom">
+          <div class="tab-content bg-white border">
             <div class="tab-pane fade show active" id="post">
               <div v-if="loading" class="loading-indicator d-flex align-items-center">
                 <div class="spinner-border text-warning me-2" role="status">
@@ -570,12 +621,20 @@ onMounted(() => {
                     style="cursor: pointer;">
                     <img :src="post.profilePicture" alt="User profile" class="user-image me-2" />
                     <div class="post-content-wrapper">
-                      <h4>{{ post.username }}</h4>
-                      <h6>{{ post.title }}</h6>
-                      <button @click.stop="(event) => toggleSavePost(event, post.id)" class="btn-save">
-                        <i class="bi"
-                          :class="{ 'bi-bookmark-fill': isPostSaved(post.id), 'bi-bookmark': !isPostSaved(post.id) }"></i>
-                      </button>
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div class="post-info">
+                          <h4>{{ post.username }}</h4>
+                          <span class="date">
+                            <i class="bi bi-clock"></i>
+                            {{ formatPostDate(post) }}
+                          </span>
+                          <h6>{{ post.title }}</h6>
+                        </div>
+                        <button @click.stop="(event) => toggleSavePost(event, post.id)" class="btn-save">
+                          <i class="bi"
+                            :class="{ 'bi-bookmark-fill': isPostSaved(post.id), 'bi-bookmark': !isPostSaved(post.id) }"></i>
+                        </button>
+                      </div>
                       <div class="post-content"
                         :style="{ 'max-height': expandedPostId === post.id ? '500px' : '4.5rem' }">
                         <span v-if="post.content.split(/\s+/).length <= 70">{{ post.content }}</span>
@@ -589,7 +648,6 @@ onMounted(() => {
                       </button>
                       <div v-if="post.content.split(/\s+/).length > 70"
                         class="d-flex justify-content-between align-items-center">
-
                         <div class="likes-comments">
                           <button @click.stop="likePost(post.id)" class="btn-like">
                             <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
@@ -597,7 +655,6 @@ onMounted(() => {
                           </button>
                           <span>Comments: {{ post.comments }}</span>
                         </div>
-
                         <button type="button" class="btn btn-outline-secondary btn-sm"
                           @click.stop="toggleExpand(post.id)">
                           <span>{{ expandedPostId !== post.id ? 'Expand' : 'Collapse' }}</span>
@@ -679,7 +736,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <div class="col-lg-4 rightbar">
+        <div class="col-lg-4 col-md-12 rightbar">
           <div class="mb-3 p-3 bg-light rounded">
             <h6>Top discussion 🔥</h6>
             <a v-if="topDiscussion" href="#" @click="goToPostDetail(topDiscussion.id)">
@@ -747,16 +804,13 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <SavedPostsModal 
-  v-if="showSavedPostsModal"
-  :show="showSavedPostsModal"
-  :posts="savedPosts"
-  @close="showSavedPostsModal = false"
-  @unsave-post="handleUnsavePost"
-  @view-post="goToPostDetail"
-/>
+    <SavedPostsModal v-if="showSavedPostsModal" :show="showSavedPostsModal" :posts="savedPosts"
+      @close="showSavedPostsModal = false" @unsave-post="handleUnsavePost" @view-post="goToPostDetail" />
   </main>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
 </template>
 
 <style scoped>
@@ -862,6 +916,8 @@ onMounted(() => {
   top: 0;
   z-index: 2;
   padding-top: 10px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 .topcontainer {
@@ -901,16 +957,16 @@ onMounted(() => {
 }
 
 .header-wrapper2 img {
-
   width: 30vw;
   height: auto;
 }
 
 .topcontainer h1 {
   font-size: 3.5rem;
-  color: #FF7043;
-  margin-top: 0;
-  /* Removed margin-top since we're using flex centering */
+  font-family: 'Abril Fatface', serif;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -926,6 +982,14 @@ onMounted(() => {
   .topcontainer h1 {
     font-size: 2rem;
   }
+}
+
+.date {
+  font-size: 0.9rem;
+  color: rgba(74, 74, 74, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .post-content {
@@ -1006,7 +1070,7 @@ onMounted(() => {
   background: white;
   border-radius: 12px;
   padding: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   transition: all 0.3s ease;
   border: 1px solid transparent;
 }
@@ -1076,10 +1140,11 @@ onMounted(() => {
 hr {
   transition: all 0.3s ease;
   margin: 16px 0;
-  opacity: 0.1;
+  opacity: 0.9;
 }
 
 .post-card:hover hr {
+  position: relative;
   background-color: #FF7043;
   opacity: 0.2;
 }
@@ -1256,11 +1321,14 @@ h6,
 }
 
 .tab-content {
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
   padding-top: 20px;
 }
 
 /* Post Content styling */
 .tab-content h6 {
+  padding-top: 0.5rem;
   font-size: 1rem;
   color: #333333;
   font-weight: bold;
@@ -1275,14 +1343,6 @@ h6,
   border-top: 1px solid #e6e6e6;
 }
 
-.tab-content .mb-3 {
-  border-bottom: 1px solid lightgrey;
-  /* Adjust color as needed */
-  padding-bottom: 1rem;
-  /* Adjust spacing as needed */
-  margin-bottom: 1rem;
-  /* Adjust spacing as needed */
-}
 
 /* Right Sidebar styling */
 .col-lg-4 h6 {
@@ -1403,13 +1463,13 @@ h6,
 
 .btn-save {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 10px !important;
+  right: 10px !important;
   z-index: 1;
   background: none;
   border: none;
   color: #6c757d;
-  padding: 0.25rem 0.5rem;
+  /* padding: 0.25rem 0.5rem; */
   transition: color 0.2s;
 }
 
@@ -1419,5 +1479,15 @@ h6,
 
 .btn-save .bi-bookmark-fill {
   color: #0d6efd;
+}
+
+body {
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+@media (max-width: 425px) {
+  .tab-content .p-4 {
+    padding: 0;
+  }
 }
 </style>

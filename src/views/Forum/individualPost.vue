@@ -1,79 +1,100 @@
 <template>
     <div class="backdrop">
-        <article v-if="post" class="post-container">
-            <!-- Post Header -->
-            <div class="post-header">
-                <div class="author-section">
-                    <div class="profile-image">
-                        <img :src="post.userImage || '/default-avatar.png'" :alt="post.username"
-                            @error="handleImageError" />
+        <article class="content-wrapper">
+            <article v-if="post" class="post-container">
+                <!-- Post Header -->
+                <div class="post-header">
+                    <div class="author-section">
+                        <div class="profile-image">
+                            <img :src="post.userImage || '/default-avatar.png'" :alt="post.username"
+                                @error="handleImageError" />
+                        </div>
+                        <div class="author-info">
+                            <h3 class="author-name">{{ post.username }}</h3>
+                            <span class="date">
+                                <i class="bi bi-clock"></i>
+                                {{ formatPostDate(post.time) }}
+                            </span>
+                        </div>
                     </div>
-                    <div class="author-info">
-                        <h3 class="author-name">{{ post.username }}</h3>
-                        <span class="date">
-                            <i class="bi bi-clock"></i>
-                            {{ formatPostDate(post.time) }}
-                        </span>
+
+                    <div v-if="currentUser && post.userId === currentUser.uid" class="edit-section">
+                        <button @click="toggleEditMode" class="btn-edit">
+                            <i class="bi" :class="{ 'bi-pencil-square': !isEditing, 'bi-x-lg': isEditing }"></i>
+                        </button>
                     </div>
-                </div>
-                
-            </div>
 
-            <div class="post-content">
-                <div class="titleAndContent">
-                    <h1 class="post-title">{{ post.title }}</h1>
-                    <p class="content-text">{{ post.content }}</p>
-                </div>
-                <div class="likes-comments">
-                    <button @click.stop="likePost(post.id)" class="btn-like">
-                        <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
-                        <span class="like-count">{{ post.likes }}</span>
-                    </button>
-                    <span>Comments: {{ post.comments }}</span>
                 </div>
 
-                <section class="comments-section">
-                    <h3 class="section-title">Comments</h3>
+                <div class="post-content">
+                    <div class="titleAndContent" v-if="!isEditing">
+                        <h1 class="post-title">{{ post.title }}</h1>
+                        <p class="content-text">{{ post.content }}</p>
+                    </div>
+                    <div class="edit-form" v-else>
+                        <input v-model="editedTitle" class="edit-title" type="text" placeholder="Post title">
+                        <textarea v-model="editedContent" class="edit-content" placeholder="Post content"></textarea>
+                        <div class="edit-actions">
+                            <button @click="saveEdit" class="btn-save"
+                                :disabled="editedTitle.trim() === post.title.trim() && editedContent.trim() === post.content.trim()">
+                                Save
+                            </button>
+                            <button @click="cancelEdit" class="btn-cancel">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <div class="likes-comments">
+                        <button @click.stop="likePost(post.id)" class="btn-like">
+                            <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
+                            <span class="like-count">{{ post.likes }}</span>
+                        </button>
+                        <span>Comments: {{ post.comments }}</span>
+                    </div>
 
-                    <div class="comments-list">
-                        <div v-for="(comment, index) in comments" :key="index" class="comment-card">
-                            <div class="comment-header">
-                                <div class="profile-image">
-                                    <img :src="comment.profilePicture || '/default-avatar.png'" :alt="comment.username"
-                                        @error="handleImageError" />
-                                </div>
-                                <div class="comment-info">
-                                    <div class="comment-meta">
-                                        <p class="username">{{ comment.username }}</p>
-                                        <p class="timestamp">{{ formatPostDate(comment.timestamp) }}</p>
+                    <section class="comments-section">
+                        <h3 class="section-title">Comments</h3>
+
+                        <div class="comments-list">
+                            <div v-for="(comment, index) in comments" :key="index" class="comment-card">
+                                <div class="comment-header">
+                                    <div class="profile-image">
+                                        <img :src="comment.profilePicture || '/default-avatar.png'"
+                                            :alt="comment.username" @error="handleImageError" />
                                     </div>
-                                    <div class="comment-content">
-                                        {{ comment.content }}
+                                    <div class="comment-info">
+                                        <div class="comment-meta">
+                                            <p class="username">{{ comment.username }}</p>
+                                            <p class="timestamp">{{ formatPostDate(comment.timestamp) }}</p>
+                                        </div>
+                                        <div class="comment-content">
+                                            {{ comment.content }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="comment-form" ref="commentForm">
-                        <h3 class="form-title">Join the Discussion</h3>
-                        <div class="input-group">
-                            <textarea v-model="newCommentContent" class="comment-input" rows="3"
-                                placeholder="Share your thoughts..." ref="commentInput"></textarea>
-                            <button @click="addComment" class="btn-submit" :disabled="!newCommentContent.trim()">
-                                Post Comment
-                            </button>
+                        <div class="comment-form" ref="commentForm">
+                            <h3 class="form-title">Join the Discussion</h3>
+                            <div class="input-group">
+                                <textarea v-model="newCommentContent" class="comment-input" rows="3"
+                                    placeholder="Share your thoughts..." ref="commentInput"></textarea>
+                                <button @click="addComment" class="btn-submit" :disabled="!newCommentContent.trim()">
+                                    Post Comment
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                </div>
+            </article>
+            <div v-else class="loading-container">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <span>Loading post...</span>
+                </div>
             </div>
         </article>
-        <div v-else class="loading-container">
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-                <span>Loading post...</span>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -94,13 +115,16 @@ const commentCount = ref(0);
 const auth = getAuth();
 const currentUser = ref(auth.currentUser);
 const isAuthInitialized = ref(false); // Add this to track auth initialization
+const isEditing = ref(false);
+const editedTitle = ref('');
+const editedContent = ref('');
 
 onMounted(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
         console.log('Auth state changed:', user?.uid); // Debug log
         currentUser.value = user;
         isAuthInitialized.value = true;
-        
+
         // Refetch post when auth state changes to update like status
         if (post.value) {
             fetchPost();
@@ -113,40 +137,97 @@ onMounted(() => {
 
 });
 
-const formatPostDate = (timestamp: any) => {
-    if (!timestamp) return 'No date available';
-
-    let date;
-    if (timestamp instanceof Timestamp) {
-        date = timestamp.toDate();
-    } else if (timestamp.seconds) {
-        date = new Date(timestamp.seconds * 1000);
-    } else if (timestamp instanceof Date) {
-        date = timestamp;
+function toggleEditMode() {
+    if (isEditing.value) {
+        cancelEdit();
     } else {
-        return 'Invalid date';
+        isEditing.value = true;
+        editedTitle.value = post.value.title;
+        editedContent.value = post.value.content;
+    }
+}
+
+function cancelEdit() {
+    isEditing.value = false;
+    editedTitle.value = '';
+    editedContent.value = '';
+}
+
+async function saveEdit() {
+    // Check if the edited title or content is different from the original
+    if (
+        editedTitle.value.trim() === post.value.title.trim() &&
+        editedContent.value.trim() === post.value.content.trim()
+    ) {
+        // No edits made, do not save
+        return;
     }
 
-    const months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
+    try {
+        const postRef = doc(db, 'posts', postId);
+        await updateDoc(postRef, {
+            title: editedTitle.value,
+            content: editedContent.value,
+            lastEdited: Timestamp.now()
+        });
 
-    const month = months[date.getMonth()];
-    const day = date.getDate();
-    const year = date.getFullYear();
+        // Update local post data
+        post.value.title = editedTitle.value;
+        post.value.content = editedContent.value;
+        post.value.lastEdited = Timestamp.now();
 
-    let hours = date.getHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const formattedHours = hours.toString().padStart(2, '0');
+        // Exit edit mode
+        isEditing.value = false;
+    } catch (error) {
+        console.error('Error updating post:', error);
+        alert('Failed to update post. Please try again.');
+    }
+}
 
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
+function formatPostDate(timestamp) {
+    try {
+        // Check if timestamp exists
+        if (!timestamp && !post.value.lastEdited) {
+            return 'No date available';
+        }
 
-    return `${month} ${day}, ${year} at ${formattedHours}:${minutes}:${seconds} ${ampm} UTC+8`;
-};
+        // Check if lastEdited field is available
+        if (post.value.lastEdited) {
+            // Use lastEdited field if available
+            const lastEditedDate = post.value.lastEdited.toDate();
+            return `Last edited: ${new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            }).format(lastEditedDate)}`;
+        } else {
+            // Fallback to using the original timestamp
+            const date = timestamp instanceof Date ? timestamp :
+                timestamp?.toDate ? timestamp.toDate() :
+                    new Date(timestamp.seconds * 1000);
+
+            // Validate date
+            if (isNaN(date.getTime())) {
+                return 'Invalid date';
+            }
+
+            return new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            }).format(date);
+        }
+    } catch (error) {
+        console.error('Date formatting error:', error);
+        return 'Invalid date';
+    }
+}
 
 async function fetchPost() {
     try {
@@ -154,25 +235,27 @@ async function fetchPost() {
         if (postDoc.exists()) {
             const postData = postDoc.data();
             const userData = await fetchUserData(postData.userId);
-            
+
             // Check if the current user has liked the post
             const isLiked = currentUser.value && postData.likedBy?.includes(currentUser.value.uid);
-            console.log('Fetch post - Like status:', { 
-                isLiked, 
+            console.log('Fetch post - Like status:', {
+                isLiked,
                 currentUser: currentUser.value?.uid,
-                likedBy: postData.likedBy 
+                likedBy: postData.likedBy
             });
-            
+
             post.value = {
                 id: postDoc.id,
                 ...postData,
                 username: userData.username,
                 userImage: userData.profilePicture,
                 isLiked: isLiked,
-                likes: postData.likes || 0
+                likes: postData.likes || 0,
+                lastEdited: postData.lastEdited // Add this line to include the lastEdited field
             };
         }
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error fetching post:', error);
     }
 }
@@ -274,7 +357,7 @@ async function addComment() {
 
         // Clear comment input
         newCommentContent.value = '';
-        
+
         // Refresh comments and post data
         await Promise.all([
             fetchComments(),
@@ -288,9 +371,9 @@ async function addComment() {
 }
 
 async function likePost(postId: string) {
-    console.log('Like attempt - Auth state:', { 
+    console.log('Like attempt - Auth state:', {
         currentUser: currentUser.value?.uid,
-        isInitialized: isAuthInitialized.value 
+        isInitialized: isAuthInitialized.value
     });
 
     if (!isAuthInitialized.value) {
@@ -345,33 +428,98 @@ async function likePost(postId: string) {
 @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css");
 
 .backdrop {
-    display: flex;
-    width: 100vw;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin: auto;
+    min-height: 100vh;
+    width: 100%;
     background: url("../../assets/backdrop.png");
     background-size: cover;
-    /* Changed from 'contain' to 'cover' */
     background-repeat: no-repeat;
     background-position: center;
-    /* Added for better positioning */
-    min-height: 100vh;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+.content-wrapper {
+    width: 100%;
+    padding: 2rem 0;
+    /* Add bottom padding to account for footer */
+    padding-bottom: calc(2rem + 60px);
+    /* Adjust the 60px based on your footer height */
+    display: flex;
     flex-direction: column;
+    align-items: center;
 }
 
 .post-container {
-    width: 75%;
-    /* max-width: 800px; */
-    margin: 2rem auto;
+    width: 90%;
+    max-width: 1200px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
+    position: relative;
+    overflow: visible;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: left;
+    flex-direction: column;
+    /* Add space at the bottom */
 }
 
-.titleAndContent{
-    padding-left: 4rem;
+
+.titleAndContent {
+    padding: 1rem;
+    padding-top: 0;
+    text-align: left;
+    /* Explicitly set center alignment for mobile */
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    /* Center child elements */
+}
+
+@media screen and (max-width: 768px) {
+    .content-wrapper {
+        padding: 1rem 0;
+        /* padding-bottom: calc(1rem + 60px); */
+        /* Adjust for mobile footer */
+    }
+
+    .post-container {
+        width: 95%;
+        gap: 1rem;
+        /* margin-bottom: 1rem; */
+    }
+}
+
+
+
+/* Tablet and Desktop styles */
+@media screen and (min-width: 769px) {
+    .post-container {
+        width: 85%;
+        text-align: left;
+        align-items: left;
+    }
+
+    .titleAndContent {
+        text-align: left;
+        padding-left: 2rem;
+        align-items: flex-start;
+        /* Reset alignment for desktop */
+    }
+}
+
+/* Large Desktop screens */
+@media screen and (min-width: 1024px) {
+    .post-container {
+        width: 75%;
+        /* padding: 0 30px; */
+    }
+
+    .titleAndContent {
+        padding-left: 4rem;
+    }
 }
 
 .post-header {
@@ -379,6 +527,9 @@ async function likePost(postId: string) {
     padding-bottom: 1rem;
     background: linear-gradient(135deg, var(--primary-color), #FFE5B4);
     position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .author-section {
@@ -429,6 +580,8 @@ async function likePost(postId: string) {
 
 .post-content {
     padding: 1rem 3rem;
+    padding-top: 0;
+
 }
 
 .content-text {
@@ -479,6 +632,7 @@ async function likePost(postId: string) {
     font-size: 1.2rem;
     transition: all 0.2s ease;
 }
+
 /* Hollow heart style */
 .btn-like .bi-heart {
     color: #ff0000;
@@ -525,9 +679,15 @@ async function likePost(postId: string) {
 
 .comment-meta {
     display: flex;
-    align-items: center;
+    align-items: left;
+    flex-direction: column;
+    /* gap: 1rem; */
+}
+
+.comment-info {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
-    margin-bottom: 0.5rem;
 }
 
 .username {
@@ -651,16 +811,24 @@ async function likePost(postId: string) {
         border-radius: 12px;
     }
 
-    .post-header {
+    /* .post-header {
         padding: 1.5rem;
+    } */
+
+    .likes-comments {
+        flex-direction: row;
+        gap: 0;
     }
+
 
     .post-title {
         font-size: 1.8rem;
     }
 
     .post-content {
-        padding: 1.5rem;
+        /* padding: 1.5rem; */
+        padding: 0 1rem;
+        padding-bottom: 1rem;
     }
 
     .content-text {
@@ -671,14 +839,82 @@ async function likePost(postId: string) {
         flex-wrap: wrap;
     }
 
-    .btn-like,
+    .btn-submit {
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    /* .btn-like,
     .btn-comment {
         flex: 1;
         justify-content: center;
-    }
+    } */
 
     .comment-form {
         padding: 1.5rem;
     }
+}
+
+.btn-edit {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.btn-edit:hover {
+    color: #333;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.edit-title {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.edit-content {
+    min-height: 150px;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-save,
+.btn-cancel {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-save {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.btn-save:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.btn-cancel {
+    background-color: #f44336;
+    color: white;
+    border: none;
 }
 </style>
