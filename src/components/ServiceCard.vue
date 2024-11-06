@@ -11,8 +11,8 @@
         <img :src="service.profilePicture" alt="Profile Picture" class="profile-image" />
         <div class="image_overlay"></div>
         <div class="view-details-wrapper">
-          <button id="view_details">
-            <span class="button-text" @click="navigateToProfile">View Profile</span>
+          <button id="view_details" @click="navigateToProfile">
+            <span class="button-text">View Profile</span>
           </button>
         </div>
       </div>
@@ -98,7 +98,6 @@ export default {
         const newChatRoomRef = doc(chatRoomRef)
         await setDoc(newChatRoomRef, {
           id: newChatRoomRef.id,
-          status: 'Open',
           helperUserId: helperUserId,
           requesterUserId: requesterUserId,
           requestId: requestId,
