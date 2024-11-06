@@ -3,6 +3,8 @@ import { ref, computed, watch, onMounted, onUpdated, nextTick } from 'vue'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import { useRouter } from 'vue-router'
 import { ref as storageRef, uploadBytes, getDownloadURL, getStorage } from 'firebase/storage'
+import { db } from '../../firebaseConfig'
+import { doc, updateDoc, arrayUnion, getDoc } from 'firebase/firestore'
 
 const router = useRouter()
 const message = ref('')
@@ -14,9 +16,80 @@ const props = defineProps({
   myUserId: String,
   isLoaded: Boolean
 })
-
+const reviewText = ref('')
+const rating = ref(0)
 const fileInput = ref(null)
 const emit = defineEmits(['sendMessage', 'closeStatus'])
+const hasReviewed = ref(false)
+const isReviewLoading = ref(false)
+
+function setRating(star) {
+  rating.value = star
+}
+
+async function openReviewModal() {
+  isReviewLoading.value = true
+  try {
+    const docSnap = await getDoc(doc(db, 'users', props.selectedUserData.userId))
+    const userData = docSnap.data()
+    if (Array.isArray(userData.reviews)) {
+      const existingReview = userData.reviews.find(
+        (review) =>
+          review.userId === props.myUserId && review.chatRoomId === props.selectedChatRoom.id
+      )
+      hasReviewed.value = !!existingReview
+    } else {
+      hasReviewed.value = false
+    }
+  } catch (error) {
+    console.error('Error submitting review:', error)
+  } finally {
+    isReviewLoading.value = false
+  }
+}
+
+function validateReview() {
+  let isValid = true
+  if (!rating.value) {
+    isValid = false
+  }
+
+  if (!reviewText.value.trim()) {
+    isValid = false
+  }
+
+  return isValid
+}
+
+async function submitReview() {
+  if (validateReview()) {
+    if (rating.value && reviewText.value.trim()) {
+      try {
+        const currentUserDoc = await getDoc(doc(db, 'users', props.myUserId))
+
+        const review = {
+          userId: props.myUserId,
+          username: currentUserDoc.data().username,
+          rating: rating.value,
+          review: reviewText.value,
+          chatRoomId: props.selectedChatRoom.id,
+          timestamp: new Date()
+        }
+
+        const userRef = doc(db, 'users', props.selectedUserData.userId)
+        await updateDoc(userRef, {
+          reviews: arrayUnion(review)
+        })
+        // Reset the form
+        rating.value = 0
+        reviewText.value = ''
+      } catch (error) {
+        console.error('Error submitting review:', error)
+      }
+    }
+  }
+}
+
 const sendMessage = () => {
   if (message.value.trim()) {
     emit('sendMessage', { type: 'text', content: message.value })
@@ -140,6 +213,14 @@ function openImage(imageUrl) {
           <div class="text-container" v-else>
             <span class="name">{{ selectedUserData.username }}</span>
           </div>
+          <button
+            v-if="selectedChatRoom.requesterUserId === myUserId"
+            class="btn reviewBtn"
+            data-bs-toggle="modal"
+            data-bs-target="#reviewModal"
+          >
+            <i class="bi bi-pencil"></i> &nbsp;Write a Review
+          </button>
         </div>
         <div class="card-header request" v-if="selectedChatRoom.type === 'Request'">
           <img
@@ -245,7 +326,7 @@ function openImage(imageUrl) {
         <div class="input-wrapper">
           <input
             type="text"
-            class="form-control"
+            class="form-control-chat form-control"
             v-model="message"
             @keyup.enter="sendMessage"
             placeholder="Type a message..."
@@ -299,14 +380,92 @@ function openImage(imageUrl) {
       </div>
     </div>
   </div>
+
+  <!-- Review Modal -->
+  <div
+    class="modal fade"
+    id="reviewModal"
+    tabindex="-1"
+    aria-labelledby="reviewModalLabel"
+    aria-hidden="true"
+    v-on="{ 'show.bs.modal': openReviewModal }"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="reviewModalLabel">
+            Liked {{ selectedUserData.username }}'s Service?
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div v-if="!isReviewLoading" class="modal-body">
+          <template v-if="hasReviewed">
+            <p>You have already submitted a review for this request.</p>
+          </template>
+          <template v-else>
+            <form>
+              <div class="mb-3">
+                <label for="reviewText" class="form-label">Review:</label>
+                <textarea
+                  id="reviewText"
+                  class="form-control"
+                  v-model="reviewText"
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="rating" class="form-label">Rating:</label>
+                <div>
+                  <i
+                    v-for="star in 5"
+                    :key="star"
+                    class="bi"
+                    :class="star <= rating ? 'bi-star-fill' : 'bi-star'"
+                    @click="setRating(star)"
+                    style="cursor: pointer; font-size: 1.5rem; color: gold"
+                  ></i>
+                </div>
+              </div>
+            </form>
+          </template>
+        </div>
+        <div class="modal-footer" v-if="!hasReviewed">
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
+          <button
+            type="button"
+            class="btn closeBtn"
+            @click="submitReview"
+            data-bs-dismiss="modal"
+            :disabled="!rating || !reviewText.trim()"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 
 <style scoped>
+.reviewBtn {
+  display: flex;
+  margin-left: auto;
+  background-color: #ffad60;
+  color: white;
+}
+
 .closeBtn {
   background-color: #ffad60;
   color: white;
 }
+
 .background {
   background-color: #ffeead;
 }
@@ -322,8 +481,8 @@ function openImage(imageUrl) {
 
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus {
-  background-color: transparent;
-  color: inherit;
+  background-color: #ffad60;
+  color: white;
   cursor: pointer;
 }
 
@@ -399,7 +558,7 @@ function openImage(imageUrl) {
   width: 100%;
 }
 
-.form-control {
+.form-control-chat {
   background-color: rgb(248, 248, 248);
   border-color: lightgray;
   border-radius: 25px;

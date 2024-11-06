@@ -207,9 +207,6 @@ onUnmounted(() => {
       <div class="modal-content">
         <div class="modal-header">
           <h2 class="modal-title">Log out?</h2>
-          <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close">
-            ×
-          </button>
         </div>
         <div class="modal-body">Are you sure you want to log out of your account?</div>
         <div class="modal-footer">
@@ -488,7 +485,7 @@ onUnmounted(() => {
 .modal-logout {
   padding: 0.5rem 1rem;
   border: none;
-  background: #dc3545;
+  background: #FFAD60;
   color: white;
   border-radius: 6px;
   font-weight: 500;

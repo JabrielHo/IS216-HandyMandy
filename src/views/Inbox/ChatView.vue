@@ -335,8 +335,8 @@ onUnmounted(() => {
 }
 
 .dropdown-menu {
-  max-height: 300px; /* Adjust the height as needed */
-  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .column-right {
@@ -357,6 +357,11 @@ onUnmounted(() => {
 
 .container {
   border: 1px solid rgb(0, 0, 0);
+}
+
+.dropdown-toggle {
+  border: 0;
+  border-radius: 0;
 }
 
 .dropdown-toggle[aria-expanded='true']:after {

@@ -103,7 +103,7 @@ onMounted(() => {
     <section class="text-center container">
       <div class="row pt-4">
         <div class="col-lg-6 col-md-8 mx-auto">
-          <h1 class="fw-light">Service Requests</h1>
+          <h1 class="heading">Service Requests</h1>
           <p class="lead text-body-secondary">
             Wish to lend a hand? This collection brings together all service requests, from quick
             repairs to full installations. Help someone out today!
@@ -252,6 +252,13 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.heading {
+  font-size: 3.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 .pagination .active .page-link {
   background-color: #ffad60; /* Desired active background color */
   border-color: gray; /* Desired active border color */

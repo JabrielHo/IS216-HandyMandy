@@ -23,7 +23,7 @@ const categories = ref([
   'Painting',
   'Repair',
   'Installation',
-  'Misc'
+  'Miscellaneous'
 ])
 const userData = computed(() => authStore.user)
 
@@ -188,7 +188,7 @@ async function createRequest() {
 }
 
 .secondary {
-  color: rgb(148 163 184);
+  color: rgb(148, 163, 184);
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
