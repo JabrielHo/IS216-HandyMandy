@@ -4,7 +4,11 @@
     <div class="overall">
       <!-- Profile Section -->
       <div class="row profile-section">
-        <img :src="user.profilePicture" :alt="`${user.name}'s Profile Picture`"  class="profile-pic col-md-6" />
+        <img
+          :src="user.profilePicture"
+          :alt="`${user.name}'s Profile Picture`"
+          class="profile-pic col-md-6"
+        />
         <div class="profile-details">
           <h1 class="profile-name">{{ user.username }}</h1>
           <!-- <p class="profile-rating">⭐⭐⭐⭐☆</p> -->
@@ -17,22 +21,23 @@
           </ul> -->
         </div>
       </div>
-    
-      <h2 class="section-title">{{user.username}}'s' Services</h2>
-      <div class="row request-container col-12 "></div>
-      <div v-if="userservice.length === 0" class="no-services-message">
-        No services available.
-      </div>
+
+      <h2 class="section-title">{{ user.username }}'s' Services</h2>
+      <div class="row request-container col-12"></div>
+      <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
       <div v-else>
-        <div v-for="service in userservice" class="request-container col-md-6">
-          <div v-for="servicename in service.service_type">
-          <router-link :to="`/service/${service.serviceId}`" class="service-rectangle no-underline col-md-6">
-            <div class="label">{{ servicename }}</div>
-            <!-- <img :src="request.imgSrc" alt="" class="service-image" /> -->
-          </router-link>
+        <div v-for="service in userservice" :key="service.id" class="request-container col-md-6">
+          <div v-for="(servicename, index) in service.service_type" :key="index">
+            <router-link
+              :to="`/service/${service.serviceId}`"
+              class="service-rectangle no-underline col-md-6"
+            >
+              <div class="label">{{ servicename }}</div>
+              <!-- <img :src="request.imgSrc" alt="" class="service-image" /> -->
+            </router-link>
+          </div>
         </div>
-      </div>
-      <!-- <div class="row services-container col-12 "> -->
+        <!-- <div class="row services-container col-12 "> -->
 
         <!-- <router-link to="./plumbing" class="service-rectangle no-underline col-md-6">
           <div class="label">Plumbing</div>
@@ -48,24 +53,25 @@
           <div class="label">Furniture Assembly</div>
           <img src="./images/furniture_assembly.webp" alt="Furniture Assembly" class="service-image" />
         </router-link> -->
-      </div> 
-    <button class="addservice">Add service</button>
-
-      <h2 class="section-title">{{user.username}}'s Requests</h2>
-      <div class="row request-container col-12 "></div>
-      <div v-if="userrequest.length === 0" class="no-requests-message">
-        No requests available.
       </div>
+      <button class="addservice">Add service</button>
+
+      <h2 class="section-title">{{ user.username }}'s Requests</h2>
+      <div class="row request-container col-12"></div>
+      <div v-if="userrequest.length === 0" class="no-requests-message">No requests available.</div>
       <div v-else>
         <div v-for="request in userrequest" :key="request.id" class="request-container col-md-6">
-          <router-link :to="`/request/${request.id}`" class="service-rectangle no-underline col-md-6">
+          <router-link
+            :to="`/request/${request.id}`"
+            class="service-rectangle no-underline col-md-6"
+          >
             <div class="label">{{ request.title }}</div>
             <img :src="request.imgSrc" alt="" class="service-image" />
           </router-link>
         </div>
       </div>
       <button class="addrequest">Add another request</button>
-      <h2 class="section-title">{{user.username}}'s Reviews</h2>
+      <h2 class="section-title">{{ user.username }}'s Reviews</h2>
       <div class="review-container">
         <div class="review-rectangle">
           <div class="review">
@@ -85,7 +91,10 @@
           </div>
           <!-- New Reviews -->
           <div class="review">
-            <p class="review-text">John was prompt, professional, and did an amazing job fixing our plumbing issue. Highly recommended!</p>
+            <p class="review-text">
+              John was prompt, professional, and did an amazing job fixing our plumbing issue.
+              Highly recommended!
+            </p>
             <div class="reviewer-info">
               <span class="username">- by HappyCustomer</span>
               <span class="stars">⭐⭐⭐⭐⭐</span>
@@ -93,7 +102,10 @@
           </div>
           <hr />
           <div class="review">
-            <p class="review-text">Outstanding service! He helped me with my kitchen sink that had been leaking for weeks. Very knowledgeable and courteous.</p>
+            <p class="review-text">
+              Outstanding service! He helped me with my kitchen sink that had been leaking for
+              weeks. Very knowledgeable and courteous.
+            </p>
             <div class="reviewer-info">
               <span class="username">- by SatisfiedClient</span>
               <span class="stars">⭐⭐⭐⭐⭐</span>
@@ -103,7 +115,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -115,45 +126,59 @@ import { useAuthStore } from '../../stores/auth'
 const authStore = useAuthStore()
 
 export default {
-  data(){
-    return{
-  name: "personalProfile",
-  userrequest:[],
-  userservice:[],
-  user: [],
+  data() {
+    return {
+      name: 'personalProfile',
+      userrequest: [],
+      userservice: [],
+      user: []
     }
-},
+  },
   setup() {},
-  methods:{
+  computed: {
+    userId() {
+      return authStore.user?.uid
+    }
+  },
+  watch: {
+    userId(newId) {
+      if (newId) {
+        this.fetchServiceRequestsByUser(newId)
+        this.fetchServicesByUser(newId)
+        this.fetchUser(newId)
+      }
+    }
+  },
+  methods: {
     async fetchServiceRequestsByUser(userId) {
       const requestresult = await RequestService.getServiceRequestsByUser(userId)
       console.log(requestresult)
-      this.userrequest = requestresult;
+      this.userrequest = requestresult
     },
     async fetchServicesByUser(userId) {
       const serviceresult = await Services.getServicesByUser(userId)
       console.log(serviceresult)
-      this.userservice = serviceresult;
+      this.userservice = serviceresult
     },
     async fetchUser(userId) {
       const userresult = await UserService.getUserData(userId)
       console.log(userresult)
-      this.user = userresult;
+      this.user = userresult
     },
 
-  getCurrentUserId() {
-          const id = authStore.user?.uid
-          console.log("current user ID:", id)
-          return id}
-
+    getCurrentUserId() {
+      const id = authStore.user?.uid
+      console.log('current user ID:', id)
+      return id
+    }
   },
   mounted() {
     const userId = this.getCurrentUserId()
     this.fetchServiceRequestsByUser(userId)
     this.fetchServicesByUser(userId)
     this.fetchUser(userId)
-  },
-};
+  }
+}
 </script>
 
 <style scoped>
@@ -180,7 +205,6 @@ export default {
   flex-direction: column;
   align-items: center;
   border-radius: 15px 15px 15px 15px;
-  
 }
 
 /* Profile section styling */
@@ -191,7 +215,6 @@ export default {
   width: 80%;
   max-width: 1200px;
   margin-bottom: 20px;
-  
 }
 
 .profile-pic {
@@ -214,13 +237,13 @@ export default {
 .profile-name {
   font-size: 36px;
   font-weight: bold;
-  color: #A66E38;
+  color: #a66e38;
   margin: 0;
 }
 
 .profile-rating {
   font-size: 24px;
-  color: #FFD700;
+  color: #ffd700;
   margin-top: 5px;
 }
 
@@ -241,12 +264,12 @@ export default {
 .certifications-list li::before {
   content: '✔️';
   margin-right: 8px;
-  color: #40E0D0;
+  color: #40e0d0;
 }
 
 .section-title {
   text-align: center;
-  color: #A66E38;
+  color: #a66e38;
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -272,16 +295,18 @@ export default {
   overflow: hidden;
   transition: transform 0.3s ease;
 }
-.addservice, .addrequest{
+.addservice,
+.addrequest {
   padding: 2px;
   width: 80%;
   border: none;
   border-radius: 20px;
   position: relative;
-  background-color: #FFAD60;
+  background-color: #ffad60;
 }
-.addservice:hover , .addrequest:hover{
-  background-color: #FFAD10;
+.addservice:hover,
+.addrequest:hover {
+  background-color: #ffad10;
 }
 .service-rectangle:hover {
   transform: scale(1.05);
@@ -289,7 +314,7 @@ export default {
 
 .label {
   width: 100%;
-  background-color: #A66E38;
+  background-color: #a66e38;
   color: white;
   padding: 10px 0;
   border-radius: 15px 15px 0 0;
@@ -325,7 +350,7 @@ export default {
 .review-rectangle {
   width: 100%;
   max-width: 600px; /* Increased width */
-  background-color: #96CEB4;
+  background-color: #96ceb4;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 15px;
   overflow-y: auto;
@@ -356,7 +381,7 @@ export default {
 
 .stars {
   font-size: 18px;
-  color: #FFD700;
+  color: #ffd700;
   margin-right: 5px;
 }
 

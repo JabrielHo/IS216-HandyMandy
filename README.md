@@ -30,17 +30,7 @@
     ```bash 
     npm install
     ```
-3. Change `.env` accordingly. Contact us for database credentials.
-    ```
-    VITE_FIREBASE_API_KEY=
-    VITE_FIREBASE_AUTH_DOMAIN=
-    VITE_FIREBASE_PROJECT_ID=
-    VITE_FIREBASE_STORAGE_BUCKET=
-    VITE_FIREBASE_MESSAGING_SENDER_ID=
-    VITE_FIREBASE_APP_ID=
-    VITE_FIREBASE_MEASUREMENT_ID=
-    ```
-4. Start the web service locally using 
+3. Start the web service locally using 
     ```bash
     npm run dev
     ```

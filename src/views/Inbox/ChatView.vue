@@ -17,6 +17,7 @@ import { db } from '../../firebaseConfig'
 import { useAuthStore } from '../../stores/auth'
 import ChatWindow from './ChatWindow.vue'
 import RequestService from '../../services/RequestService'
+import users from '../Services/users'
 
 const route = useRoute()
 const chatRooms = ref([])
@@ -29,11 +30,13 @@ const isMobile = ref(false)
 const authStore = useAuthStore()
 const isLoaded = ref(false)
 const userData = computed(() => authStore.user)
+let unsubscribeChatRoom = null
+let hasHandledRouteParam = false
 
 async function fetchUserChatRooms(uid) {
   const q = query(
     collection(db, 'chatRoom'),
-    or(where('requestUserId', '==', uid), where('userId', '==', uid)),
+    or(where('requesterUserId', '==', uid), where('helperUserId', '==', uid)),
     orderBy('createdAt', 'desc')
   )
   onSnapshot(q, (querySnapshot) => {
@@ -67,7 +70,8 @@ async function populateInbox(querySnapshot) {
 
   for (const document of querySnapshot.docs) {
     const data = document.data()
-    const opponentId = data.requestUserId === myUserId.value ? data.userId : data.requestUserId
+    const opponentId =
+      data.requesterUserId === myUserId.value ? data.helperUserId : data.requesterUserId
     const userDocRef = doc(db, 'users', opponentId)
 
     try {
@@ -78,11 +82,10 @@ async function populateInbox(querySnapshot) {
       }
       const opponentData = docSnap.data()
 
-      const serviceReq = await RequestService.getServiceRequest(data.requestId)
-      if (!serviceReq) {
-        console.warn(`Service request for ID ${data.requestId} not found.`)
-        continue
-      }
+      const serviceReq =
+        data.type === 'Service'
+          ? await users.getService(data.requestId)
+          : await RequestService.getServiceRequest(data.requestId)
 
       const exists = chatRooms.value.some((chat) => chat.id === document.id)
       if (!exists) {
@@ -90,14 +93,9 @@ async function populateInbox(querySnapshot) {
           serviceRequest: serviceReq,
           createdAt: data.createdAt,
           id: document.id,
-          userData: opponentData
+          userData: opponentData,
+          type: data.type
         })
-      }
-      if (selectedChatId.value === '') {
-        selectedChatId.value = document.id
-        selectedServiceRequest.value = serviceReq
-        selectedUserData.value = opponentData
-        fetchChatRoom(document.id)
       }
     } catch (error) {
       console.error(`Error processing chat room ${doc.id}:`, error)
@@ -105,23 +103,41 @@ async function populateInbox(querySnapshot) {
   }
   chatRooms.value.sort((a, b) => b.createdAt - a.createdAt)
 
-  // Check for chatId in route after loading chatRooms
-  const chatIdFromRoute = route.params.chatRoomId
-  if (chatIdFromRoute) {
-    const targetChat = chatRooms.value.find((chat) => chat.id === chatIdFromRoute)
-    if (targetChat) {
-      selectedChatId.value = targetChat.id
-      selectedUserData.value = targetChat.userData
-      selectedServiceRequest.value = targetChat.serviceRequest
-      fetchChatRoom(targetChat.id)
+  // Set first chat as selected if none is selected and route param hasn't been handled
+  if (!selectedChatId.value && chatRooms.value.length > 0 && !hasHandledRouteParam) {
+    const firstChat = chatRooms.value[0]
+    selectedChatId.value = firstChat.id
+    selectedUserData.value = firstChat.userData
+    selectedServiceRequest.value = firstChat.serviceRequest
+    fetchChatRoom(firstChat.id)
+  }
+
+  // Check for chatId in route after loading chatRooms, only once
+  if (!hasHandledRouteParam) {
+    const chatIdFromRoute = route.params.chatRoomId
+    if (chatIdFromRoute) {
+      const targetChat = chatRooms.value.find((chat) => chat.id === chatIdFromRoute)
+      if (targetChat) {
+        selectedChatId.value = targetChat.id
+        selectedUserData.value = targetChat.userData
+        selectedServiceRequest.value = targetChat.serviceRequest
+        fetchChatRoom(targetChat.id)
+      }
+      hasHandledRouteParam = true
     }
   }
+
   isLoaded.value = true
 }
 
 async function fetchChatRoom(id) {
+  // Unsubscribe from the previous listener if it exists
+  if (unsubscribeChatRoom) {
+    unsubscribeChatRoom()
+  }
+
   const q = doc(db, 'chatRoom', id)
-  onSnapshot(q, async (docSnap) => {
+  unsubscribeChatRoom = onSnapshot(q, async (docSnap) => {
     if (docSnap.exists()) {
       const chatData = docSnap.data()
       selectedChatRoom.value = chatData
@@ -191,6 +207,9 @@ onMounted(() => {
 })
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
+  if (unsubscribeChatRoom) {
+    unsubscribeChatRoom()
+  }
 })
 </script>
 
@@ -215,18 +234,35 @@ onUnmounted(() => {
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                   >
-                    {{ selectedUserData.username + ' - ' + selectedServiceRequest.title }}
+                    <span v-if="selectedChatRoom.type === 'Request'">
+                      {{ selectedUserData.username + ' - ' + selectedServiceRequest.title }}
+                    </span>
+                    <span v-else>
+                      {{ selectedUserData.username }}
+                    </span>
                   </button>
                   <ul class="dropdown-menu w-100" aria-labelledby="dropdownMenuButton">
                     <li v-for="chatRoom in chatRooms" :key="chatRoom.id">
-                      <a
-                        class="dropdown-item"
-                        @click="
-                          selectChatRoom(chatRoom.id, chatRoom.userData, chatRoom.serviceRequest)
-                        "
-                      >
-                        {{ chatRoom.userData.username }} - {{ chatRoom.serviceRequest.title }}
-                      </a>
+                      <div v-if="chatRoom.type === 'Request'">
+                        <a
+                          class="dropdown-item"
+                          @click="
+                            selectChatRoom(chatRoom.id, chatRoom.userData, chatRoom.serviceRequest)
+                          "
+                        >
+                          {{ chatRoom.userData.username }} - {{ chatRoom.serviceRequest.title }}
+                        </a>
+                      </div>
+                      <div v-else>
+                        <a
+                          class="dropdown-item"
+                          @click="
+                            selectChatRoom(chatRoom.id, chatRoom.userData, chatRoom.serviceRequest)
+                          "
+                        >
+                          {{ chatRoom.userData.username }}
+                        </a>
+                      </div>
                     </li>
                   </ul>
                 </div>
@@ -247,9 +283,12 @@ onUnmounted(() => {
                     width="50"
                     height="50"
                   />
-                  <div class="text-container">
+                  <div class="text-container" v-if="chatRoom.type === 'Request'">
                     <span class="name">{{ chatRoom.userData.username }}</span>
                     <span class="title">Request: {{ chatRoom.serviceRequest.title }}</span>
+                  </div>
+                  <div class="text-container" v-else>
+                    <span class="name">{{ chatRoom.userData.username }}</span>
                   </div>
                 </li>
               </ul>
@@ -307,6 +346,7 @@ onUnmounted(() => {
 }
 
 .column {
+  background-color: white;
   padding: 0;
 }
 
@@ -331,7 +371,6 @@ onUnmounted(() => {
   cursor: pointer;
   display: flex;
   align-items: center;
-  
 }
 
 .header {
@@ -385,7 +424,7 @@ onUnmounted(() => {
 }
 
 .custom-dropdown-button {
-  background-color: #FFAD60;
+  background-color: #ffad60;
   text-align: left;
   color: black;
 }

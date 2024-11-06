@@ -133,12 +133,15 @@ function openImage(imageUrl) {
             width="50"
             height="50"
           />
-          <div class="text-container">
+          <div class="text-container" v-if="selectedChatRoom.type === 'Request'">
             <span class="name">{{ selectedUserData.username }}</span>
             <span class="location">Status: {{ selectedChatRoom.status }}</span>
           </div>
+          <div class="text-container" v-else>
+            <span class="name">{{ selectedUserData.username }}</span>
+          </div>
         </div>
-        <div class="card-header request">
+        <div class="card-header request" v-if="selectedChatRoom.type === 'Request'">
           <img
             :src="selectedServiceRequest.imgSrc"
             class="me-2 requestClass"
@@ -155,7 +158,11 @@ function openImage(imageUrl) {
             <span class="location">{{ selectedServiceRequest.location }}</span>
           </div>
           <div
-            v-if="selectedChatRoom.status === 'Open' && selectedChatRoom.requestUserId === myUserId"
+            v-if="
+              selectedChatRoom.status === 'Open' &&
+              selectedChatRoom.requesterUserId === myUserId &&
+              selectedChatRoom.type === 'Request'
+            "
             class="dropdown request-status"
           >
             <div
@@ -231,7 +238,10 @@ function openImage(imageUrl) {
           </div>
         </div>
       </div>
-      <div v-if="selectedChatRoom.status === 'Open'" class="input-group">
+      <div
+        v-if="selectedChatRoom.status === 'Open' || selectedChatRoom.type === 'Service'"
+        class="input-group"
+      >
         <div class="input-wrapper">
           <input
             type="text"
@@ -241,6 +251,7 @@ function openImage(imageUrl) {
             placeholder="Type a message..."
           />
           <span class="clip-icon" @click="attachImage"><i class="bi bi-image"></i></span>
+          <span class="send-icon" @click="sendMessage"><i class="bi bi-send"></i></span>
           <input
             type="file"
             ref="fileInput"
@@ -275,10 +286,10 @@ function openImage(imageUrl) {
           Are you sure you want to close this request? This is irreversable!
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancel</button>
           <button
             type="button"
-            class="btn btn-danger"
+            class="btn closeBtn"
             @click="closeRequest()"
             data-bs-dismiss="modal"
           >
@@ -292,6 +303,10 @@ function openImage(imageUrl) {
 
 
 <style scoped>
+.closeBtn {
+  background-color: #ffad60;
+  color: white;
+}
 .background {
   background-color: #ffeead;
 }
@@ -352,6 +367,7 @@ function openImage(imageUrl) {
 
 .card-header {
   display: flex;
+  background-color: white;
   align-items: center;
 }
 
@@ -397,6 +413,15 @@ function openImage(imageUrl) {
 }
 
 .clip-icon {
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.send-icon {
   position: absolute;
   right: 10px;
   top: 50%;

@@ -69,7 +69,7 @@ class RequestService {
 
     querySnapshot.docs.forEach((doc) => {
       const data = doc.data()
-      if (data.category) {
+      if (data.category && data.status === 'Open') {
         categories.add(data.category)
       }
     })
@@ -84,7 +84,7 @@ class RequestService {
 
     querySnapshot.docs.forEach((doc) => {
       const data = doc.data()
-      if (data.location) {
+      if (data.location && data.status === 'Open') {
         locations.add(data.location)
       }
     })

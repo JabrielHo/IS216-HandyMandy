@@ -81,6 +81,7 @@ function formatDate(timestamp) {
 }
 
 .category-badge {
+  background-color: #FFAD60 !important;
   position: absolute;
   bottom: 1px;
   right: 5px;

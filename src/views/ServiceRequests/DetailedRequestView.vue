@@ -99,15 +99,15 @@ function formatDate(timestamp) {
 }
 
 async function createChat() {
-  const currentUserId = userData.value.uid
-  const requestUserId = serviceRequest.value.userId
+  const helperUserId = userData.value.uid
+  const requesterUserId = serviceRequest.value.userId
   const requestId = route.params.id
 
   const chatRoomRef = collection(db, 'chatRoom')
   const q = query(
     chatRoomRef,
-    where('userId', '==', currentUserId),
-    where('requestUserId', '==', requestUserId),
+    where('helperUserId', '==', helperUserId),
+    where('requesterUserId', '==', requesterUserId),
     where('requestId', '==', requestId)
   )
   const querySnapshot = await getDocs(q)
@@ -119,21 +119,22 @@ async function createChat() {
     await setDoc(newChatRoomRef, {
       id: newChatRoomRef.id,
       status: 'Open',
-      userId: currentUserId,
-      requestUserId: requestUserId,
+      helperUserId: helperUserId,
+      requesterUserId: requesterUserId,
       requestId: requestId,
       messages: [
         {
           msg:
-            'Hello, I would like to discuss my service request titled "' +
+            'Hello, I need help with my service request titled "' +
             serviceRequest.value.title +
             '". Could you please assist me with it?',
-          senderId: requestUserId,
+          senderId: requesterUserId,
           timestamp: Timestamp.now(),
           type: 'text'
         }
       ],
-      createdAt: Timestamp.now()
+      createdAt: Timestamp.now(),
+      type: "Request"
     })
     chatRoomId = newChatRoomRef.id
   } else {

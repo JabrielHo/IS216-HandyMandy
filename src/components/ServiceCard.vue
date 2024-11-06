@@ -8,11 +8,7 @@
     <div id="profile-front">
       <div class="shadow"></div>
       <div class="image-container">
-        <img
-          :src="service.profilePicture"
-          alt="Profile Picture"
-          class="profile-image"
-        />
+        <img :src="service.profilePicture" alt="Profile Picture" class="profile-image" />
         <div class="image_overlay"></div>
         <div class="view-details-wrapper">
           <button id="view_details">
@@ -26,14 +22,21 @@
           <p class="details">
             Located at: {{ service.location }}
             <br />
-            <span class="services"> Services include:
+            <span class="services">
+              Services include:
               <span v-for="(ser, index) in service.service_type" :key="index">
                 {{ ser }}
                 <span v-if="index < service.service_type.length - 1">, </span>
               </span>
             </span>
           </p>
-          <button class="chat-button" v-if="isAnimated">Chat</button>
+          <button
+            class="chat-button"
+            v-if="isAnimated && isLoggedIn && userData.uid !== service.userId"
+            @click="createChat(service.userId, service.serviceId)"
+          >
+            Chat
+          </button>
         </div>
       </div>
     </div>
@@ -41,8 +44,12 @@
 </template>
 
 <script>
+import { useAuthStore } from '../stores/auth'
+import { collection, query, where, getDocs, setDoc, Timestamp, doc } from 'firebase/firestore'
+import { db } from '../firebaseConfig'
+
 export default {
-  name: "ServiceCard",
+  name: 'ServiceCard',
   props: {
     service: {
       type: Object,
@@ -52,26 +59,76 @@ export default {
         username: 'Unknown User',
         location: 'Unknown Location',
         service_type: [],
-        yearsExperience: 0,
-      }),
-    },
+        yearsExperience: 0
+      })
+    }
   },
   data() {
     return {
-      isAnimated: false,
-    };
+      isAnimated: false
+    }
   },
-};
+  computed: {
+    isLoggedIn() {
+      const authStore = useAuthStore()
+      return authStore.user !== null
+    },
+    userData() {
+      const authStore = useAuthStore()
+      return authStore.user
+    }
+  },
+  methods: {
+    async createChat(userId, serviceId) {
+      const helperUserId = userId
+      const requesterUserId = this.userData.uid
+      const requestId = serviceId
+      const chatRoomRef = collection(db, 'chatRoom')
+      const q = query(
+        chatRoomRef,
+        where('helperUserId', '==', helperUserId),
+        where('requesterUserId', '==', requesterUserId),
+        where('requestId', '==', requestId)
+      )
+      const querySnapshot = await getDocs(q)
 
-// Create a new service request
-function navigateToProfile() {
-  if (isLoggedIn.value) {
-    router.push('/personalProfile_ExternalPOV')
-  } else {
-    alert('You must be logged in to create a new service.')
+      let chatRoomId
+
+      if (querySnapshot.empty) {
+        const newChatRoomRef = doc(chatRoomRef)
+        await setDoc(newChatRoomRef, {
+          id: newChatRoomRef.id,
+          status: 'Open',
+          helperUserId: helperUserId,
+          requesterUserId: requesterUserId,
+          requestId: requestId,
+          messages: [
+            {
+              msg: "Hello, I'm ready to provide assistance on any issues you have! Just drop a message here.",
+              senderId: helperUserId,
+              timestamp: Timestamp.now(),
+              type: 'text'
+            }
+          ],
+          createdAt: Timestamp.now(),
+          type: 'Service'
+        })
+        chatRoomId = newChatRoomRef.id
+      } else {
+        chatRoomId = querySnapshot.docs[0].id
+      }
+
+      this.$router.push({ name: 'chatView', params: { chatRoomId } })
+    },
+    navigateToProfile() {
+      if (this.isLoggedIn) {
+        this.$router.push('/personalProfile_ExternalPOV')
+      } else {
+        alert('You must be logged in to create a new service.')
+      }
+    }
   }
 }
-
 </script>
 
 <style scoped>
@@ -118,7 +175,7 @@ function navigateToProfile() {
 
 .username {
   font-size: 1.2rem;
-  color: #A66E38;
+  color: #a66e38;
   font-weight: 600;
   display: block;
   margin-bottom: 8px;
@@ -148,7 +205,7 @@ function navigateToProfile() {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #FFAD60;
+  background: #ffad60;
   opacity: 0;
   transition: all 200ms ease-out;
 }
@@ -193,7 +250,7 @@ function navigateToProfile() {
 
 #view_details:hover {
   background: #fff;
-  color: #FFAD60;
+  color: #ffad60;
   cursor: pointer;
 }
 
@@ -204,7 +261,7 @@ function navigateToProfile() {
 .chat-button {
   display: none;
   width: 100%;
-  background-color: #FFAD60;
+  background-color: #ffad60;
   color: #fff;
   border: none;
   padding: clamp(6px, 1.5vw, 12px);
@@ -225,97 +282,101 @@ function navigateToProfile() {
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1199.98px) { /* xl breakpoint */
+@media (max-width: 1199.98px) {
+  /* xl breakpoint */
   #profile-card {
     min-height: 350px;
   }
-  
+
   .username {
     font-size: 1.1rem;
   }
-  
+
   .details {
     font-size: 0.85rem;
   }
-  
+
   #view_details {
     width: min(70%, 180px);
     border-width: 1.5px;
   }
-  
+
   .button-text {
     font-size: min(3vw, 0.9rem);
   }
 }
 
-@media (max-width: 991.98px) { /* lg breakpoint */
+@media (max-width: 991.98px) {
+  /* lg breakpoint */
   #profile-card {
     min-height: 300px;
   }
-  
+
   .stats-container {
     padding: 10px;
   }
-  
+
   #view_details {
     width: min(65%, 160px);
     border-width: 1.5px;
     padding: min(2.5%, 10px) min(4%, 16px);
   }
-  
+
   .button-text {
     font-size: min(2.8vw, 0.85rem);
   }
-  
+
   .chat-button {
     padding-top: 5px;
     padding-bottom: 5px;
   }
 }
 
-@media (max-width: 767.98px) { /* md breakpoint */
+@media (max-width: 767.98px) {
+  /* md breakpoint */
   #profile-card {
     min-height: 280px;
   }
-  
+
   .username {
     font-size: 1rem;
   }
-  
+
   .details {
     font-size: 0.8rem;
   }
-  
+
   #view_details {
     width: min(60%, 140px);
     border-width: 1px;
     padding: min(2%, 8px) min(3%, 14px);
   }
-  
+
   .button-text {
     font-size: min(2.5vw, 0.8rem);
   }
 }
 
-@media (max-width: 575.98px) { /* sm breakpoint */
+@media (max-width: 575.98px) {
+  /* sm breakpoint */
   #profile-card {
     min-height: 250px;
     margin: 0 auto 15px;
   }
-  
+
   .stats-container {
     padding: 8px;
   }
-  
+
   #view_details {
     width: min(55%, 120px);
     padding: min(1.5%, 6px) min(2.5%, 12px);
   }
-  
+
   .button-text {
     font-size: min(2.2vw, 0.75rem);
   }
-  
+
   .chat-button {
     margin-top: 6px;
   }

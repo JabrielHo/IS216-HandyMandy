@@ -14,48 +14,57 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 
 class Services {
   async getAllServices(selCategory, selLocation, page, itemsPerPage) {
-    let q = query(collection(db, 'services'));
+    let q = query(collection(db, 'services'))
 
     // Apply category filter if necessary
-    if (selCategory !== "All Categories") {
-        q = query(q, where('service_type', 'array-contains', selCategory));
+    if (selCategory !== 'All Categories') {
+      q = query(q, where('service_type', 'array-contains', selCategory))
     }
 
     // Apply location filter if necessary
     if (selLocation !== 'All Locations') {
-        q = query(q, where('location', '==', selLocation));
+      q = query(q, where('location', '==', selLocation))
     }
 
-    const querySnapshot = await getDocs(q);
-    const totalItems = querySnapshot.size;
+    const querySnapshot = await getDocs(q)
+    const totalItems = querySnapshot.size
 
     // Pagination logic
-    const startAt = (page - 1) * itemsPerPage;
-    const endAt = startAt + itemsPerPage;
+    const startAt = (page - 1) * itemsPerPage
+    const endAt = startAt + itemsPerPage
 
     // Initialize an empty array for services
-    const services = [];
+    const services = []
 
     // Process each document and push to services array
     querySnapshot.docs.slice(startAt, endAt).forEach((serviceDoc) => {
-        const serviceData = serviceDoc.data();
-        
-        // Create a service object
-        const service = {
-            serviceId: serviceDoc.id,
-            location: serviceData.location || '',
-            service_type: serviceData.service_type || [],
-            yearsExperience: serviceData.yearsExperience,
-            userId: serviceData.userId || '', // Keeping userId if you still want to return it
-            // Removed username and profilePicture since we're not fetching from users table
-        };
+      const serviceData = serviceDoc.data()
 
-        // Push the service object to the services array
-        services.push(service);
-    });
+      // Create a service object
+      const service = {
+        serviceId: serviceDoc.id,
+        location: serviceData.location || '',
+        service_type: serviceData.service_type || [],
+        yearsExperience: serviceData.yearsExperience,
+        userId: serviceData.userId || '' // Keeping userId if you still want to return it
+        // Removed username and profilePicture since we're not fetching from users table
+      }
+
+      // Push the service object to the services array
+      services.push(service)
+    })
 
     // Return the items and totalItems
-    return { items: services, totalItems };
+    return { items: services, totalItems }
+  }
+
+  async getService(serviceId) {
+    const docRef = doc(db, 'services', serviceId)
+    const docSnap = await getDoc(docRef)
+
+    if (docSnap.exists()) {
+      return docSnap.data()
+    }
   }
 
   async getServicesByUser(userId) {
@@ -77,7 +86,7 @@ class Services {
     querySnapshot.docs.forEach((doc) => {
       const data = doc.data()
       if (data.service_type && Array.isArray(data.service_type)) {
-        data.service_type.forEach((type) => categories.add(type));
+        data.service_type.forEach((type) => categories.add(type))
       }
     })
 
@@ -92,7 +101,7 @@ class Services {
     querySnapshot.docs.forEach((doc) => {
       const data = doc.data()
       if (data.location) {
-        location.add(data.location);
+        location.add(data.location)
       }
     })
 
@@ -116,7 +125,7 @@ class Services {
 
   async createDetailedServices(field, image) {
     try {
-      const docRef = await addDoc(collection(db, "userServiceDetails"),field)
+      const docRef = await addDoc(collection(db, 'userServiceDetails'), field)
       const docId = docRef.id
 
       // Upload the image to Firebase Storage
@@ -137,4 +146,4 @@ class Services {
   }
 }
 
-export default new Services() 
+export default new Services()
