@@ -15,6 +15,7 @@ const serviceDetails = ref({})
 const isLoading = ref(false)
 const userData = computed(() => authStore.user)
 const image = ref(null)
+
 // Initial step validation rules
 const baseRules = {
   location: { required },
@@ -61,15 +62,6 @@ function initializeServiceDetails() {
     }
   })
 }
-
-// Handle image upload
-// function handleImageUpload(event, service) {
-//   const file = event.target.files[0]
-//   if (file) {
-//     serviceDetails.value[service].image = file
-//     serviceDetails.value[service].imagePreview = URL.createObjectURL(file)
-//   }
-// }
 
 function handleFileChange(event) {
   image.value = event.target.files[0]

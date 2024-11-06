@@ -4,28 +4,33 @@
     <div class="overall">
       <!-- Profile Section -->
       <div class="row profile-section">
-        <img src="./images/profilepic.png" alt="John Doe's Profile Picture" class="profile-pic col-md-6" />
+        <img :src="user.profilePicture" :alt="`${user.name}'s Profile Picture`"  class="profile-pic col-md-6" />
         <div class="profile-details">
-          <h1 class="profile-name">John Doe</h1>
-          <p class="profile-rating">⭐⭐⭐⭐☆</p>
-          <h3 class="certifications-title">Certifications & Licenses</h3>
+          <h1 class="profile-name">{{ user.username }}</h1>
+          <!-- <p class="profile-rating">⭐⭐⭐⭐☆</p> -->
+          <!-- <h3 class="certifications-title">Certifications & Licenses</h3>
           <ul class="certifications-list">
             <li>Certified Plumbing Specialist</li>
             <li>Licensed Electrician</li>
             <li>Furniture Assembly Expert</li>
             <li>Wifi Network Troubleshooter</li>
-          </ul>
+          </ul> -->
         </div>
       </div>
     
-      <h2 class="section-title">John's Services</h2>
+      <h2 class="section-title">{{user.username}}'s' Services</h2>
       <div class="row request-container col-12 "></div>
-      <div v-for="service in userservice" class="request-container col-md-6">
-        <div v-for="servicename in service.service_type">
-        <router-link :to="`/service/${service.serviceId}`" class="service-rectangle no-underline col-md-6">
-          <div class="label">{{ servicename }}</div>
-          <!-- <img :src="request.imgSrc" alt="" class="service-image" /> -->
-        </router-link>
+      <div v-if="userservice.length === 0" class="no-services-message">
+        No services available.
+      </div>
+      <div v-else>
+        <div v-for="service in userservice" class="request-container col-md-6">
+          <div v-for="servicename in service.service_type">
+          <router-link :to="`/service/${service.serviceId}`" class="service-rectangle no-underline col-md-6">
+            <div class="label">{{ servicename }}</div>
+            <!-- <img :src="request.imgSrc" alt="" class="service-image" /> -->
+          </router-link>
+        </div>
       </div>
       <!-- <div class="row services-container col-12 "> -->
 
@@ -44,19 +49,23 @@
           <img src="./images/furniture_assembly.webp" alt="Furniture Assembly" class="service-image" />
         </router-link> -->
       </div> 
-    <button class="addservice">Add another service</button>
+    <button class="addservice">Add service</button>
 
-      <h2 class="section-title">John's Requests</h2>
+      <h2 class="section-title">{{user.username}}'s Requests</h2>
       <div class="row request-container col-12 "></div>
-      <div v-for="request in userrequest" :key="request.id" class="request-container col-md-6">
-        <router-link :to="`/request/${request.id}`" class="service-rectangle no-underline col-md-6">
-          <div class="label">{{ request.title }}</div>
-          <img :src="request.imgSrc" alt="" class="service-image" />
-        </router-link>
-  
+      <div v-if="userrequest.length === 0" class="no-requests-message">
+        No requests available.
+      </div>
+      <div v-else>
+        <div v-for="request in userrequest" :key="request.id" class="request-container col-md-6">
+          <router-link :to="`/request/${request.id}`" class="service-rectangle no-underline col-md-6">
+            <div class="label">{{ request.title }}</div>
+            <img :src="request.imgSrc" alt="" class="service-image" />
+          </router-link>
+        </div>
       </div>
       <button class="addrequest">Add another request</button>
-      <h2 class="section-title">John's Reviews</h2>
+      <h2 class="section-title">{{user.username}}'s Reviews</h2>
       <div class="review-container">
         <div class="review-rectangle">
           <div class="review">
@@ -100,7 +109,10 @@
 <script>
 import RequestService from '../../services/RequestService'
 import Services from '../Services/users'
+import UserService from '../../services/UserService'
+import { useAuthStore } from '../../stores/auth'
 
+const authStore = useAuthStore()
 
 export default {
   data(){
@@ -108,28 +120,39 @@ export default {
   name: "personalProfile",
   userrequest:[],
   userservice:[],
+  user: [],
     }
 },
   setup() {},
   methods:{
-    async fetchServiceRequestsByUser() {
-  const requestresult = await RequestService.getServiceRequestsByUser("PpqAdVds6ZMptMp1o5KGKBWXAGM2")
-  console.log(requestresult)
-  this.userrequest = requestresult;
+    async fetchServiceRequestsByUser(userId) {
+      const requestresult = await RequestService.getServiceRequestsByUser(userId)
+      console.log(requestresult)
+      this.userrequest = requestresult;
+    },
+    async fetchServicesByUser(userId) {
+      const serviceresult = await Services.getServicesByUser(userId)
+      console.log(serviceresult)
+      this.userservice = serviceresult;
+    },
+    async fetchUser(userId) {
+      const userresult = await UserService.getUserData(userId)
+      console.log(userresult)
+      this.user = userresult;
+    },
 
-},
-async fetchServicesByUser() {
-  const serviceresult = await Services.getServicesByUser("PpqAdVds6ZMptMp1o5KGKBWXAGM2")
-  console.log(serviceresult)
-  this.userservice = serviceresult;
-
-},
+  getCurrentUserId() {
+          const id = authStore.user?.uid
+          console.log("current user ID:", id)
+          return id}
 
   },
   mounted() {
-    this.fetchServiceRequestsByUser()
-    this.fetchServicesByUser()
-  }
+    const userId = this.getCurrentUserId()
+    this.fetchServiceRequestsByUser(userId)
+    this.fetchServicesByUser(userId)
+    this.fetchUser(userId)
+  },
 };
 </script>
 

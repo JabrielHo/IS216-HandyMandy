@@ -167,7 +167,7 @@ onUnmounted(() => {
         <ul class="nav-links">
           <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
           <li>
-            <router-link to="/profile" class="nav-link" active-class="active">Profile</router-link>
+            <router-link to="/personalProfile" class="nav-link" active-class="active">Profile</router-link>
           </li>
           <li>
             <router-link to="/inbox" class="nav-link" active-class="active">Inbox</router-link>

@@ -16,7 +16,7 @@
         <div class="image_overlay"></div>
         <div class="view-details-wrapper">
           <button id="view_details">
-            <span class="button-text">View Profile</span>
+            <span class="button-text" @click="navigateToProfile">View Profile</span>
           </button>
         </div>
       </div>
@@ -24,16 +24,14 @@
         <div class="stats-container">
           <span class="username">{{ service.username }}</span>
           <p class="details">
-            {{ service.location }}
+            Located at: {{ service.location }}
             <br />
-            <span class="services">
+            <span class="services"> Services include:
               <span v-for="(ser, index) in service.service_type" :key="index">
                 {{ ser }}
                 <span v-if="index < service.service_type.length - 1">, </span>
               </span>
             </span>
-            <br />
-            <span class="experience">Years of Experience: {{ service.yearsExperience }}</span>
           </p>
           <button class="chat-button" v-if="isAnimated">Chat</button>
         </div>
@@ -64,6 +62,16 @@ export default {
     };
   },
 };
+
+// Create a new service request
+function navigateToProfile() {
+  if (isLoggedIn.value) {
+    router.push('/personalProfile_ExternalPOV')
+  } else {
+    alert('You must be logged in to create a new service.')
+  }
+}
+
 </script>
 
 <style scoped>
@@ -110,7 +118,7 @@ export default {
 
 .username {
   font-size: 1.2rem;
-  color: #393c45;
+  color: #A66E38;
   font-weight: 600;
   display: block;
   margin-bottom: 8px;
@@ -118,7 +126,7 @@ export default {
 
 .details {
   font-size: 0.9rem;
-  color: #b1b1b3;
+  color: black;
   margin: 0;
   line-height: 1.4;
 }
