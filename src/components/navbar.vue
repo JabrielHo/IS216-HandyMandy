@@ -11,6 +11,7 @@ const isLoading = computed(() => authStore.loading)
 const searchQuery = ref('')
 const isSearchExpanded = ref(false)
 const isMobile = ref(window.innerWidth < 768) // Track mobile state based on initial screen size
+const navbarNav = ref<HTMLElement | null>(null)
 
 const navigateToSignIn = () => {
   router.push('/signin')
@@ -38,13 +39,17 @@ const handleResize = () => {
   isMobile.value = window.innerWidth < 768
 }
 
+const collapseNavbar = () => {
+  const navbar = document.querySelector('.navbar-collapse')
+  if (navbar) {
+    navbar.classList.remove('show')
+  }
+}
+
 // Close the navbar dropdown when switching from mobile to desktop
 watch(isMobile, (newValue) => {
   if (!newValue) {
-    const navbarCollapse = document.getElementById('navbarNav')
-    if (navbarCollapse?.classList.contains('show')) {
-      navbarCollapse.classList.remove('show')
-    }
+    collapseNavbar()
   }
 })
 
@@ -163,35 +168,77 @@ onUnmounted(() => {
       </div>
 
       <!-- Navigation Links Mobile -->
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="collapse navbar-collapse" id="navbarNav" ref="navbarNav">
         <ul class="nav-links">
-          <li><router-link to="/" class="nav-link" active-class="active">Home</router-link></li>
           <li>
-            <router-link to="/personalProfile" class="nav-link" active-class="active">Profile</router-link>
+            <router-link to="/" class="nav-link" active-class="active" @click="collapseNavbar"
+              >Home</router-link
+            >
+          </li>
+          <li v-if="isLoggedIn">
+            <router-link
+              to="/personalProfile"
+              class="nav-link"
+              active-class="active"
+              @click="collapseNavbar"
+              >Profile</router-link
+            >
+          </li>
+          <li v-if="isLoggedIn">
+            <router-link to="/inbox" class="nav-link" active-class="active" @click="collapseNavbar"
+              >Inbox</router-link
+            >
           </li>
           <li>
-            <router-link to="/inbox" class="nav-link" active-class="active">Inbox</router-link>
-          </li>
-          <li>
-            <router-link to="/services" class="nav-link" active-class="active"
+            <router-link
+              to="/services"
+              class="nav-link"
+              active-class="active"
+              @click="collapseNavbar"
               >Services</router-link
             >
           </li>
           <li>
-            <router-link to="/requests" class="nav-link" active-class="active"
+            <router-link
+              to="/requests"
+              class="nav-link"
+              active-class="active"
+              @click="collapseNavbar"
               >Requests</router-link
             >
           </li>
           <li>
-            <router-link to="/forum" class="nav-link" active-class="active">Forum</router-link>
+            <router-link to="/forum" class="nav-link" active-class="active" @click="collapseNavbar"
+              >Forum</router-link
+            >
           </li>
         </ul>
 
         <!-- Auth Buttons -->
         <div v-if="!isLoading" class="auth-buttons">
           <template v-if="!isLoggedIn">
-            <button @click="navigateToSignIn" class="sign-in-button">Sign In</button>
-            <button @click="navigateToRegister" class="register-button">Register</button>
+            <button
+              @click="
+                () => {
+                  navigateToSignIn()
+                  collapseNavbar()
+                }
+              "
+              class="sign-in-button"
+            >
+              Sign In
+            </button>
+            <button
+              @click="
+                () => {
+                  navigateToRegister()
+                  collapseNavbar()
+                }
+              "
+              class="register-button"
+            >
+              Register
+            </button>
           </template>
           <button v-else class="logout-button" data-bs-toggle="modal" data-bs-target="#logoutModal">
             Log out
@@ -485,14 +532,10 @@ onUnmounted(() => {
 .modal-logout {
   padding: 0.5rem 1rem;
   border: none;
-  background: #FFAD60;
+  background: #ffad60;
   color: white;
   border-radius: 6px;
   font-weight: 500;
-}
-
-.modal-logout:hover {
-  background: #c82333;
 }
 
 .logo {

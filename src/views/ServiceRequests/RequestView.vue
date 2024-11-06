@@ -343,6 +343,7 @@ li {
   }
 
   .dropdown {
+    border-radius: 20px;
     margin-bottom: 8px;
     margin: 0 0 8px 0;
     border: 1px solid black;
