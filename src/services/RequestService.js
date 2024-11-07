@@ -114,6 +114,14 @@ class RequestService {
     }
   }
 
+  async acceptServiceRequest(requestId) {
+    const requestRef = doc(db, 'requests', requestId)
+    await updateDoc(requestRef, {
+      status: 'Accepted'
+    })
+    return true
+  }
+
   async closeServiceRequest(requestId) {
     const requestRef = doc(db, 'requests', requestId)
     await updateDoc(requestRef, {

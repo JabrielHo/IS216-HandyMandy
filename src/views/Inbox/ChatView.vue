@@ -179,6 +179,15 @@ async function handleCloseStatus(requestId, chatId) {
   })
 }
 
+async function handleAcceptStatus(requestId, chatId) {
+  await RequestService.acceptServiceRequest(requestId)
+  const chatRef = doc(db, 'chatRoom', chatId)
+  await updateDoc(chatRef, {
+    status: 'Accepted'
+  })
+}
+
+
 const selectChatRoom = (id, userData, serviceRequest) => {
   selectedUserData.value = userData
   selectedServiceRequest.value = serviceRequest
@@ -310,7 +319,8 @@ onUnmounted(() => {
               :isLoaded="isLoaded"
               :myUserId="myUserId"
               @sendMessage="handleSendMessage"
-              @closeStatus="handleCloseStatus"
+              @closeStatus="handleCloseStatus"              
+              @acceptStatus="handleAcceptStatus"
             />
           </div>
           <div v-else class="spinner-container">

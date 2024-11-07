@@ -19,7 +19,7 @@ const props = defineProps({
 const reviewText = ref('')
 const rating = ref(0)
 const fileInput = ref(null)
-const emit = defineEmits(['sendMessage', 'closeStatus'])
+const emit = defineEmits(['sendMessage', 'closeStatus', 'acceptStatus'])
 const hasReviewed = ref(false)
 const isReviewLoading = ref(false)
 
@@ -104,6 +104,10 @@ function attachImage() {
 
 function closeRequest() {
   emit('closeStatus', props.selectedServiceRequest.id, props.selectedChatRoom.id)
+}
+
+function acceptRequest() {
+  emit('acceptStatus', props.selectedServiceRequest.id, props.selectedChatRoom.id)
 }
 
 async function handleFileChange(event) {
@@ -214,7 +218,9 @@ function openImage(imageUrl) {
             <span class="name">{{ selectedUserData.username }}</span>
           </div>
           <button
-            v-if="selectedChatRoom.requesterUserId === myUserId"
+            v-if="
+              selectedChatRoom.requesterUserId === myUserId && selectedChatRoom.status !== 'Open'
+            "
             class="btn reviewBtn"
             data-bs-toggle="modal"
             data-bs-target="#reviewModal"
@@ -238,9 +244,20 @@ function openImage(imageUrl) {
             <span class="title">{{ selectedServiceRequest.title }}</span>
             <span class="location">{{ selectedServiceRequest.location }}</span>
           </div>
-          <div
+          <button
             v-if="
               selectedChatRoom.status === 'Open' &&
+              selectedChatRoom.requesterUserId === myUserId &&
+              selectedChatRoom.type === 'Request'
+            "
+            class="btn reviewBtn"
+            @click="acceptRequest()"
+          >
+            Accept service
+          </button>
+          <div
+            v-if="
+              selectedChatRoom.status === 'Accepted' &&
               selectedChatRoom.requesterUserId === myUserId &&
               selectedChatRoom.type === 'Request'
             "
@@ -320,7 +337,7 @@ function openImage(imageUrl) {
         </div>
       </div>
       <div
-        v-if="selectedChatRoom.status === 'Open' || selectedChatRoom.type === 'Service'"
+        v-if="selectedChatRoom.status !== 'Closed' || selectedChatRoom.type === 'Service'"
         class="input-group"
       >
         <div class="input-wrapper">
@@ -562,7 +579,7 @@ function openImage(imageUrl) {
   background-color: rgb(248, 248, 248);
   border-color: lightgray;
   border-radius: 25px;
-  padding-right: 30px;
+  padding-right: 70px;
 }
 
 .form-control:focus {
