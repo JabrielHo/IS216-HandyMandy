@@ -78,6 +78,20 @@ class Services {
     return result
   }
 
+  async getDetailedService(serviceId, service_type) {
+    // Construct a query with multiple where clauses for both fields
+    let q = query(collection(db, 'userServiceDetails'),where('serviceId', '==', serviceId),where('service_type', '==', service_type)
+    );
+  
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs[0].data();
+    } else {
+      return null;
+    }
+  }
+
   async getAllCategories() {
     const q = collection(db, 'services')
     const querySnapshot = await getDocs(q)

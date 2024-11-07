@@ -54,8 +54,8 @@ const router = createRouter({
       component: () => import('../views/ProfilePage/personalProfile.vue')
     },
     {
-      path: '/personalProfile_ExternalPOV',
-      name: 'personalProfile_ExternalPOV',
+      path: '/profile/:userId',
+      name: 'UserProfile',
       component: () => import('../views/ProfilePage/personalProfile_ExternalPOV.vue')
     },
     {

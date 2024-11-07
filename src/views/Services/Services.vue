@@ -51,6 +51,7 @@ async function fetchServices() {
     totalItems.value = result.totalItems
     loading.value = false
   })
+  console.log(services)
 }
 
 // Fetch Categories and Locations

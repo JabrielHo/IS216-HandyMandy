@@ -10,9 +10,14 @@
       <div class="image-container">
         <img :src="service.profilePicture" alt="Profile Picture" class="profile-image" />
         <div class="image_overlay"></div>
-        <div class="view-details-wrapper">
-          <button id="view_details" @click="navigateToProfile">
+        <div class="view-details-wrapper" v-if="service.userId != userData.uid">
+          <button id="view_details" @click="navigateToProfile(service.userId)">
             <span class="button-text">View Profile</span>
+          </button>
+        </div>
+        <div class="view-details-wrapper" v-if="service.userId == userData.uid">
+          <button id="view_details" @click="navigateToPersonalProfile(userData.uId)">
+            <span class="button-text">Edit Your Profile</span>
           </button>
         </div>
       </div>
@@ -75,6 +80,7 @@ export default {
     },
     userData() {
       const authStore = useAuthStore()
+      console.log(authStore.user)
       return authStore.user
     }
   },
@@ -119,12 +125,17 @@ export default {
 
       this.$router.push({ name: 'chatView', params: { chatRoomId } })
     },
-    navigateToProfile() {
+    navigateToProfile(userId) {
       if (this.isLoggedIn) {
-        this.$router.push('/personalProfile_ExternalPOV')
+        this.$router.push({ name: 'UserProfile', params: { userId } })
       } else {
-        alert('You must be logged in to create a new service.')
+        alert('You must be logged in to view this service.')
       }
+    },
+    navigateToPersonalProfile(userId) {
+      if (this.isLoggedIn) {
+        this.$router.push('/personalProfile')
+      } 
     }
   }
 }
