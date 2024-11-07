@@ -59,15 +59,12 @@
       <h2 class="section-title">{{ user.username }}'s Reviews</h2>
       <div class="review-container">
         <div class="review-rectangle">
-          <!-- Iterate over each review in the reviews array -->
           <div v-for="(reviewItem, index) in user.reviews" :key="index" class="review">
             <p class="review-text">{{ reviewItem.review }}</p>
             <div class="reviewer-info">
               <span class="username">- by {{ reviewItem.username }}</span>
-              <!-- Render star ratings dynamically based on the rating value -->
               <span class="stars">{{ '⭐'.repeat(reviewItem.rating) }}</span>
             </div>
-            <!-- Separate reviews visually with a horizontal line, except for the last one -->
             <hr v-if="index < user.reviews.length - 1" />
           </div>
         </div>

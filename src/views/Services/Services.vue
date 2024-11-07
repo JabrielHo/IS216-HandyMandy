@@ -118,16 +118,17 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="background">
   <section class="text-center container">
     <div class="row pt-4">
       <div class="col-lg-6 col-md-8 mx-auto">
-        <h1 class="fw-light">Available Services</h1>
+        <h1 class="heading">Available Services</h1>
         <p class="lead text-body-secondary">
           Discover a variety of services offered by others. Whether you're looking for help or
           offering services, connect today!
         </p>
         <p>
-          <button v-if="isLoggedIn" class="btn btn-danger my-2" @click="navigateToCreateService">
+          <button v-if="isLoggedIn" class="createBtn btn my-2" @click="navigateToCreateService">
             Add Your Service!
           </button>
         </p>
@@ -222,7 +223,7 @@ onMounted(() => {
       <nav aria-label="pagination" class="d-flex justify-content-end">
         <ul class="pagination">
           <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <a class="page-link" @click="changePage(currentPage - 1)">Previous</a>
+            <a class="page-link" @click="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></a>
           </li>
           <li
             class="page-item"
@@ -236,15 +237,38 @@ onMounted(() => {
             class="page-item"
             :class="{ disabled: currentPage === Math.ceil(totalItems / itemsPerPage) }"
           >
-            <a class="page-link" @click="changePage(currentPage + 1)">Next</a>
+            <a class="page-link" @click="changePage(currentPage + 1)"><i class="bi bi-chevron-right"></i></a>
           </li>
         </ul>
       </nav>
     </div>
   </section>
+</div>
 </template>
 
 <style scoped>
+.heading {
+  font-size: 3.5rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.pagination .active .page-link {
+  background-color: #ffad60; /* Desired active background color */
+  border-color: gray; /* Desired active border color */
+  color: #ffffff; /* Desired active text color */
+}
+.pagination .page-link {
+  color: black;
+}
+.createBtn {
+  background-color: #ffad60;
+  color: white;
+}
+.background {
+  background-image: url(../../assets/backdrop.png);
+}
 .filter {
   display: flex;
   justify-content: space-between;
@@ -286,23 +310,6 @@ li {
   color: inherit !important;
 }
 
-.fab {
-  display: none;
-  position: fixed;
-  width: 55px;
-  height: 55px;
-  background-color: red;
-  border-radius: 50%;
-  bottom: 20px;
-  right: 20px;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 100;
-  color: white;
-  font-size: 30px;
-}
-
 .noRequests {
   display: flex;
   justify-content: center;
@@ -328,10 +335,6 @@ li {
 
   .dropdown-menu {
     width: 100%;
-  }
-
-  .fab {
-    display: flex;
   }
 
   .createBtn {

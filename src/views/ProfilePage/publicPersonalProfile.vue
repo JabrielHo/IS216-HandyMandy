@@ -56,15 +56,12 @@
       <h2 class="section-title">{{ user.username }}'s Reviews</h2>
       <div class="review-container">
         <div class="review-rectangle">
-          <!-- Iterate over each review in the reviews array -->
           <div v-for="(reviewItem, index) in user.reviews" :key="index" class="review">
             <p class="review-text">{{ reviewItem.review }}</p>
             <div class="reviewer-info">
               <span class="username">- by {{ reviewItem.username }}</span>
-              <!-- Render star ratings dynamically based on the rating value -->
               <span class="stars">{{ '⭐'.repeat(reviewItem.rating) }}</span>
             </div>
-            <!-- Separate reviews visually with a horizontal line, except for the last one -->
             <hr v-if="index < user.reviews.length - 1" />
           </div>
         </div>
@@ -77,10 +74,7 @@
 import RequestService from '../../services/RequestService'
 import Services from '../Services/users'
 import UserService from '../../services/UserService'
-import { useAuthStore } from '../../stores/auth'
 import { useRoute } from 'vue-router';
-
-const authStore = useAuthStore()
 
 export default {
   data() {
@@ -115,7 +109,7 @@ export default {
   methods: {
     fetchUserProfile() {
       const userId = this.$route.params.userId;
-      console.log('current user ID:', userId)
+      console.log('viewing user ID:', userId)
       return userId
     },
     async fetchServiceRequestsByUser(userId) {
@@ -146,20 +140,6 @@ export default {
       const userresult = await UserService.getUserData(userId)
       console.log(userresult)
       this.user = userresult
-    },
-    async navigateToCreateService() {
-      if (authStore.user?.uid) {
-        this.$router.push('/create-service')
-      } else {
-        alert('You must be logged in to create a new service.')
-      }
-    },
-    async navigateToCreateRequest() {
-      if (authStore.user?.uid) {
-        this.$router.push('/service-request')
-      } else {
-        alert('You must be logged in to create a new service.')
-      }
     }
   },
   mounted() {
