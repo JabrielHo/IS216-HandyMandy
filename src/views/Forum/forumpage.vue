@@ -35,6 +35,9 @@ const selectedFilterCategory = ref('');
 const loading = ref(false);
 const topDiscussion = ref(null);
 const searchQuery = ref('');
+const topUser = ref(null);
+const postsLoaded = ref(false);
+
 
 // Compute total pages based on filtered posts
 const totalPages = computed(() => {
@@ -263,7 +266,7 @@ async function fetchPosts() {
     posts.value.forEach(post => {
       console.log(`Post ID: ${post.id}, Comment Count: ${post.comments}`);
     });
-
+    postsLoaded.value = true;
     await nextTick();
     observePosts();
   } catch (error) {
@@ -353,6 +356,13 @@ function goToPostDetail(postId) {
       top: 0,
       behavior: 'instant' // This makes it jump to top instantly without animation
     });
+  });
+}
+
+function goToProfile(userId) {
+  router.push({
+    path: '/profile/' + userId,
+    params: { userId }
   });
 }
 
@@ -513,10 +523,85 @@ function formatPostDate(post) {
   }
 }
 
+async function computeTopUser(posts) {
+  // Create an object to store the post counts for each user
+  const userPostCounts = {};
+
+  // Loop through the posts and count the number of posts for each user
+  for (const post of posts) {
+    if (userPostCounts[post.userId]) {
+      userPostCounts[post.userId]++;
+    } else {
+      userPostCounts[post.userId] = 1;
+    }
+  }
+
+  console.log('User post counts:', userPostCounts);
+
+  // Find the user with the maximum number of posts
+  let topUserId = null;
+  let maxPostCount = 0;
+  for (const userId in userPostCounts) {
+    if (userPostCounts[userId] > maxPostCount) {
+      topUserId = userId;
+      maxPostCount = userPostCounts[userId];
+    }
+  }
+
+  console.log('Top user ID:', topUserId);
+  console.log('Max post count:', maxPostCount);
+
+  // If no user is found, return null
+  if (topUserId === null) {
+    return null;
+  }
+
+  return topUserId;
+}
+
+async function getTopUser() {
+  try {
+    console.log('getTopUser called');
+    if (postsLoaded.value && posts.value.length > 0) {
+      console.log('posts.value has', posts.value.length, 'items');
+      const topUserId = await computeTopUser(posts.value);
+      if (topUserId) {
+        console.log('Top user ID:', topUserId);
+        const userDoc = await getDoc(doc(db, "users", topUserId));
+        if (userDoc.exists()) {
+          topUser.value = {
+            id: userDoc.id,
+            ...userDoc.data(),
+          };
+          console.log('Top user data:', topUser.value);
+        } else {
+          console.log('Top user document not found');
+          topUser.value = null;
+        }
+      } else {
+        console.log('No top user found');
+        topUser.value = null;
+      }
+    } else {
+      console.log('posts.value is empty or not loaded yet');
+      topUser.value = null;
+    }
+  } catch (error) {
+    console.error('Error fetching top user:', error);
+    topUser.value = null;
+  }
+}
+
 
 onMounted(() => {
   fetchPosts();
   fetchTopDiscussion();
+  watch(postsLoaded, (loaded) => {
+    if (loaded) {
+      getTopUser();
+    }
+  });
+  console.log(posts);
   window.addEventListener('scroll', handleScroll);
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -555,7 +640,7 @@ onMounted(() => {
         </div>
       </div>
       <div class="header-wrapper2">
-        <img src="./background.svg" alt="">
+        <img src="./background.svg" alt="" class="floating-animation">
       </div>
     </div>
     <div class="mainwrapper">
@@ -591,22 +676,11 @@ onMounted(() => {
             </div>
           </div>
 
-          <ul class="nav nav-tabs" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#post">Post</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#discussion">Discussion</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#resources">Resources</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#announcements">Announcements</a>
-            </li>
-          </ul>
-
           <div class="tab-content bg-white border">
+            <div class="posts-header">
+              <h1>Posts</h1>
+              <span class="posts-count">{{ filteredPosts.length }}</span>
+            </div>
             <div class="tab-pane fade show active" id="post">
               <div v-if="loading" class="loading-indicator d-flex align-items-center">
                 <div class="spinner-border text-warning me-2" role="status">
@@ -619,18 +693,19 @@ onMounted(() => {
                 <div v-for="post in paginatedPosts" :key="post.id" class="mb-3 post-card">
                   <div class="d-flex align-items-start post-wrapper" @click="goToPostDetail(post.id)"
                     style="cursor: pointer;">
-                    <img :src="post.profilePicture" alt="User profile" class="user-image me-2" />
+                    <img :src="post.profilePicture" alt="User profile" class="user-image me-2"
+                      @click.stop="goToProfile(post.userId)" style="cursor: pointer;" />
                     <div class="post-content-wrapper">
                       <div class="d-flex justify-content-between align-items-start">
                         <div class="post-info">
-                          <h4>{{ post.username }}</h4>
+                          <h4 @click.stop="goToProfile(post.userId)" style="cursor: pointer;">{{ post.username }}</h4>
                           <span class="date">
                             <i class="bi bi-clock"></i>
                             {{ formatPostDate(post) }}
                           </span>
                           <h6>{{ post.title }}</h6>
                         </div>
-                        <button @click.stop="(event) => toggleSavePost(event, post.id)" class="btn-save">
+                        <button @click.stop="toggleSavePost(event, post.id)" class="btn-save">
                           <i class="bi"
                             :class="{ 'bi-bookmark-fill': isPostSaved(post.id), 'bi-bookmark': !isPostSaved(post.id) }"></i>
                         </button>
@@ -739,10 +814,12 @@ onMounted(() => {
         <div class="col-lg-4 col-md-12 rightbar">
           <div class="mb-3 p-3 bg-light rounded">
             <h6>Top discussion 🔥</h6>
-            <a v-if="topDiscussion" href="#" @click="goToPostDetail(topDiscussion.id)">
-              <img v-if="topDiscussion.profilePicture" :src="topDiscussion.profilePicture" class="rounded-circle me-2"
-                alt="Profile" style="width: 20px; height: 20px;">
-              {{ topDiscussion.title }}
+            <a v-if="topDiscussion" @click="goToPostDetail(topDiscussion.id)" style="cursor: pointer;">
+              <img v-if="topDiscussion.profilePicture" 
+                   :src="topDiscussion.profilePicture" 
+                   class="user-image" 
+                   alt="Profile">
+              <span>{{ topDiscussion.title }}</span>
             </a>
             <p v-else>No discussions yet.</p>
           </div>
@@ -751,21 +828,21 @@ onMounted(() => {
             <h6>Recommended topics</h6>
             <div class="btn-group-horizontal" role="group">
               <button v-for="category in categories" :key="category" @click="toggleFilter(category)"
-                :class="{ active: selectedFilterCategory === category }" class="btn rounded-pill">
+                :class="{ active: selectedFilterCategory === category }" class="btn rounded-pill"> 
                 {{ category }}
               </button>
             </div>
           </div>
 
           <div class="p-3 bg-light rounded">
-            <h6>Top</h6>
-            <div class="d-flex align-items-center mb-2">
-              <img src="https://via.placeholder.com/40" class="rounded-circle me-2" alt="Profile" />
+            <h6>Top User</h6>
+            <div v-if="topUser" class="d-flex align-items-center mb-2">
+              <img :src="topUser.profilePicture" class="user-image me-2" alt="Profile" @click="goToProfile(topUser.id)" style="cursor: pointer;"/>
               <div>
-                <p class="m-0">Mikey Jonah</p>
-                <button class="btn btn-outline-primary btn-sm">Follow</button>
+                <p class="m-0" style="cursor: pointer;" @click="goToProfile(topUser.id)">{{ topUser.username }}</p>
               </div>
             </div>
+            <p v-else class="text-muted">No top user data available.</p>
           </div>
           <div class="my-3 p-3 bg-light rounded">
             <h6 class="d-flex align-items-center gap-2">
@@ -808,9 +885,6 @@ onMounted(() => {
       @close="showSavedPostsModal = false" @unsave-post="handleUnsavePost" @view-post="goToPostDetail" />
   </main>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap" rel="stylesheet">
 </template>
 
 <style scoped>
@@ -948,22 +1022,37 @@ onMounted(() => {
 }
 
 .header-wrapper2 {
-  flex: 1;
-  padding: 2rem;
-  min-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .header-wrapper2 img {
-  width: 30vw;
+  max-width: 50%;
   height: auto;
+}
+
+.floating-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .topcontainer h1 {
   font-size: 3.5rem;
-  font-family: 'Abril Fatface', serif;
+  font-weight: 700;
   background: linear-gradient(45deg, #ff6b6b, #ff8e53);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -981,6 +1070,44 @@ onMounted(() => {
 
   .topcontainer h1 {
     font-size: 2rem;
+  }
+}
+
+.posts-header {
+  padding: 0rem 1rem 1rem 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 112, 67, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.posts-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.posts-count {
+  background-color: rgba(255, 112, 67, 0.1);
+  color: #FF7043;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .posts-header {
+    padding: 1.5rem 1rem;
+  }
+
+  .posts-header h1 {
+    font-size: 1.75rem;
   }
 }
 
@@ -1321,8 +1448,7 @@ h6,
 }
 
 .tab-content {
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  border-radius: 20px;
   padding-top: 20px;
 }
 
@@ -1481,13 +1607,76 @@ h6,
   color: #0d6efd;
 }
 
-body {
-  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-}
-
 @media (max-width: 425px) {
   .tab-content .p-4 {
     padding: 0;
   }
+}
+
+/* topuser styling */
+
+.col-lg-4 .bg-light:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* .bg-light:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+} */
+
+.col-lg-4 .d-flex:hover .user-image {
+  transform: scale(1.2);
+  transition: transform 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+.col-lg-4 .d-flex:hover p {
+  color: #FF7043;
+  transition: color 0.3s;
+}
+
+/* Style for top discussion link and image */
+.bg-light a {
+  display: flex;
+  align-items: center;
+  min-height: 100px;
+  text-decoration: none;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.bg-light a:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.bg-light a .user-image {
+  width: 100px; 
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+/* More specific selector for top discussion image */
+.rightbar .bg-light a .user-image {
+  width: 50px !important; /* Force override */
+  height: 50px !important; /* Force override */
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+  
+}
+
+/* Adjust the container to accommodate larger image */
+.rightbar .bg-light a {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  gap: 15px;
+  text-decoration: none;
+  color: inherit;
 }
 </style>

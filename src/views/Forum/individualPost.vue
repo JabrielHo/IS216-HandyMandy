@@ -7,10 +7,10 @@
                     <div class="author-section">
                         <div class="profile-image">
                             <img :src="post.userImage || '/default-avatar.png'" :alt="post.username"
-                                @error="handleImageError" />
+                                @error="handleImageError" @click.stop="goToProfile(post.userId)" style="cursor: pointer;"/>
                         </div>
                         <div class="author-info">
-                            <h3 class="author-name">{{ post.username }}</h3>
+                            <h3 class="author-name" @click.stop="goToProfile(post.userId)" style="cursor: pointer;">{{ post.username }}</h3>
                             <span class="date">
                                 <i class="bi bi-clock"></i>
                                 {{ formatPostDate(post.time) }}
@@ -100,7 +100,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs, addDoc, Timestamp, runTransaction, increment } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -118,6 +118,7 @@ const isAuthInitialized = ref(false); // Add this to track auth initialization
 const isEditing = ref(false);
 const editedTitle = ref('');
 const editedContent = ref('');
+const router = useRouter();
 
 onMounted(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -136,6 +137,13 @@ onMounted(() => {
     fetchComments();
 
 });
+
+function goToProfile(userId) {
+  router.push({
+    path: '/profile/' + userId,
+    params: { userId }
+  });
+}
 
 function toggleEditMode() {
     if (isEditing.value) {
