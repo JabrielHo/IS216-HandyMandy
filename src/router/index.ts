@@ -56,7 +56,7 @@ const router = createRouter({
     {
       path: '/profile/:userId',
       name: 'UserProfile',
-      component: () => import('../views/ProfilePage/personalProfile_ExternalPOV.vue')
+      component: () => import('../views/ProfilePage/publicPersonalProfile.vue')
     },
     {
       path: '/plumbing',
