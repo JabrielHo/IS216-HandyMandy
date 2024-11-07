@@ -119,7 +119,7 @@ async function fetchSavedPosts() {
 
 async function toggleSavePost(event, postId) {
   // Prevent post navigation when clicking save button
-  event.stopPropagation();
+  // event.stopPropagation();
 
   if (!currentUser.value) {
     alert('You must be logged in to save posts.');
