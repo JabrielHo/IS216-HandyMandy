@@ -22,7 +22,7 @@
               <li>{{certs}}</li>
             </ul>
           </div>
-          <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">Add Certifications and Licenses</button>
+          <button v-if="currUId == userId" class="addservice" @click="navigateToCreateCertLicense(currUId)">Add Certifications and Licenses</button>
         </div>
       </div>
     
@@ -84,6 +84,7 @@ import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth'
 
 const authStore = useAuthStore()
+console.log(authStore)
 
 export default {
   data() {
@@ -124,7 +125,8 @@ export default {
         return (totalRating / this.user.reviews.length).toFixed(1); // Rounded to 1 decimal place
       }
       return "No ratings";
-    }
+    },
+    
   },
   methods: {
     fetchUserProfile() {
@@ -172,7 +174,14 @@ export default {
       if (authStore.user?.uid) {
         this.$router.push('/service-request')
       } else {
-        alert('You must be logged in to create a new service.')
+        alert('You must be logged in to create a new request.')
+      }
+    },
+    async navigateToCreateCertLicense(userId) {
+      if (authStore.user?.uid) {
+        this.$router.push({ name: 'createCertificationLicenses', params: { userId } })
+      } else {
+        alert('You must be logged in to create/edit your certifications and licenses.')
       }
     },
     getCurrentUserId() {

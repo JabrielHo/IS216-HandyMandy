@@ -1,7 +1,7 @@
 <template>
     <section class="background">
       <div class="container con-background">
-        <h4>Enter Your Certifications and Licenses</h4>
+        <h4>Enter/Edit Your Certifications and Licenses</h4>
         <p class="secondary">Please list each certification/license, separated by line breaks</p>
   
         <div class="formgroup">
@@ -12,7 +12,7 @@
             id="certifications"
             class="form-control"
             rows="5"
-            placeholder="Enter your certifications and licenses here..."
+            placeholder="Enter/Edit your certifications and licenses here..."
             v-model="certifications"
             :class="{ 'is-invalid': v$.certifications.$error }"
           ></textarea>
