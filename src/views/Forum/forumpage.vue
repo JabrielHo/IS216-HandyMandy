@@ -646,7 +646,7 @@ onMounted(() => {
     <div class="mainwrapper">
       <div class="row">
         <div class="col-lg-8 col-md-12">
-          <div class="container">
+          <div class="container-fluid">
             <div class="p-4 bg-light mb-3 rounded-5">
 
               <h5 class="text-start mb-3">Create a post here:</h5>
@@ -691,8 +691,10 @@ onMounted(() => {
               <div v-else>
                 <!-- Display paginated posts -->
                 <div v-for="post in paginatedPosts" :key="post.id" class="mb-3 post-card">
+                  
                   <div class="d-flex align-items-start post-wrapper" @click="goToPostDetail(post.id)"
                     style="cursor: pointer;">
+                    
                     <img :src="post.profilePicture" alt="User profile" class="user-image me-2"
                       @click.stop="goToProfile(post.userId)" style="cursor: pointer;" />
                     <div class="post-content-wrapper">
@@ -960,14 +962,7 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
-@media (max-width: 991.98px) {
-  .rightbar {
-    position: static;
-    height: auto;
-    margin-top: 80px;
-    max-height: none;
-  }
-}
+
 
 .rightbar::-webkit-scrollbar {
   width: 8px;
@@ -1061,17 +1056,7 @@ onMounted(() => {
 }
 
 /* responsiveness for the waves */
-@media screen and (max-width: 1200px) {
-  .topcontainer {
-    /* Add your alternative clip-path here */
-    padding-bottom: 5rem;
-    clip-path: polygon(100% 0%, 0% 0%, 0.00% 84.53%, 1.00% 84.57%, 2.00% 84.70%, 3.00% 84.91%, 4.00% 85.20%, 5.00% 85.56%, 6.00% 85.99%, 7.00% 86.49%, 8.00% 87.04%, 9.00% 87.63%, 10.00% 88.26%, 11.00% 88.92%, 12.00% 89.59%, 13.00% 90.27%, 14.00% 90.94%, 15.00% 91.60%, 16.00% 92.23%, 17.00% 92.82%, 18.00% 93.37%, 19.00% 93.86%, 20.00% 94.29%, 21.00% 94.66%, 22.00% 94.94%, 23.00% 95.15%, 24.00% 95.28%, 25.00% 95.32%, 26.00% 95.28%, 27.00% 95.15%, 28.00% 94.94%, 29.00% 94.66%, 30.00% 94.29%, 31.00% 93.86%, 32.00% 93.37%, 33.00% 92.82%, 34.00% 92.23%, 35.00% 91.60%, 36.00% 90.94%, 37.00% 90.27%, 38.00% 89.59%, 39.00% 88.92%, 40.00% 88.26%, 41.00% 87.63%, 42.00% 87.04%, 43.00% 86.49%, 44.00% 85.99%, 45.00% 85.56%, 46.00% 85.20%, 47.00% 84.91%, 48.00% 84.70%, 49.00% 84.57%, 50.00% 84.53%, 51.00% 84.57%, 52.00% 84.70%, 53.00% 84.91%, 54.00% 85.20%, 55.00% 85.56%, 56.00% 85.99%, 57.00% 86.49%, 58.00% 87.04%, 59.00% 87.63%, 60.00% 88.26%, 61.00% 88.92%, 62.00% 89.59%, 63.00% 90.27%, 64.00% 90.94%, 65.00% 91.60%, 66.00% 92.23%, 67.00% 92.82%, 68.00% 93.37%, 69.00% 93.86%, 70.00% 94.29%, 71.00% 94.66%, 72.00% 94.94%, 73.00% 95.15%, 74.00% 95.28%, 75.00% 95.32%, 76.00% 95.28%, 77.00% 95.15%, 78.00% 94.94%, 79.00% 94.66%, 80.00% 94.29%, 81.00% 93.86%, 82.00% 93.37%, 83.00% 92.82%, 84.00% 92.23%, 85.00% 91.60%, 86.00% 90.94%, 87.00% 90.27%, 88.00% 89.59%, 89.00% 88.92%, 90.00% 88.26%, 91.00% 87.63%, 92.00% 87.04%, 93.00% 86.49%, 94.00% 85.99%, 95.00% 85.56%, 96.00% 85.20%, 97.00% 84.91%, 98.00% 84.70%, 99.00% 84.57%, 100.00% 84.53%);
-  }
 
-  .topcontainer h1 {
-    font-size: 2rem;
-  }
-}
 
 .posts-header {
   padding: 0rem 1rem 1rem 1rem;
@@ -1101,15 +1086,7 @@ onMounted(() => {
   font-weight: 500;
 }
 
-@media (max-width: 768px) {
-  .posts-header {
-    padding: 1.5rem 1rem;
-  }
 
-  .posts-header h1 {
-    font-size: 1.75rem;
-  }
-}
 
 .date {
   font-size: 0.9rem;
@@ -1534,11 +1511,7 @@ h6,
 }
 
 /* Responsive adjustments */
-@media (max-width: 991.98px) {
-  .container {
-    padding: 0 15px;
-  }
-}
+
 
 /* button style for category choosing */
 
@@ -1607,11 +1580,7 @@ h6,
   color: #0d6efd;
 }
 
-@media (max-width: 425px) {
-  .tab-content .p-4 {
-    padding: 0;
-  }
-}
+
 
 /* topuser styling */
 
@@ -1670,13 +1639,124 @@ h6,
   
 }
 
-/* Adjust the container to accommodate larger image */
-.rightbar .bg-light a {
-  display: flex;
-  align-items: center;
-  padding: 15px;
-  gap: 15px;
-  text-decoration: none;
-  color: inherit;
+
+@media (max-width: 480px) {
+  .likes-comments {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin-top: 1rem;
+    gap: 0;
+    width: 50%;
+  }
+
+  .likes-comments button,
+  .likes-comments span {
+    margin: 0.5rem 0;
+  }
+  .btn-like{
+    padding: 0;
+  }
+  .btn-outline-secondary.btn-sm {
+    margin-top: 1rem;
+  }
 }
+
+
+
+@media (min-width: 1200px){ 
+  .header-wrapper, .header-wrapper2{
+  display: flex;
+  justify-content: center;
+  margin: auto;
+  align-items: center;
+  text-align: center;
+  padding: 2rem !important;
+  width: 50%;
+}
+}
+
+
+/* /////////////////////////Settled////////////////// */
+
+@media (max-width: 1200px) {
+
+.topcontainer {
+  /* Add your alternative clip-path here */
+  padding-bottom: 5rem;
+  clip-path: polygon(100% 0%, 0% 0%, 0.00% 84.53%, 1.00% 84.57%, 2.00% 84.70%, 3.00% 84.91%, 4.00% 85.20%, 5.00% 85.56%, 6.00% 85.99%, 7.00% 86.49%, 8.00% 87.04%, 9.00% 87.63%, 10.00% 88.26%, 11.00% 88.92%, 12.00% 89.59%, 13.00% 90.27%, 14.00% 90.94%, 15.00% 91.60%, 16.00% 92.23%, 17.00% 92.82%, 18.00% 93.37%, 19.00% 93.86%, 20.00% 94.29%, 21.00% 94.66%, 22.00% 94.94%, 23.00% 95.15%, 24.00% 95.28%, 25.00% 95.32%, 26.00% 95.28%, 27.00% 95.15%, 28.00% 94.94%, 29.00% 94.66%, 30.00% 94.29%, 31.00% 93.86%, 32.00% 93.37%, 33.00% 92.82%, 34.00% 92.23%, 35.00% 91.60%, 36.00% 90.94%, 37.00% 90.27%, 38.00% 89.59%, 39.00% 88.92%, 40.00% 88.26%, 41.00% 87.63%, 42.00% 87.04%, 43.00% 86.49%, 44.00% 85.99%, 45.00% 85.56%, 46.00% 85.20%, 47.00% 84.91%, 48.00% 84.70%, 49.00% 84.57%, 50.00% 84.53%, 51.00% 84.57%, 52.00% 84.70%, 53.00% 84.91%, 54.00% 85.20%, 55.00% 85.56%, 56.00% 85.99%, 57.00% 86.49%, 58.00% 87.04%, 59.00% 87.63%, 60.00% 88.26%, 61.00% 88.92%, 62.00% 89.59%, 63.00% 90.27%, 64.00% 90.94%, 65.00% 91.60%, 66.00% 92.23%, 67.00% 92.82%, 68.00% 93.37%, 69.00% 93.86%, 70.00% 94.29%, 71.00% 94.66%, 72.00% 94.94%, 73.00% 95.15%, 74.00% 95.28%, 75.00% 95.32%, 76.00% 95.28%, 77.00% 95.15%, 78.00% 94.94%, 79.00% 94.66%, 80.00% 94.29%, 81.00% 93.86%, 82.00% 93.37%, 83.00% 92.82%, 84.00% 92.23%, 85.00% 91.60%, 86.00% 90.94%, 87.00% 90.27%, 88.00% 89.59%, 89.00% 88.92%, 90.00% 88.26%, 91.00% 87.63%, 92.00% 87.04%, 93.00% 86.49%, 94.00% 85.99%, 95.00% 85.56%, 96.00% 85.20%, 97.00% 84.91%, 98.00% 84.70%, 99.00% 84.57%, 100.00% 84.53%);
+}
+
+.topcontainer h1 {
+  font-size: 2rem;
+}
+.header-wrapper, .header-wrapper2{
+  display: flex;
+  justify-content: center;
+  margin: auto;
+  align-items: center;
+  text-align: center;
+  padding: 2rem !important;
+  width: 50%;
+}
+.header-wrapper{
+  padding-right: 0px !important;
+}
+
+.header-wrapper2{
+  padding-left: 0px !important;
+}
+}
+
+
+@media (max-width: 768px) {
+  .header-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    align-items: center;
+    text-align: center;
+    padding: 2rem !important;
+    width: 100%;
+  }
+  
+  .header-wrapper2 {
+    display: none; /* Hide the second wrapper on small screens */
+  }
+
+  .topcontainer {
+    /* display: flex; */
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 3rem;
+  }
+
+  .topcontainer h1 {
+    text-align: center;
+    font-size: 2.5rem; /* Optionally reduce font size for small screens */
+  }
+
+  .mainwrapper {
+    padding: 0;
+  }
+
+  .rightbar {
+    margin-top: 2rem;
+  }
+  
+  .topcontainer h1 {
+    text-align: center;
+    font-size: 2.5rem; /* Optionally reduce font size for small screens */
+  }
+
+  .mainwrapper {
+    padding: 0;
+  }
+
+  .rightbar {
+    margin-top: 2rem;
+  }
+}
+
 </style>
