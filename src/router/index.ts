@@ -15,14 +15,11 @@ const router = createRouter({
       name: 'signin',
       component: () => import('../views/SigninPage/SignIn.vue')
       // meta: { requiresAuth: false }
-      // meta: { requiresAuth: false }
     },
     {
       path: '/register',
       name: 'register',
       component: () => import('../views/SigninPage/register.vue')
-      // meta: { requiresAuth: false }
-      // meta: { requiresAuth: false }
       // meta: { requiresAuth: false }
     },
     {
@@ -34,8 +31,6 @@ const router = createRouter({
       path: '/service-request',
       name: 'serviceRequest',
       component: () => import('../views/ServiceRequests/CreateRequestView.vue')
-      // meta: { requiresAuth: true }
-      // meta: { requiresAuth: true }
       // meta: { requiresAuth: true }
     },
     {
@@ -52,12 +47,8 @@ const router = createRouter({
       path: '/create-service',
       name: 'createService',
       component: () => import('../views/Services/CreateService.vue')
+      // meta: { requiresAuth: true }
     },
-    // {
-    //   path: '/personalProfile',
-    //   name: 'personalProfile',
-    //   component: () => import('../views/ProfilePage/personalProfile.vue')
-    // },
     {
       path: '/profile/:userId',
       name: 'UserProfile',
@@ -126,6 +117,7 @@ const router = createRouter({
       path: '/photo-upload',
       name: 'photoUpload',
       component: () => import('../views/SigninPage/PhotoUpload.vue')
+      // meta: { requiresAuth: true }
     },
     {
       path: '/createCertLicense/:userId',

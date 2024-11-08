@@ -1,6 +1,5 @@
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"></link>
 <template>
-  <div class="yellowbg">
+  <div v-if="isLoaded" class="yellowbg">
     <div class="overall">
       <!-- Profile Section -->
       <div class="row profile-section">
@@ -11,37 +10,52 @@
         />
         <div class="profile-details">
           <h1 class="profile-name">{{ user.username }}</h1>
-          <p v-if="averageRating !== 'No ratings'" class="profile-rating">{{ '⭐'.repeat(averageRating) }}</p>
+          <p v-if="averageRating !== 'No ratings'" class="profile-rating">
+            {{ '⭐'.repeat(averageRating) }}
+          </p>
           <p v-else class="profile-rating">{{ averageRating }}</p>
           <h3 class="certifications-title">Certifications & Licenses</h3>
-          <div v-if="!user.certificationsLicenses || user.certificationsLicenses.length === 0" class="no-certifications">
+          <div
+            v-if="!user.certificationsLicenses || user.certificationsLicenses.length === 0"
+            class="no-certifications"
+          >
             No certifications or licenses
           </div>
           <div v-else>
-            <ul class="certifications-list" v-for="certs in user.certificationsLicenses">
-              <li>{{certs}}</li>
+            <ul
+              class="certifications-list"
+              v-for="(certs, index) in user.certificationsLicenses"
+              :key="index"
+            >
+              <li>{{ certs }}</li>
             </ul>
           </div>
-          <button v-if="currUId == userId" class="addservice" @click="navigateToCreateCertLicense(currUId)">Add Certifications and Licenses</button>
+          <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
+            Add Certifications and Licenses
+          </button>
         </div>
       </div>
-    
+
       <h2 class="section-title">{{ user.username }}'s' Services</h2>
       <div class="row request-container col-12"></div>
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
       <div v-else>
         <div v-for="service in userservice" :key="service.id" class="request-container col-md-6">
           <div v-for="(servicename, index) in service.service_type" :key="index">
-            <router-link
-              class="service-rectangle no-underline col-md-6"
-            >
+            <router-link class="service-rectangle no-underline col-md-6">
               <div class="label">{{ servicename }}</div>
-              <img :src="serviceImgs[servicename] || 'fallback-image-url.jpg'" :alt="`${servicename} Image`" class="service-image"/>
+              <img
+                :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
+                :alt="`${servicename} Image`"
+                class="service-image"
+              />
             </router-link>
           </div>
         </div>
       </div>
-      <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">Add service</button>
+      <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
+        Add service
+      </button>
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
       <div class="row request-container col-12"></div>
@@ -57,7 +71,9 @@
           </router-link>
         </div>
       </div>
-      <button v-if="currUId == userId" class="addrequest" @click="navigateToCreateRequest">Add request</button>
+      <button v-if="currUId == userId" class="addrequest" @click="navigateToCreateRequest">
+        Add request
+      </button>
 
       <h2 class="section-title">{{ user.username }}'s Reviews</h2>
       <div class="review-container">
@@ -80,87 +96,98 @@
 import RequestService from '../../services/RequestService'
 import Services from '../Services/users'
 import UserService from '../../services/UserService'
-import { useRoute } from 'vue-router';
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
-
 const authStore = useAuthStore()
-console.log(authStore)
 
 export default {
   data() {
     return {
+      authStore: useAuthStore(),
       name: 'personalProfile',
       userrequest: [],
       userservice: [],
-      detailedUserServices: {}, 
+      detailedUserServices: {},
       user: [],
-      userId : "",
-      currUId : "",
-      serviceImgs: 
-      {
-        "Electrical": "https://pluggedinatl.com/wp-content/uploads/2021/06/iStock-1025303196-scaled.jpg",
-        "Air-Con" : 'https://www.socool.sg/wp-content/uploads/2022/11/Ac-service-3-2-1080x675.jpg',
-        "Plumbing": 'https://hw-singaporeplumbing.com.sg/wp-content/uploads/2018/12/sanitary-repair.png',
-        "Repair": "https://megafurniture.sg/cdn/shop/articles/the-top-5-refrigerator-singapore-repair-services-review-megafurniture.png?v=1721303860&width=1200",
-        "Installation": "https://www.ikea.com/ext/ingkadam/m/7c8d0ce75bda3d21/original/PH186193-crop001.jpg?f=s",
-        "Painting": 'https://www.paintingservicesingapore.sg/wp-content/uploads/2020/12/67766.jpg',
-        "Gardening" : 'https://www.helpling.com.sg/wp-content/uploads/2023/06/Helpling-gardening_bg.webp',
-        "Cleaning" : 'https://cleanlab.com.sg/wp-content/uploads//House-cleaning.jpg'
-
-      }
+      userId: '',
+      currUId: '',
+      serviceImgs: {
+        Electrical:
+          'https://pluggedinatl.com/wp-content/uploads/2021/06/iStock-1025303196-scaled.jpg',
+        'Air-Con': 'https://www.socool.sg/wp-content/uploads/2022/11/Ac-service-3-2-1080x675.jpg',
+        Plumbing:
+          'https://hw-singaporeplumbing.com.sg/wp-content/uploads/2018/12/sanitary-repair.png',
+        Repair:
+          'https://megafurniture.sg/cdn/shop/articles/the-top-5-refrigerator-singapore-repair-services-review-megafurniture.png?v=1721303860&width=1200',
+        Installation:
+          'https://www.ikea.com/ext/ingkadam/m/7c8d0ce75bda3d21/original/PH186193-crop001.jpg?f=s',
+        Painting: 'https://www.paintingservicesingapore.sg/wp-content/uploads/2020/12/67766.jpg',
+        Gardening:
+          'https://www.helpling.com.sg/wp-content/uploads/2023/06/Helpling-gardening_bg.webp',
+        Cleaning: 'https://cleanlab.com.sg/wp-content/uploads//House-cleaning.jpg'
+      },
+      isLoaded: false
     }
   },
   setup() {
-    const route = useRoute();
-    return { route };
+    const route = useRoute()
+    return { route }
   },
   watch: {
-    // Triggered whenever the route parameter changes (e.g., when viewing another user's profile)
-    'route.params.userId': 'fetchUserProfile'
+    'authStore.user': {
+      immediate: true,
+      handler(newValue) {
+        if (newValue && newValue.uid) {
+          this.currUId = newValue.uid
+          this.isLoaded = true
+        }
+      }
+    },
+    'route.params.userId': {
+      immediate: true,
+      handler(newValue) {
+        if (newValue) {
+          this.userId = newValue
+          this.fetchServiceRequestsByUser(this.userId)
+          this.fetchServicesByUser(this.userId)
+          this.fetchUser(this.userId)
+        }
+      }
+    }
   },
   computed: {
     averageRating() {
       if (this.user.reviews && this.user.reviews.length > 0) {
-        const totalRating = this.user.reviews.reduce((sum, review) => sum + review.rating, 0);
-        return (totalRating / this.user.reviews.length).toFixed(1); // Rounded to 1 decimal place
+        const totalRating = this.user.reviews.reduce((sum, review) => sum + review.rating, 0)
+        return (totalRating / this.user.reviews.length).toFixed(1) // Rounded to 1 decimal place
       }
-      return "No ratings";
-    },
-    
+      return 'No ratings'
+    }
   },
   methods: {
-    fetchUserProfile() {
-      const userId = this.$route.params.userId;
-      console.log("viewing this user's profile:", userId)
-      return userId
-    },
     async fetchServiceRequestsByUser(userId) {
       const requestresult = await RequestService.getServiceRequestsByUser(userId)
-      console.log(requestresult)
       this.userrequest = requestresult
     },
     async fetchServicesByUser(userId) {
       const serviceresult = await Services.getServicesByUser(userId)
-      console.log(serviceresult)
       this.userservice = serviceresult
 
-      const detailedServiceMap = {};
+      const detailedServiceMap = {}
 
       for (const service of serviceresult) {
         console.log(service)
         for (const type of service.service_type) {
-          const detailedService = await Services.getDetailedService(service.serviceId, type);
+          const detailedService = await Services.getDetailedService(service.serviceId, type)
           detailedServiceMap[type] = {
             ...detailedService
-          };
+          }
         }
       }
-      this.detailedUserServices = detailedServiceMap;
-      console.log(this.detailedUserServices)
+      this.detailedUserServices = detailedServiceMap
     },
     async fetchUser(userId) {
       const userresult = await UserService.getUserData(userId)
-      console.log(userresult)
       this.user = userresult
     },
     async navigateToCreateService() {
@@ -174,25 +201,13 @@ export default {
       if (authStore.user?.uid) {
         this.$router.push('/service-request')
       } else {
-        alert('You must be logged in to create a new request.')
+        alert('You must be logged in to create a new service.')
       }
-    },
-    async navigateToCreateCertLicense(userId) {
-      if (authStore.user?.uid) {
-        this.$router.push({ name: 'createCertificationLicenses', params: { userId } })
-      } else {
-        alert('You must be logged in to create/edit your certifications and licenses.')
-      }
-    },
-    getCurrentUserId() {
-      const id = authStore.user?.uid
-      console.log('current user ID:', id)
-      return id
     }
   },
   mounted() {
-    const userId = this.fetchUserProfile()
-    const currUId = this.getCurrentUserId()
+    const userId = this.$route.params.userId 
+    this.userId = userId
     this.fetchServiceRequestsByUser(userId)
     this.fetchServicesByUser(userId)
     this.fetchUser(userId)
@@ -224,7 +239,6 @@ export default {
   flex-direction: column;
   align-items: center;
   border-radius: 15px 15px 15px 15px;
-  
 }
 
 /* Profile section styling */
@@ -235,7 +249,6 @@ export default {
   width: 80%;
   max-width: 1200px;
   margin-bottom: 20px;
-  
 }
 
 .profile-pic {
@@ -258,13 +271,13 @@ export default {
 .profile-name {
   font-size: 36px;
   font-weight: bold;
-  color: #A66E38;
+  color: #a66e38;
   margin: 0;
 }
 
 .profile-rating {
   font-size: 24px;
-  color: #FFD700;
+  color: #ffd700;
   margin-top: 5px;
 }
 
@@ -285,12 +298,12 @@ export default {
 .certifications-list li::before {
   content: '✔️';
   margin-right: 8px;
-  color: #40E0D0;
+  color: #40e0d0;
 }
 
 .section-title {
   text-align: center;
-  color: #A66E38;
+  color: #a66e38;
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -323,7 +336,7 @@ export default {
 
 .label {
   width: 100%;
-  background-color: #A66E38;
+  background-color: #a66e38;
   color: white;
   padding: 10px 0;
   border-radius: 15px 15px 0 0;
@@ -373,7 +386,7 @@ export default {
 .review-rectangle {
   width: 100%;
   max-width: 600px; /* Increased width */
-  background-color: #96CEB4;
+  background-color: #96ceb4;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 15px;
   overflow-y: auto;
@@ -404,7 +417,7 @@ export default {
 
 .stars {
   font-size: 18px;
-  color: #FFD700;
+  color: #ffd700;
   margin-right: 5px;
 }
 
@@ -413,6 +426,4 @@ hr {
   border-top: 1px solid #ccc;
   margin: 10px 0;
 }
-
-
 </style>

@@ -10,13 +10,13 @@
       <div class="image-container">
         <img :src="service.profilePicture" alt="Profile Picture" class="profile-image" />
         <div class="image_overlay"></div>
-        <div class="view-details-wrapper" v-if="service.userId != userData.uid">
+        <div class="view-details-wrapper" v-if="service.userId != userData?.uid">
           <button id="view_details" @click="navigateToProfile(service.userId)">
             <span class="button-text">View Profile</span>
           </button>
         </div>
-        <div class="view-details-wrapper" v-if="service.userId == userData.uid">
-          <button id="view_details" @click="navigateToProfile(userData.uid)">
+        <div class="view-details-wrapper" v-if="service.userId == userData?.uid">
+          <button id="view_details" @click="navigateToPersonalProfile(userData.uId)">
             <span class="button-text">Edit Your Profile</span>
           </button>
         </div>
@@ -37,7 +37,7 @@
           </p>
           <button
             class="chat-button"
-            v-if="isAnimated && isLoggedIn && userData.uid !== service.userId"
+            v-if="isAnimated && isLoggedIn && userData?.uid !== service.userId"
             @click="createChat(service.userId, service.serviceId)"
           >
             Chat
@@ -52,6 +52,7 @@
 import { useAuthStore } from '../stores/auth'
 import { collection, query, where, getDocs, setDoc, Timestamp, doc } from 'firebase/firestore'
 import { db } from '../firebaseConfig'
+const authStore = useAuthStore()
 
 export default {
   name: 'ServiceCard',
@@ -75,12 +76,9 @@ export default {
   },
   computed: {
     isLoggedIn() {
-      const authStore = useAuthStore()
       return authStore.user !== null
     },
     userData() {
-      const authStore = useAuthStore()
-      console.log(authStore.user)
       return authStore.user
     }
   },

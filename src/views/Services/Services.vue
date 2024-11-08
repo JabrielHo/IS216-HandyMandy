@@ -6,6 +6,7 @@ import Services from './users'
 import UserService from '../../services/UserService'
 import ServiceCard from '../../components/ServiceCard.vue'
 import PlaceholderCard from '../../components/PlaceholderCard.vue'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const router = useRouter()
 const route = useRoute() // Use useRoute to access route params
@@ -123,7 +124,7 @@ onMounted(() => {
     <div class="row pt-4">
       <div class="col-lg-6 col-md-8 mx-auto">
         <h1 class="heading">Available Services</h1>
-        <p class="lead text-body-secondary">
+        <p>
           Discover a variety of services offered by others. Whether you're looking for help or
           offering services, connect today!
         </p>
@@ -135,7 +136,7 @@ onMounted(() => {
       </div>
     </div>
   </section>
-
+  <hr>
   <section class="container">
     <div v-if="!loading" class="my-4 filter">
       <!-- Filters for Categories and Locations -->

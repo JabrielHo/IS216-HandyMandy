@@ -104,7 +104,7 @@ onMounted(() => {
       <div class="row pt-4">
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="heading">Service Requests</h1>
-          <p class="lead text-body-secondary">
+          <p>
             Wish to lend a hand? This collection brings together all service requests, from quick
             repairs to full installations. Help someone out today!
           </p>
