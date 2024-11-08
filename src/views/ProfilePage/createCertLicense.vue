@@ -45,19 +45,27 @@
   import UserService from "../../services/UserService";
   import { useAuthStore } from "../../stores/auth";
   import { useRouter } from 'vue-router';
-  
+  import { useRoute } from 'vue-router';
+
   const certifications = ref('');
   const existingCertifications = ref([]);
   const router = useRouter();
   const authStore = useAuthStore();
+  const route = useRoute();
+
   
   // Fetch current user data
   onMounted(() => {
-    const userCertifications = authStore.user.certificationsLicenses || [];
-    existingCertifications.value = userCertifications;
-    console.log(existingCertifications)
-    certifications.value = userCertifications.join('\n');
+    const userId = route.params.userId;
+    showExisitingCertifications(userId)
   });
+
+  async function showExisitingCertifications(userId) {
+    const user = await UserService.getUserData(userId);
+    const userCertifications = user.certificationsLicenses || []
+    existingCertifications.value = userCertifications;
+    certifications.value = userCertifications.join('\n');
+  }
   
   const rules = {
     certifications: { required }
