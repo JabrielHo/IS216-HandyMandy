@@ -11,14 +11,18 @@
         />
         <div class="profile-details">
           <h1 class="profile-name">{{ user.username }}</h1>
-          <!-- <p class="profile-rating">⭐⭐⭐⭐☆</p>
+          <p v-if="averageRating !== 'No ratings'" class="profile-rating">{{ '⭐'.repeat(averageRating) }}</p>
+          <p v-else class="profile-rating">{{ averageRating }}</p>
           <h3 class="certifications-title">Certifications & Licenses</h3>
-          <ul class="certifications-list">
-            <li>Certified Plumbing Specialist</li>
-            <li>Licensed Electrician</li>
-            <li>Furniture Assembly Expert</li>
-            <li>Wifi Network Troubleshooter</li>
-          </ul> -->
+          <div v-if="!user.certificationsLicenses || user.certificationsLicenses.length === 0" class="no-certifications">
+            No certifications or licenses
+          </div>
+          <div v-else>
+            <ul class="certifications-list" v-for="certs in user.certificationsLicenses">
+              <li>{{certs}}</li>
+            </ul>
+          </div>
+          <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">Add Certifications and Licenses</button>
         </div>
       </div>
     
@@ -37,6 +41,7 @@
           </div>
         </div>
       </div>
+      <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">Add service</button>
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
       <div class="row request-container col-12"></div>
@@ -52,6 +57,7 @@
           </router-link>
         </div>
       </div>
+      <button v-if="currUId == userId" class="addrequest" @click="navigateToCreateRequest">Add request</button>
 
       <h2 class="section-title">{{ user.username }}'s Reviews</h2>
       <div class="review-container">
@@ -75,6 +81,9 @@ import RequestService from '../../services/RequestService'
 import Services from '../Services/users'
 import UserService from '../../services/UserService'
 import { useRoute } from 'vue-router';
+import { useAuthStore } from '../../stores/auth'
+
+const authStore = useAuthStore()
 
 export default {
   data() {
@@ -84,6 +93,8 @@ export default {
       userservice: [],
       detailedUserServices: {}, 
       user: [],
+      userId : "",
+      currUId : "",
       serviceImgs: 
       {
         "Electrical": "https://pluggedinatl.com/wp-content/uploads/2021/06/iStock-1025303196-scaled.jpg",
@@ -106,10 +117,19 @@ export default {
     // Triggered whenever the route parameter changes (e.g., when viewing another user's profile)
     'route.params.userId': 'fetchUserProfile'
   },
+  computed: {
+    averageRating() {
+      if (this.user.reviews && this.user.reviews.length > 0) {
+        const totalRating = this.user.reviews.reduce((sum, review) => sum + review.rating, 0);
+        return (totalRating / this.user.reviews.length).toFixed(1); // Rounded to 1 decimal place
+      }
+      return "No ratings";
+    }
+  },
   methods: {
     fetchUserProfile() {
       const userId = this.$route.params.userId;
-      console.log('viewing user ID:', userId)
+      console.log("viewing this user's profile:", userId)
       return userId
     },
     async fetchServiceRequestsByUser(userId) {
@@ -140,10 +160,30 @@ export default {
       const userresult = await UserService.getUserData(userId)
       console.log(userresult)
       this.user = userresult
+    },
+    async navigateToCreateService() {
+      if (authStore.user?.uid) {
+        this.$router.push('/create-service')
+      } else {
+        alert('You must be logged in to create a new service.')
+      }
+    },
+    async navigateToCreateRequest() {
+      if (authStore.user?.uid) {
+        this.$router.push('/service-request')
+      } else {
+        alert('You must be logged in to create a new service.')
+      }
+    },
+    getCurrentUserId() {
+      const id = authStore.user?.uid
+      console.log('current user ID:', id)
+      return id
     }
   },
   mounted() {
     const userId = this.fetchUserProfile()
+    const currUId = this.getCurrentUserId()
     this.fetchServiceRequestsByUser(userId)
     this.fetchServicesByUser(userId)
     this.fetchUser(userId)
@@ -284,6 +324,20 @@ export default {
   z-index: 1;
 }
 
+.addservice,
+.addrequest {
+  padding: 2px;
+  width: 80%;
+  border: none;
+  border-radius: 20px;
+  position: relative;
+  background-color: #ffad60;
+}
+.addservice:hover,
+.addrequest:hover {
+  background-color: #ffad10;
+}
+
 /* Prevent blue underline */
 .no-underline {
   text-decoration: none;
@@ -350,4 +404,6 @@ hr {
   border-top: 1px solid #ccc;
   margin: 10px 0;
 }
+
+
 </style>

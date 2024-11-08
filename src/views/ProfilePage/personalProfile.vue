@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"></link>
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"></link>
 <template>
   <div class="yellowbg">
     <div class="overall">
@@ -391,4 +391,4 @@ hr {
   border-top: 1px solid #ccc;
   margin: 10px 0;
 }
-</style>
+</style> -->

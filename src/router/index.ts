@@ -48,15 +48,15 @@ const router = createRouter({
       name: 'createService',
       component: () => import('../views/Services/CreateService.vue')
     },
-    {
-      path: '/personalProfile',
-      name: 'personalProfile',
-      component: () => import('../views/ProfilePage/personalProfile.vue')
-    },
+    // {
+    //   path: '/personalProfile',
+    //   name: 'personalProfile',
+    //   component: () => import('../views/ProfilePage/personalProfile.vue')
+    // },
     {
       path: '/profile/:userId',
       name: 'UserProfile',
-      component: () => import('../views/ProfilePage/publicPersonalProfile.vue')
+      component: () => import('../views/ProfilePage/Profile.vue')
     },
     {
       path: '/plumbing',
@@ -121,6 +121,11 @@ const router = createRouter({
       path: '/photo-upload',
       name: 'photoUpload',
       component: () => import('../views/SigninPage/PhotoUpload.vue')
+    },
+    {
+      path: '/createCertLicense/:userId',
+      name: 'createCertificationLicenses',
+      component: () => import('../views/ProfilePage/createCertLicense.vue'),
     }
   ],
   scrollBehavior(to, from, savedPosition) {

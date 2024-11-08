@@ -10,6 +10,9 @@ class UserService {
       return docSnap.data()
     }
   }
+  async updateCertLicense(list) {
+    
+  }
 }
 
 export default new UserService()

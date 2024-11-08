@@ -55,7 +55,6 @@ function initializeServiceDetails() {
       serviceDetails.value[service] = {
         yearsExperience: 0,
         description: '',
-        // rate: '',
         image: null,
         imagePreview: null
       }
@@ -87,7 +86,7 @@ function getCurrentService() {
 }
 
 // Form submission
-async function createRequest() {
+async function createService() {
   isLoading.value = true
   try {
     const serviceTypes = selectedServices.value // Array of selected services
@@ -265,7 +264,7 @@ async function createRequest() {
       <button
         v-if="currentStep === selectedServices.length"
         class="btn btn-success"
-        @click="createRequest"
+        @click="createService"
         :disabled="isLoading"
       >
         {{ isLoading ? 'Submitting...' : 'Submit Services' }}
