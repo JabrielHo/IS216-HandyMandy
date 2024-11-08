@@ -192,7 +192,6 @@ function openImage(imageUrl) {
 }
 </script>
 
-
 <template>
   <div class="background">
     <div v-if="!isLoaded" class="spinner-container">
@@ -201,7 +200,7 @@ function openImage(imageUrl) {
       </div>
     </div>
     <div v-else>
-      <div class="card">
+      <div class="card" :class="{ 'has-request': selectedChatRoom.type === 'Request' }">
         <div class="card-header">
           <img
             :src="selectedUserData.profilePicture"
@@ -469,7 +468,6 @@ function openImage(imageUrl) {
   </div>
 </template>
 
-
 <style scoped>
 .reviewBtn {
   display: flex;
@@ -539,6 +537,7 @@ function openImage(imageUrl) {
 .card {
   border-radius: 0;
   border: none;
+  --request-header-height: 67px;
 }
 
 .card-header {
@@ -553,9 +552,16 @@ function openImage(imageUrl) {
 }
 
 .card-body {
-  height: 60vh;
   overflow-y: auto;
   position: relative;
+}
+
+.card.has-request .card-body {
+  height: calc(72vh - 54px - var(--request-header-height));
+}
+
+.card:not(.has-request) .card-body {
+  height: calc(72vh - 54px);
 }
 
 .conversation-timestamp {
