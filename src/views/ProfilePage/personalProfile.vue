@@ -11,25 +11,18 @@
         />
         <div class="profile-details">
           <h1 class="profile-name">{{ user.username }}</h1>
-          <!-- <p class="profile-rating">⭐⭐⭐⭐☆</p> -->
-          <!-- <h3 class="certifications-title">Certifications & Licenses</h3>
-          <ul class="certifications-list">
-            <li>Certified Plumbing Specialist</li>
-            <li>Licensed Electrician</li>
-            <li>Furniture Assembly Expert</li>
-            <li>Wifi Network Troubleshooter</li>
-          </ul> -->
         </div>
       </div>
 
       <h2 class="section-title">{{ user.username }}'s' Services</h2>
-      <div class="row request-container col-12"></div>
+      <div class="row services-container"></div>
+
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
-      <div v-else>
-        <div v-for="service in userservice" :key="service.id" class="request-container col-md-6">
-          <div v-for="(servicename, index) in service.service_type" :key="index">
+      <div v-else class="row services-container">
+        <div v-for="service in userservice" :key="service.id" class="service-rectangle col-md-6 col-lg-4">
+          <div v-for="(servicename, index) in service.service_type" :key="index" >
             <router-link
-              class="service-rectangle no-underline col-md-6"
+              class="service-rectangle no-underline"
             >
               <div class="label">{{ servicename }}</div>
               <img :src="serviceImgs[servicename] || 'fallback-image-url.jpg'" :alt="`${servicename} Image`" class="service-image"/>
@@ -40,15 +33,17 @@
       <button class="addservice" @click="navigateToCreateService">Add service</button>
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
-      <div class="row request-container col-12"></div>
+      <div class="row request-container"></div>
       <div v-if="userrequest.length === 0" class="no-requests-message">No requests available.</div>
-      <div v-else>
-        <div v-for="request in userrequest" :key="request.id" class="request-container col-md-6">
+      <div v-else class="row services-container">
+        <div v-for="request in userrequest" :key="request.id" class="service-rectangle col-md-6 col-lg-4">
           <router-link
             :to="`/request/${request.id}`"
-            class="service-rectangle no-underline col-md-6"
+            class="service-rectangle no-underline"
           >
-            <div class="label">{{ request.title }}</div>
+            <div class="label">
+              <div class="text">{{ request.title }}</div>
+            </div>
             <img :src="request.imgSrc" alt="" class="service-image" />
           </router-link>
         </div>
@@ -196,7 +191,7 @@ export default {
 }
 
 .overall {
-  position: relative;
+  /* position: relative; */
   z-index: 3;
   background-color: #fff8e6;
   border: 2px solid #ffc935;
@@ -231,8 +226,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  
 }
 
 .profile-name {
@@ -240,6 +234,9 @@ export default {
   font-weight: bold;
   color: #a66e38;
   margin: 0;
+  text-align: center;
+  margin-top: 10px;
+
 }
 
 .profile-rating {
@@ -283,6 +280,8 @@ export default {
   justify-content: center;
   gap: 20px;
   margin-bottom: 50px;
+  max-width: 1100px;
+  
 }
 
 .service-rectangle {
@@ -291,11 +290,16 @@ export default {
   background-color: transparent;
   display: flex;
   flex-direction: column;
-  align-items: center;
   position: relative;
+  align-items: center;
   overflow: hidden;
   transition: transform 0.3s ease;
+  border-radius: 15px;
+
 }
+/* .row{
+  max-width: 700px;
+} */
 .addservice,
 .addrequest {
   padding: 2px;
@@ -305,10 +309,12 @@ export default {
   position: relative;
   background-color: #ffad60;
 }
+
 .addservice:hover,
 .addrequest:hover {
   background-color: #ffad10;
 }
+
 .service-rectangle:hover {
   transform: scale(1.05);
 }
@@ -324,7 +330,10 @@ export default {
   text-align: center;
   z-index: 1;
 }
-
+.text{
+  width: 100%;
+  padding: 8px
+}
 /* Prevent blue underline */
 .no-underline {
   text-decoration: none;

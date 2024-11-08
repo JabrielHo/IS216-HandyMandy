@@ -200,7 +200,7 @@ onMounted(() => {
         </ul>
       </div>
     </div>
-
+<!--service cards-->
     <div v-if="loading" class="row">
       <PlaceholderCard />
     </div>
@@ -212,11 +212,12 @@ onMounted(() => {
     <div v-else>
       <div class="row">
         <div
-          class="col-xl-3 col-lg-3 col-md-4 col-sm-6"
+          class="col-xl-3 col-lg-3 col-md-4 col-sm-6 service-card"
           v-for="service in services"
           :key="service.userId"
         >
-          <ServiceCard v-if="service" :service="service" />
+        
+          <ServiceCard v-if="service" :service="service" class="each"/>
         </div>
       </div>
 
@@ -341,5 +342,17 @@ li {
   .createBtn {
     display: none;
   }
+}
+
+.each {
+  border-radius: 25px;
+  overflow: hidden;
+  border: 2px solid black;
+  
+}
+.service-card {
+  border-radius: 15px;
+  height:auto;
+  overflow: hidden; /* Keeps content within the rounded corners */
 }
 </style>
