@@ -21,12 +21,13 @@ export const useAuthStore = defineStore('auth', {
     },
     checkAuth() {
       this.loading = true
-      onAuthStateChanged(auth, (user) => {
-        user ? console.log(user.uid) : console.log(user)
+      onAuthStateChanged(auth, async (user) => {
         this.user = user
-        if (user) this.getUserData(user)
+        if (user && !this.userData) {
+          await this.getUserData(user)
+        }
+        this.loading = false
       })
-      this.loading = false
     },
     async getUserData(user) {
       this.userData = await UserService.getUserData(user.uid)

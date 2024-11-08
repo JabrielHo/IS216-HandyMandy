@@ -52,7 +52,6 @@ const handleSubmit = async () => {
     })
 
     // Redirect to photo upload page instead of home
-    authStore.checkAuth()
     router.push('/photo-upload')
   } catch (error) {
     console.error('Error during registration:', error)
@@ -83,11 +82,9 @@ const handleGoogleSignIn = async () => {
       })
 
       // Redirect new Google users to photo upload page
-      authStore.checkAuth()
       router.push('/photo-upload')
     } else {
       // Existing users go directly to home
-      authStore.checkAuth()
       router.push('/')
     }
   } catch (error) {
