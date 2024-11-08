@@ -28,6 +28,8 @@ function setRating(star) {
 }
 
 async function openReviewModal() {
+  rating.value = 0
+  reviewText.value = ''
   isReviewLoading.value = true
   try {
     const docSnap = await getDoc(doc(db, 'users', props.selectedUserData.userId))
@@ -489,9 +491,19 @@ function openImage(imageUrl) {
   color: white;
 }
 
+.reviewBtn:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .closeBtn {
   background-color: #ffad60;
   color: white;
+}
+
+.closeBtn:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .background {
