@@ -10,7 +10,9 @@ import {
   updateDoc,
   orderBy,
   or,
-  where
+  where,
+  getDocs,
+  writeBatch
 } from 'firebase/firestore'
 import { useRoute } from 'vue-router'
 import { db } from '../../firebaseConfig'
@@ -180,13 +182,31 @@ async function handleCloseStatus(requestId, chatId) {
 }
 
 async function handleAcceptStatus(requestId, chatId) {
-  await RequestService.acceptServiceRequest(requestId)
-  const chatRef = doc(db, 'chatRoom', chatId)
-  await updateDoc(chatRef, {
-    status: 'Accepted'
-  })
-}
+  try {
+    await RequestService.acceptServiceRequest(requestId)
 
+    const chatRoomsRef = collection(db, 'chatRoom')
+    const q = query(chatRoomsRef, where('requestId', '==', requestId))
+    const querySnapshot = await getDocs(q)
+
+    const batch = writeBatch(db)
+
+    querySnapshot.docs.forEach((doc) => {
+      if (doc.id === chatId) {
+        // Set target chat to Accepted
+        batch.update(doc.ref, { status: 'Accepted' })
+      } else {
+        // Set all other chats to Closed
+        batch.update(doc.ref, { status: 'Rejected' })
+      }
+    })
+
+    await batch.commit()
+  } catch (error) {
+    console.error('Error updating chat rooms:', error)
+    throw error
+  }
+}
 
 const selectChatRoom = (id, userData, serviceRequest) => {
   selectedUserData.value = userData
@@ -319,7 +339,7 @@ onUnmounted(() => {
               :isLoaded="isLoaded"
               :myUserId="myUserId"
               @sendMessage="handleSendMessage"
-              @closeStatus="handleCloseStatus"              
+              @closeStatus="handleCloseStatus"
               @acceptStatus="handleAcceptStatus"
             />
           </div>
@@ -451,4 +471,4 @@ onUnmounted(() => {
   height: 80vh;
   padding: 20px;
 }
-</style> 
+</style>

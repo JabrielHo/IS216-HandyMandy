@@ -233,7 +233,7 @@ function openImage(imageUrl) {
           </div>
           <button
             v-if="
-              selectedChatRoom.requesterUserId === myUserId && selectedChatRoom.status !== 'Open'
+              selectedChatRoom.requesterUserId === myUserId && selectedChatRoom.status === 'Closed'
             "
             class="btn reviewBtn"
             data-bs-toggle="modal"
