@@ -50,7 +50,6 @@
   </div>
 </template>
 
-
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -162,7 +161,6 @@ const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 </script>
-
 
 <style scoped>
 .signin-container {
@@ -335,7 +333,9 @@ input:focus {
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
   margin: 0 auto;
   /* Center the button horizontally */
   width: 100%;
