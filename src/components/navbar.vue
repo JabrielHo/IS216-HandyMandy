@@ -21,6 +21,7 @@ const navigateToRegister = () => {
   router.push('/register')
 }
 
+
 const logout = async () => {
   try {
     await authStore.logout()
@@ -54,6 +55,7 @@ watch(isMobile, (newValue) => {
 })
 
 onMounted(() => {
+  console.log(authStore.user)
   window.addEventListener('resize', handleResize)
 })
 
@@ -161,7 +163,11 @@ onUnmounted(() => {
                 <button @click="navigateToSignIn" class="sign-in-button">Sign In</button>
                 <button @click="navigateToRegister" class="register-button">Register</button>
               </template>
-              <ProfileDropdown v-else :profile-image="authStore.user?.profileImage" />
+              <ProfileDropdown
+                v-else
+                :profile-image="authStore.userData?.profilePicture"
+                :user-id="authStore.userData?.userId"
+              />
             </div>
           </li>
         </ul>

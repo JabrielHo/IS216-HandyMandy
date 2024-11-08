@@ -11,6 +11,10 @@ function navigateToDetailedRequest(id) {
   router.push('/request/' + id)
 }
 
+function navigateToProfile(id) {
+  router.push('/profile/' + id)
+}
+
 function handleMouseDown(event, id) {
   if (event.button === 1) {
     event.preventDefault()
@@ -33,12 +37,12 @@ function formatDate(timestamp) {
 </script>
 
 <template>
-  <div
-    class="card"
-    @click="navigateToDetailedRequest(serviceRequest.id)"
-    @mousedown="handleMouseDown($event, serviceRequest.id)"
-  >
-    <div class="img-container">
+  <div class="card">
+    <div
+      class="img-container"
+      @click="navigateToDetailedRequest(serviceRequest.id)"
+      @mousedown="handleMouseDown($event, serviceRequest.id)"
+    >
       <img :src="serviceRequest.imgSrc" class="card-img-top standard-img" alt="Request Image" />
       <span class="badge rounded-pill text-bg-secondary mb-2 category-badge">{{
         serviceRequest.category
@@ -46,7 +50,7 @@ function formatDate(timestamp) {
     </div>
 
     <div class="card-body">
-      <div class="userInfo">
+      <div class="userInfo clickable" @click="navigateToProfile(serviceRequest.userId)">
         <img
           :src="serviceRequest.profilePicture"
           class="rounded-circle me-2 profilePic"
@@ -60,15 +64,30 @@ function formatDate(timestamp) {
         </div>
       </div>
       <hr class="my-2" />
-      <span class="title">{{ serviceRequest.title }}</span
-      ><br />
-      <span class="date">{{ serviceRequest.location }}</span>
-      <span class="description">{{ serviceRequest.description }}</span>
+      <div class="request-details"
+        @click="navigateToDetailedRequest(serviceRequest.id)"
+        @mousedown="handleMouseDown($event, serviceRequest.id)"
+      >
+        <span class="title">{{ serviceRequest.title }}</span
+        ><br />
+        <span class="date">{{ serviceRequest.location }}</span>
+        <span class="description">{{ serviceRequest.description }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.clickable {
+  cursor: pointer;
+  transition: background-color 0.1s;
+}
+
+.clickable:hover {
+  background-color: rgb(233, 233, 233);
+}
+
+
 .standard-img {
   max-width: 100%;
   max-height: 200px;
@@ -81,7 +100,7 @@ function formatDate(timestamp) {
 }
 
 .category-badge {
-  background-color: #FFAD60 !important;
+  background-color: #ffad60 !important;
   position: absolute;
   bottom: 1px;
   right: 5px;
@@ -106,13 +125,15 @@ function formatDate(timestamp) {
 }
 
 .card {
-  margin-bottom: 16px;
   cursor: pointer;
+  margin-bottom: 16px;
   height: 390px;
 }
 
 .card:hover {
-  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
+  box-shadow:
+    0 5px 10px rgba(154, 160, 185, 0.05),
+    0 15px 40px rgba(166, 173, 201, 0.2);
 }
 
 .card-body {

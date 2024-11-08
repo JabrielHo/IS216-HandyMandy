@@ -14,7 +14,7 @@
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
         <li>
-          <router-link :to="`/personalProfile`" class="dropdown-item">
+          <router-link :to="`/profile/${userId}`" class="dropdown-item">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -67,15 +67,14 @@
 </template>
 
 <script setup lang="ts">
-
 defineProps({
   profileImage: {
     type: String,
-    default: null
+  },
+  userId: {
+    type: String,
   }
 })
-
-
 </script>
 
 <style scoped>

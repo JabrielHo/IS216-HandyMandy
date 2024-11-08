@@ -1,35 +1,33 @@
-import { defineStore } from 'pinia';
-import { auth } from '../firebaseConfig';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { defineStore } from 'pinia'
+import { auth } from '../firebaseConfig'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
+import UserService from '../services/UserService'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     loading: true,
+    userData: null
   }),
   actions: {
-    async login(email, password) {
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        this.user = userCredential.user;
-      } catch (error) {
-        console.error("Login failed", error);
-      }
-    },
     async logout() {
       try {
-        await signOut(auth);
-        this.user = null;
+        await signOut(auth)
+        this.user = null
       } catch (error) {
-        console.error("Logout failed", error);
+        console.error('Logout failed', error)
       }
     },
     checkAuth() {
       onAuthStateChanged(auth, (user) => {
         user ? console.log(user.uid) : console.log(user)
-        this.user = user;
-        this.loading = false;
-      });
+        this.user = user
+        this.getUserData(user)
+        this.loading = false
+      })
+    },
+    async getUserData(user) {
+      this.userData = await UserService.getUserData(user.uid)
     }
   }
-});
+})

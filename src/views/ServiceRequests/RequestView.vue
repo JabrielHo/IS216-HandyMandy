@@ -272,6 +272,12 @@ onMounted(() => {
   background-color: #ffad60;
   color: white;
 }
+
+.createBtn:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .background {
   background-image: url(../../assets/backdrop.png);
 }

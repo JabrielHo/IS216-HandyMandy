@@ -162,6 +162,10 @@ function goToRequestPage(requestId) {
   router.push('/request/' + requestId)
 }
 
+function navigateToProfile(id) {
+  router.push('/profile/' + id)
+}
+
 function scrollToBottom() {
   if (chatContainer.value) {
     chatContainer.value.scrollTop = chatContainer.value.scrollHeight
@@ -204,16 +208,25 @@ function openImage(imageUrl) {
         <div class="card-header">
           <img
             :src="selectedUserData.profilePicture"
-            class="rounded-circle me-2 profilePic"
+            class="rounded-circle me-2 profilePic userClass"
             alt="Profile Picture"
             width="50"
             height="50"
+            @click="navigateToProfile(selectedUserData.userId)"
           />
-          <div class="text-container" v-if="selectedChatRoom.type === 'Request'">
+          <div
+            class="text-container userClass"
+            @click="navigateToProfile(selectedUserData.userId)"
+            v-if="selectedChatRoom.type === 'Request'"
+          >
             <span class="name">{{ selectedUserData.username }}</span>
             <span class="location">Status: {{ selectedChatRoom.status }}</span>
           </div>
-          <div class="text-container" v-else>
+          <div
+            class="text-container userClass"
+            @click="navigateToProfile(selectedUserData.userId)"
+            v-else
+          >
             <span class="name">{{ selectedUserData.username }}</span>
           </div>
           <button
@@ -227,7 +240,7 @@ function openImage(imageUrl) {
             <i class="bi bi-pencil"></i> &nbsp;Write a Review
           </button>
         </div>
-        <div class="card-header request" v-if="selectedChatRoom.type === 'Request'">
+        <div class="card-header" v-if="selectedChatRoom.type === 'Request'">
           <img
             :src="selectedServiceRequest.imgSrc"
             class="me-2 requestClass"
@@ -503,6 +516,10 @@ function openImage(imageUrl) {
 
 .no-caret::after {
   display: none;
+}
+
+.userClass {
+  cursor: pointer;
 }
 
 .requestClass {

@@ -26,6 +26,10 @@ function navigateToServiceRequest() {
   router.push('/requests')
 }
 
+function navigateToProfile(id) {
+  router.push('/profile/' + id)
+}
+
 async function fetchServiceRequest(requestId) {
   loading.value = true
   serviceRequest.value = await RequestService.getServiceRequest(requestId)
@@ -134,7 +138,7 @@ async function createChat() {
         }
       ],
       createdAt: Timestamp.now(),
-      type: "Request"
+      type: 'Request'
     })
     chatRoomId = newChatRoomRef.id
   } else {
@@ -199,7 +203,7 @@ onMounted(async () => {
           </div>
           <div v-if="!isMyRequest" class="col-md-4 col-sm-12 col-lg-4 mt-3 order-first">
             <div class="card usercard">
-              <div class="userInfo">
+              <div class="userInfo" @click="navigateToProfile(serviceRequest.userId)">
                 <img
                   :src="user.profilePicture"
                   class="rounded-circle me-2 profilePic"
@@ -236,6 +240,11 @@ onMounted(async () => {
 .chatBtn {
   background-color: #ffad60;
   color: white;
+}
+
+.chatBtn:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .background {
@@ -279,7 +288,7 @@ onMounted(async () => {
 }
 
 .back:hover {
-  color: blue;
+  color: #ffad60;
   text-decoration: underline;
   cursor: pointer;
 }
@@ -308,12 +317,15 @@ onMounted(async () => {
 
 .usercard {
   padding: 10px;
-  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
+  box-shadow:
+    0 5px 10px rgba(154, 160, 185, 0.05),
+    0 15px 40px rgba(166, 173, 201, 0.2);
 }
 
 .userInfo {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .text-container {

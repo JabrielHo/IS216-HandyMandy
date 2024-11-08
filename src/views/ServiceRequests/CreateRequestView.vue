@@ -171,7 +171,12 @@ async function createRequest() {
   color: white;
 }
 
-.container {  
+.submitBtn:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.container {
   max-width: 900px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 0.5rem;
