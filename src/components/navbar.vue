@@ -25,7 +25,7 @@ const navigateToRegister = () => {
 const logout = async () => {
   try {
     await authStore.logout()
-    window.location.reload()
+    await router.replace({ name: 'home' })
   } catch (error) {
     console.error('Logout failed', error)
   }
@@ -55,7 +55,6 @@ watch(isMobile, (newValue) => {
 })
 
 onMounted(() => {
-  console.log(authStore.user)
   window.addEventListener('resize', handleResize)
 })
 
@@ -264,7 +263,7 @@ onUnmounted(() => {
         <div class="modal-body">Are you sure you want to log out of your account?</div>
         <div class="modal-footer">
           <button type="button" class="modal-cancel" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="modal-logout" @click="logout">Log out</button>
+          <button type="button" class="modal-logout" @click="logout" data-bs-dismiss="modal">Log out</button>
         </div>
       </div>
     </div>

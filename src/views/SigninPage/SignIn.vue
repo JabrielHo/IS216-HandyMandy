@@ -18,12 +18,23 @@
       <form @submit.prevent="handleSubmit" class="signin-form">
         <div class="form-group">
           <label for="email">E-Mail Address</label>
-          <input type="email" v-model="email" id="email" placeholder="Enter your email..." required />
+          <input
+            type="email"
+            v-model="email"
+            id="email"
+            placeholder="Enter your email..."
+            required
+          />
         </div>
-        <div class="form-group" style="position: relative;">
+        <div class="form-group" style="position: relative">
           <label for="password">Password</label>
           <div class="input-container">
-            <input :type="showPassword ? 'text' : 'password'" v-model="password" id="password" required />
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              v-model="password"
+              id="password"
+              required
+            />
             <button type="button" class="password-toggle" @click="togglePasswordVisibility">
               <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
             </button>
@@ -41,100 +52,117 @@
 
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { getAuth, signInWithEmailAndPassword, fetchSignInMethodsForEmail, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where} from 'firebase/firestore';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  fetchSignInMethodsForEmail,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth'
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where
+} from 'firebase/firestore'
+import { useAuthStore } from '../../stores/auth'
 
+const db = getFirestore()
+const authStore = useAuthStore()
 
-const db = getFirestore();
-
-const email = ref('');
-const password = ref('');
-const showPassword = ref(false);
-const router = useRouter();
-const auth = getAuth(); // Initialize Firebase Auth
-
+const email = ref('')
+const password = ref('')
+const showPassword = ref(false)
+const router = useRouter()
+const auth = getAuth() // Initialize Firebase Auth
 
 const handleSubmit = async () => {
   if (!email.value || !password.value) {
-    alert('Please fill in both email and password fields.');
-    return;
+    alert('Please fill in both email and password fields.')
+    return
   }
 
   try {
     // Check sign-in methods for the email
-    const signInMethods = await fetchSignInMethodsForEmail(auth, email.value.toLowerCase());
-    
+    const signInMethods = await fetchSignInMethodsForEmail(auth, email.value.toLowerCase())
+
     // If email exists, check the login method in Firestore
     if (signInMethods.length === 0) {
       // Query Firestore to find user with this email
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('email', '==', email.value.toLowerCase()));
-      const querySnapshot = await getDocs(q);
-      
+      const usersRef = collection(db, 'users')
+      const q = query(usersRef, where('email', '==', email.value.toLowerCase()))
+      const querySnapshot = await getDocs(q)
+
       if (!querySnapshot.empty) {
-        const userDoc = querySnapshot.docs[0];
-        const userData = userDoc.data();
-        
+        const userDoc = querySnapshot.docs[0]
+        const userData = userDoc.data()
+
         // Check if user was created with Google
         if (userData.loginMethod === 'google') {
-          alert('This account was created with Google. Please use the "Sign in with Google" button.');
-          return;
+          alert(
+            'This account was created with Google. Please use the "Sign in with Google" button.'
+          )
+          return
         }
       }
     }
 
     // Proceed with email/password login
-    await signInWithEmailAndPassword(auth, email.value.toLowerCase(), password.value);
+    await signInWithEmailAndPassword(auth, email.value.toLowerCase(), password.value)
     if (auth.currentUser) {
-      router.push({ name: 'home' });
+      authStore.checkAuth()
+      router.push({ name: 'home' })
     }
   } catch (error) {
-    console.error('Error during direct sign in:', error);
+    console.error('Error during direct sign in:', error)
 
     if (error.code === 'auth/user-not-found') {
-      alert('No account found with this email. Please create an account first.');
-      router.push({ name: 'register' });
+      alert('No account found with this email. Please create an account first.')
+      router.push({ name: 'register' })
     } else if (error.code === 'auth/invalid-credential') {
-      alert('Wrong Password. Please try again.');
+      alert('Wrong Password. Please try again.')
     } else {
-      alert('An error occurred. Please try again.');
+      alert('An error occurred. Please try again.')
     }
   }
-};
-
-
+}
 
 const loginWithGoogle = async () => {
-  const provider = new GoogleAuthProvider();
+  const provider = new GoogleAuthProvider()
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    const result = await signInWithPopup(auth, provider)
+    const user = result.user
 
-    const userDocRef = doc(db, 'users', user.uid); // Reference to the user document
-    const userDoc = await getDoc(userDocRef); // Get the user document
+    const userDocRef = doc(db, 'users', user.uid) // Reference to the user document
+    const userDoc = await getDoc(userDocRef) // Get the user document
 
     if (!userDoc.exists()) {
       // Store user details in Firestore for new users
       await setDoc(userDocRef, {
         username: user.displayName || user.email.split('@')[0] || 'Anonymous',
         userId: user.uid,
-        email: user.email,
-      });
+        email: user.email
+      })
     }
 
     // Proceed to the home page
-    router.push({ name: 'home' });
+    authStore.checkAuth()
+    router.push({ name: 'home' })
   } catch (error) {
-    console.error('Error during Google sign in:', error);
-    alert(error.message);
+    console.error('Error during Google sign in:', error)
+    alert(error.message)
   }
-};
+}
 
 const togglePasswordVisibility = () => {
-  showPassword.value = !showPassword.value;
-};
+  showPassword.value = !showPassword.value
+}
 </script>
 
 
@@ -288,14 +316,12 @@ input:focus {
   align-items: center;
 }
 
-
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
-
 
 .google-button {
   display: flex;

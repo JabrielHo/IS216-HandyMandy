@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { auth, db } from '../../firebaseConfig'; // Import Firestore
-import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore'; // Import Firestore methods
-import TheWelcome from '@/components/LandingPage/TheWelcome.vue';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { auth, db } from '../../firebaseConfig' // Import Firestore
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { doc, setDoc, getDoc } from 'firebase/firestore' // Import Firestore methods
+import { useAuthStore } from '../../stores/auth'
 
-const router = useRouter();
+const router = useRouter()
 
 // Form data
-const name = ref('');
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
+const name = ref('')
+const email = ref('')
+const password = ref('')
+const confirmPassword = ref('')
+const authStore = useAuthStore()
 
 // const category = ref<string[]>([]); // Keep only the selected categories
 
@@ -30,73 +31,76 @@ const confirmPassword = ref('');
 //   // No need for an else block here, as we're only concerned with "None"
 // });
 
-
-
 // Function to handle form submission
 const handleSubmit = async () => {
   if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match!');
-    return;
+    alert('Passwords do not match!')
+    return
   }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
-    
+    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value)
+
     // Store user details in Firestore with default profile picture
-    await setDoc(doc(db, "users", userCredential.user.uid), {
+    await setDoc(doc(db, 'users', userCredential.user.uid), {
       username: name.value,
       userId: userCredential.user.uid,
       email: email.value,
-      profilePicture: "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
+      profilePicture:
+        'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
       loginMethod: 'email'
-    });
+    })
 
     // Redirect to photo upload page instead of home
-    router.push('/photo-upload');
+    authStore.checkAuth()
+    router.push('/photo-upload')
   } catch (error) {
-    console.error('Error during registration:', error);
-    alert(error.message);
+    console.error('Error during registration:', error)
+    alert(error.message)
   }
-};
+}
 
 // Function to handle Google Sign-In
 const handleGoogleSignIn = async () => {
-  const provider = new GoogleAuthProvider();
+  const provider = new GoogleAuthProvider()
 
   try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    const result = await signInWithPopup(auth, provider)
+    const user = result.user
 
-    const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
+    const userDocRef = doc(db, 'users', user.uid)
+    const userDoc = await getDoc(userDocRef)
 
     if (!userDoc.exists()) {
       await setDoc(userDocRef, {
         username: user.displayName || user.email?.split('@')[0] || 'Anonymous',
         userId: user.uid,
         email: user.email,
-        profilePicture: user.photoURL || "https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg",
+        profilePicture:
+          user.photoURL ||
+          'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
         loginMethod: 'google'
-      });
-      
+      })
+
       // Redirect new Google users to photo upload page
-      router.push('/photo-upload');
+      authStore.checkAuth()
+      router.push('/photo-upload')
     } else {
       // Existing users go directly to home
-      router.push('/');
+      authStore.checkAuth()
+      router.push('/')
     }
   } catch (error) {
-    console.error('Error during Google sign-in:', error);
-    alert(error.message);
+    console.error('Error during Google sign-in:', error)
+    alert(error.message)
   }
-};
-
+}
 </script>
 
 
 
 <template>
- <div class="register-container">
+  <div class="register-container">
     <div class="register-card">
       <div class="card-body">
         <h1 class="text-center">Register</h1>
@@ -116,7 +120,13 @@ const handleGoogleSignIn = async () => {
           </div>
           <div class="mb-3">
             <label for="confirmPassword" class="form-label">Confirm Password</label>
-            <input type="password" id="confirmPassword" class="form-control" v-model="confirmPassword" required />
+            <input
+              type="password"
+              id="confirmPassword"
+              class="form-control"
+              v-model="confirmPassword"
+              required
+            />
           </div>
           <!-- <div class="mb-3">
             <label>Categories:</label>
@@ -135,10 +145,24 @@ const handleGoogleSignIn = async () => {
             <button type="submit" class="btn btn-primary mt-3 mb-3">Register</button>
           </div>
 
-          <div style="text-align: center;">
-            <hr style="display: inline-block; width: 30%; border-top: 1px solid #000; vertical-align: middle;">
-            <span style="padding: 0 10px; background-color: white; color: grey;">OR</span>
-            <hr style="display: inline-block; width: 30%; border-top: 1px solid #000; vertical-align: middle;">
+          <div style="text-align: center">
+            <hr
+              style="
+                display: inline-block;
+                width: 30%;
+                border-top: 1px solid #000;
+                vertical-align: middle;
+              "
+            />
+            <span style="padding: 0 10px; background-color: white; color: grey">OR</span>
+            <hr
+              style="
+                display: inline-block;
+                width: 30%;
+                border-top: 1px solid #000;
+                vertical-align: middle;
+              "
+            />
           </div>
 
           <div class="text-center">
