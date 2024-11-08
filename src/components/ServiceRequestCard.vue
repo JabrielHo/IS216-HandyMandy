@@ -64,12 +64,12 @@ function formatDate(timestamp) {
         </div>
       </div>
       <hr class="my-2" />
-      <div class="request-details"
+      <div
+        class="request-details"
         @click="navigateToDetailedRequest(serviceRequest.id)"
         @mousedown="handleMouseDown($event, serviceRequest.id)"
       >
-        <span class="title">{{ serviceRequest.title }}</span
-        ><br />
+        <span class="title">{{ serviceRequest.title }}</span>
         <span class="date">{{ serviceRequest.location }}</span>
         <span class="description">{{ serviceRequest.description }}</span>
       </div>
@@ -86,7 +86,6 @@ function formatDate(timestamp) {
 .clickable:hover {
   background-color: rgb(233, 233, 233);
 }
-
 
 .standard-img {
   max-width: 100%;
@@ -113,10 +112,15 @@ function formatDate(timestamp) {
 
 .title {
   font-size: 18px;
-  font-weight: 500;
-  white-space: nowrap;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 2.4em;
+  line-height: 1.2;
 }
 
 .profilePic {
@@ -127,13 +131,11 @@ function formatDate(timestamp) {
 .card {
   cursor: pointer;
   margin-bottom: 16px;
-  height: 390px;
+  height: 420px;
 }
 
 .card:hover {
-  box-shadow:
-    0 5px 10px rgba(154, 160, 185, 0.05),
-    0 15px 40px rgba(166, 173, 201, 0.2);
+  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05), 0 15px 40px rgba(166, 173, 201, 0.2);
 }
 
 .card-body {

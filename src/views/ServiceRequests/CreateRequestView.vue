@@ -36,6 +36,10 @@ const rules = {
 }
 const v$ = useVuelidate(rules, { title, description, location, category, image })
 
+const remainingChars = computed(() => {
+  return 50 - (title.value?.length || 0)
+})
+
 function handleFileChange(event) {
   image.value = event.target.files[0]
 }
@@ -81,8 +85,12 @@ async function createRequest() {
           placeholder="Looking for air-con service man"
           aria-label="title"
           v-model="title"
+          maxlength="50"
           :class="{ 'is-invalid': v$.title.$error }"
         />
+        <small :class="{ 'text-danger': remainingChars === 0 }">
+          {{ remainingChars }} characters remaining
+        </small>
         <div v-if="v$.title.$error" class="invalid-feedback">
           <span>Title is required.</span>
         </div>
@@ -193,7 +201,7 @@ async function createRequest() {
 }
 
 .secondary {
-  color: rgb(148, 163, 184);
+  color: rgb(123, 124, 126);
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
