@@ -1649,6 +1649,13 @@ h6,
     gap: 0;
     width: 50%;
   }
+  .user-image{
+    width: 30px;
+    height: 30px;
+  }
+  .post-content span{
+    font-size: smaller;
+  }
 
   .likes-comments button,
   .likes-comments span {
