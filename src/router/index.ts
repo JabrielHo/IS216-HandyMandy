@@ -15,11 +15,14 @@ const router = createRouter({
       name: 'signin',
       component: () => import('../views/SigninPage/SignIn.vue')
       // meta: { requiresAuth: false }
+      // meta: { requiresAuth: false }
     },
     {
       path: '/register',
       name: 'register',
       component: () => import('../views/SigninPage/register.vue')
+      // meta: { requiresAuth: false }
+      // meta: { requiresAuth: false }
       // meta: { requiresAuth: false }
     },
     {
@@ -31,6 +34,8 @@ const router = createRouter({
       path: '/service-request',
       name: 'serviceRequest',
       component: () => import('../views/ServiceRequests/CreateRequestView.vue')
+      // meta: { requiresAuth: true }
+      // meta: { requiresAuth: true }
       // meta: { requiresAuth: true }
     },
     {
@@ -125,7 +130,7 @@ const router = createRouter({
     {
       path: '/createCertLicense/:userId',
       name: 'createCertificationLicenses',
-      component: () => import('../views/ProfilePage/createCertLicense.vue'),
+      component: () => import('../views/ProfilePage/createCertLicense.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {
@@ -136,6 +141,20 @@ const router = createRouter({
       // Otherwise, scroll to the top of the page
       return { top: 0 }
     }
+  }
+})
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  if (authStore.loading) {
+    authStore.checkAuth()
+  }
+  if (to.matched.some((record) => record.meta.requiresAuth === true) && !authStore.user) {
+    next('/signin')
+  } else if (to.matched.some((record) => record.meta.requiresAuth === false) && authStore.user) {
+    next('/')
+  } else {
+    next()
   }
 })
 
