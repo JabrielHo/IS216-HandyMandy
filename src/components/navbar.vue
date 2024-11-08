@@ -21,7 +21,6 @@ const navigateToRegister = () => {
   router.push('/register')
 }
 
-
 const logout = async () => {
   try {
     await authStore.logout()
@@ -73,7 +72,7 @@ onUnmounted(() => {
       </router-link>
 
       <!-- Desktop Search Bar -->
-      <div class="search-section desktop-search">
+      <!-- <div class="search-section desktop-search">
         <div class="search-bar">
           <input
             type="text"
@@ -95,10 +94,10 @@ onUnmounted(() => {
             </svg>
           </button>
         </div>
-      </div>
+      </div> -->
 
       <!-- Mobile Search Dropdown -->
-      <div class="mobile-search">
+      <!-- <div class="mobile-search">
         <button @click="toggleSearch" class="mobile-search-button">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +119,7 @@ onUnmounted(() => {
             class="mobile-search-input"
           />
         </div>
-      </div>
+      </div> -->
 
       <!-- Navigation Toggle -->
       <button
@@ -363,6 +362,7 @@ onUnmounted(() => {
   font-weight: 500;
   padding: 0.5rem;
   transition: color 0.2s ease;
+  font-size: 1.1rem;
 }
 
 .nav-link:hover {

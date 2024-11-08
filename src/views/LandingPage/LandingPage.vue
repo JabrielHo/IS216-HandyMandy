@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import TheWelcome from '../../components/LandingPage/TheWelcome.vue'
-import spinner from '../../components/LandingPage/spinner.vue'
 import carousel from '@/components/LandingPage/carousel.vue'
 </script>
 
@@ -74,7 +73,6 @@ import carousel from '@/components/LandingPage/carousel.vue'
 <style scoped>
 /* Base styles */
 
-
 .maincontainer {
   min-height: 100vh;
   background: url('../../assets/backdrop.png') black;
@@ -93,17 +91,17 @@ import carousel from '@/components/LandingPage/carousel.vue'
 
 /* Container styles */
 .container-section {
-  margin: 2rem 10%; /* Added vertical margin */
+  margin: 2rem auto; /* Added vertical margin */
   padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
-  width: auto; /* Changed from 100% to auto to respect margins */
+  width: 80%;
   border-radius: clamp(1rem, 2vw, 2rem);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   max-width: 1400px; /* Added max-width for very large screens */
 }
+
 .forum-section {
   background-color: rgba(222, 250, 231, 0.99);
   color: #2a4338;
-  backdrop-filter: blur(10px);
 }
 
 .volunteer-section {
@@ -141,7 +139,7 @@ import carousel from '@/components/LandingPage/carousel.vue'
 }
 
 .description {
-  font-size: clamp(1rem, 1vw + 0.5rem, 1.5rem);
+  font-size: clamp(1rem, 2vw + 0.5rem, 1.5rem);
   line-height: 1.6;
   font-weight: 300;
   opacity: 0.9;
@@ -232,7 +230,7 @@ import carousel from '@/components/LandingPage/carousel.vue'
 }
 
 /* Medium screens */
-@media (min-width: 481px) and (max-width: 768px) {
+@media (min-width: 481px) and (max-width: 1119px) {
   .content-col {
     text-align: center;
   }

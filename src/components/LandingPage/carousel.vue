@@ -14,7 +14,10 @@
           class="px-2 maincard"
         >
           <RouterLink :to="`/services/${item.service}`">
-            <div class="card" :style="{ backgroundImage: 'url(' + item.image + ')' }">
+            <div
+              class="card"
+              :style="{ backgroundImage: 'url(' + item.image + ')', backgroundPosition: 'center' }"
+            >
               <div class="titlecontainer">
                 <h5 class="cardtitle text-center">{{ item.alt }}</h5>
               </div>
@@ -149,7 +152,7 @@ onMounted(() => {
   background-color: #ffad60; /* Fallback color */
   background-size: cover; /* Ensure background image covers the card */
   background-position: center; /* Center the image */
-  height: 20vw; /* Set a height for the card */
+  height: clamp(10rem, 30vw, 25rem); /* Set a height for the card */
   position: relative; /* Position relative to allow absolute children */
   border-radius: 10px; /* Optional: round the corners */
   transform: scale(0.9);
@@ -160,7 +163,7 @@ onMounted(() => {
 }
 
 .cardtitle {
-  font-size: 2vw;
+  font-size: clamp(1rem, 2vw, 2rem);
   margin: 0; /* Remove default margin */
   color: #fff; /* Ensure text is visible */
 }
@@ -177,7 +180,7 @@ onMounted(() => {
   overflow: hidden; /* Hide overflow content */
   text-overflow: ellipsis; /* Add ellipsis for overflow */
   z-index: 1; /* Ensure it’s above the card */
-  width: 90%;
+  width: 95%;
 }
 
 .slider {
