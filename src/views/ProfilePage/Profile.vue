@@ -10,39 +10,41 @@
         />
         <div class="profile-details">
           <h1 class="profile-name">{{ user.username }}</h1>
-          <p v-if="averageRating !== 'No ratings'" class="profile-rating">
+          <p v-if="averageRating !== 'No ratings'" class="profile-rating profile-name">
             {{ '⭐'.repeat(averageRating) }}
           </p>
-          <p v-else class="profile-rating">{{ averageRating }}</p>
-          <h3 class="certifications-title">Certifications & Licenses</h3>
+          <p v-else class="profile-rating profile-name">{{ averageRating }}</p>
+          <h3 class="certifications">Certifications & Licenses</h3>
           <div
             v-if="!user.certificationsLicenses || user.certificationsLicenses.length === 0"
-            class="no-certifications"
+            style="text-align: center;"
           >
             No certifications or licenses
           </div>
-          <div v-else>
+          <div v-else class="certs">
             <ul
-              class="certifications-list"
+              class="certifications-list" 
               v-for="(certs, index) in user.certificationsLicenses"
               :key="index"
             >
               <li>{{ certs }}</li>
             </ul>
           </div>
-          <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
+          <div class="certs">
+          <button v-if="currUId == userId" class="addservice" style="margin-top: 8px;" @click="navigateToCreateService">
             Add Certifications and Licenses
           </button>
+        </div>
         </div>
       </div>
 
       <h2 class="section-title">{{ user.username }}'s' Services</h2>
-      <div class="row request-container col-12"></div>
+      <div class="row services-container "></div>
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
-      <div v-else>
-        <div v-for="service in userservice" :key="service.id" class="request-container col-md-6">
+      <div v-else class="row services-container">
+        <div v-for="service in userservice" :key="service.id" class="service-rectangle col-md-6 col-lg-4">
           <div v-for="(servicename, index) in service.service_type" :key="index">
-            <router-link class="service-rectangle no-underline col-md-6">
+            <router-link class="service-rectangle no-underline">
               <div class="label">{{ servicename }}</div>
               <img
                 :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
@@ -58,13 +60,13 @@
       </button>
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
-      <div class="row request-container col-12"></div>
+      <div class="row request-container"></div>
       <div v-if="userrequest.length === 0" class="no-requests-message">No requests available.</div>
-      <div v-else>
-        <div v-for="request in userrequest" :key="request.id" class="request-container col-md-6">
+      <div v-else class="row services-container">
+        <div v-for="request in userrequest" :key="request.id" class="service-rectangle col-md-6 col-lg-4">
           <router-link
             :to="`/request/${request.id}`"
-            class="service-rectangle no-underline col-md-6"
+            class="service-rectangle no-underline"
           >
             <div class="label">{{ request.title }}</div>
             <img :src="request.imgSrc" alt="" class="service-image" />
@@ -217,7 +219,11 @@ export default {
 
 <style scoped>
 /* Background styling */
-
+.certs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .yellowbg {
   padding: 5% 10%;
   display: flex;
@@ -229,7 +235,7 @@ export default {
 }
 
 .overall {
-  position: relative;
+  /* position: relative; */
   z-index: 3;
   background-color: #fff8e6;
   border: 2px solid #ffc935;
@@ -264,8 +270,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
+  
 }
 
 .profile-name {
@@ -273,6 +278,9 @@ export default {
   font-weight: bold;
   color: #a66e38;
   margin: 0;
+  text-align: center;
+  margin-top: 10px;
+
 }
 
 .profile-rating {
@@ -280,7 +288,11 @@ export default {
   color: #ffd700;
   margin-top: 5px;
 }
+.certifications{
+  text-align: center;
+  margin-top: 10px;
 
+}
 .certifications-title {
   font-size: 24px;
   font-weight: bold;
@@ -316,6 +328,8 @@ export default {
   justify-content: center;
   gap: 20px;
   margin-bottom: 50px;
+  max-width: 1100px;
+  
 }
 
 .service-rectangle {
@@ -324,10 +338,29 @@ export default {
   background-color: transparent;
   display: flex;
   flex-direction: column;
-  align-items: center;
   position: relative;
+  align-items: center;
   overflow: hidden;
   transition: transform 0.3s ease;
+  border-radius: 15px;
+
+}
+/* .row{
+  max-width: 700px;
+} */
+.addservice,
+.addrequest {
+  padding: 2px;
+  width: 80%;
+  border: none;
+  border-radius: 20px;
+  position: relative;
+  background-color: #ffad60;
+}
+
+.addservice:hover,
+.addrequest:hover {
+  background-color: #ffad10;
 }
 
 .service-rectangle:hover {
@@ -345,21 +378,10 @@ export default {
   text-align: center;
   z-index: 1;
 }
-
-.addservice,
-.addrequest {
-  padding: 2px;
-  width: 80%;
-  border: none;
-  border-radius: 20px;
-  position: relative;
-  background-color: #ffad60;
+.text{
+  width: 100%;
+  padding: 8px
 }
-.addservice:hover,
-.addrequest:hover {
-  background-color: #ffad10;
-}
-
 /* Prevent blue underline */
 .no-underline {
   text-decoration: none;
