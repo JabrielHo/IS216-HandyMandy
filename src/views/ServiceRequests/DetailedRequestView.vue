@@ -170,38 +170,37 @@ onMounted(async () => {
             <li class="breadcrumb-item active" aria-current="page">{{ serviceRequest.title }}</li>
           </ol>
         </nav>
-        <div class="row">
-          <div class="col-md-6 col-sm-12 d-flex justify-content-center align-items-center">
-            <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded" />
-          </div>
-          <div
-            class="col-md-6 col-sm-12 mt-3 mt-md-0 d-flex justify-content-center align-items-center"
-          >
-            <div id="map" class="responsive-map rounded"></div>
-          </div>
+    
+         
+<template class="card">
+  <div class="card-content ">
+    <!-- Image on the left -->
+    <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded card-img" />
+    
+    <!-- Text content on the right -->
+    <div class="card-text ">
+      <h1 class="title">{{ serviceRequest.title }}</h1>
+      <hr />
+      <div class="contain">
+        <div class="left">
+          <span class="category-header">Category</span><br />
+          <span class="category">{{ serviceRequest.category }}</span>
         </div>
-        <div class="row pb-2">
-          <div class="col-md-8 col-sm-12 col-lg-8 mt-3 order-md-first">
-            <template class="card">
-              <h1 class="title">{{ serviceRequest.title }}</h1>
-              <hr />
-              <div class="contain">
-                <div class="left">
-                  <span class="category-header">Category</span><br />
-                  <span class="category">{{ serviceRequest.category }}</span>
-                </div>
-                <div class="right">
-                  <span class="category-header">Created</span><br />
-                  <span class="category">{{ formattedDate }}</span>
-                </div>
-              </div>
-              <hr />
-              <h1 class="description-header">Description</h1>
-              <span class="desc">{{ serviceRequest.description }}</span>
-              <hr />
-            </template>
-          </div>
-          <div v-if="!isMyRequest" class="col-md-4 col-sm-12 col-lg-4 mt-3 order-first">
+        <div class="right">
+          <span class="category-header">Created</span><br />
+          <span class="category">{{ formattedDate }}</span>
+        </div>
+      </div>
+      <hr />
+      <h1 class="description-header">Description</h1>
+      <span class="desc">{{ serviceRequest.description }}</span>
+      <hr />
+    </div>
+    
+  </div>
+  <h1 class="description-header">Location</h1>
+  <div id="map" class="responsive-map rounded"></div>
+  <div v-if="!isMyRequest">
             <div class="card usercard">
               <div class="userInfo" @click="navigateToProfile(serviceRequest.userId)">
                 <img
@@ -226,16 +225,16 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-        </div>
+</template>
+ 
       </div>
     </section>
   </div>
 </template>
 
 <style scoped>
-.card {
-  padding: 18px;
-}
+
+
 
 .chatBtn {
   background-color: #ffad60;
@@ -255,15 +254,17 @@ onMounted(async () => {
   border: 1px solid rgb(177, 177, 177);
   object-fit: cover;
 }
-
+.card {
+  padding: 18px;
+}
 .responsive-img {
-  height: 100%;
-  width: 100%;
+  height:230px;
+  width: auto;
 }
 
 .responsive-map {
-  height: 100%;
-  width: 100%;
+  height: 300px;
+  width: 100%
 }
 
 @media (max-width: 767px) {
@@ -271,15 +272,28 @@ onMounted(async () => {
     min-height: 300px;
   }
 }
+.card-img {
+ max-width: 200px; /* Limit the image width */
+  margin-right: 20px;
+}
 
+.card-content {
+  display: flex;
+  align-items: flex-start;
+}
+
+.card-text {
+  flex: 1; /* Allows text content to take up the remaining space */
+}
 .contain {
   display: flex;
-  gap: 50px;
+  /* gap: 50px; */
+  justify-content: space-between;
 }
 
 .left,
 .right {
-  display: inline-block;
+  flex:1;
 }
 
 .back {
@@ -316,6 +330,7 @@ onMounted(async () => {
 }
 
 .usercard {
+  margin-top: 10px;
   padding: 10px;
   box-shadow:
     0 5px 10px rgba(154, 160, 185, 0.05),
