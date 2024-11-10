@@ -169,7 +169,7 @@ const router = useRouter()
 
 onMounted(() => {
   const unsubscribe = onAuthStateChanged(auth, (user) => {
-    console.log('Auth state changed:', user?.uid) // Debug log
+    // console.log('Auth state changed:', user?.uid) 
     currentUser.value = user
     isAuthInitialized.value = true
 
@@ -295,11 +295,11 @@ async function fetchPost() {
 
       // Check if the current user has liked the post
       const isLiked = currentUser.value && postData.likedBy?.includes(currentUser.value.uid)
-      console.log('Fetch post - Like status:', {
-        isLiked,
-        currentUser: currentUser.value?.uid,
-        likedBy: postData.likedBy
-      })
+      // console.log('Fetch post - Like status:', {
+      //   isLiked,
+      //   currentUser: currentUser.value?.uid,
+      //   likedBy: postData.likedBy
+      // })
 
       post.value = {
         id: postDoc.id,
@@ -425,13 +425,13 @@ async function addComment() {
 }
 
 async function likePost(postId: string) {
-  console.log('Like attempt - Auth state:', {
-    currentUser: currentUser.value?.uid,
-    isInitialized: isAuthInitialized.value
-  })
+  // console.log('Like attempt - Auth state:', {
+  //   currentUser: currentUser.value?.uid,
+  //   isInitialized: isAuthInitialized.value
+  // })
 
   if (!isAuthInitialized.value) {
-    console.log('Auth not yet initialized')
+    // console.log('Auth not yet initialized')
     return
   }
 
@@ -460,7 +460,7 @@ async function likePost(postId: string) {
           likes: postData.likes + (isCurrentlyLiked ? -1 : 1)
         })
 
-        console.log('Like operation successful')
+        // console.log('Like operation successful')
       } catch (error) {
         // Revert optimistic update if the operation fails
         post.value.isLiked = isCurrentlyLiked

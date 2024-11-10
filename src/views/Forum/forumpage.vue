@@ -30,6 +30,7 @@ const posts = ref([])
 let observer
 const lastScrollY = ref(0)
 const isScrollingUp = ref(false)
+const page = ref(1)
 
 // saved post refs
 const savedPosts = ref([])
@@ -53,7 +54,7 @@ const categories = ref([
   'Cleaning',
   'Gardening',
   'Painting'
-]) // Example categories
+]) // Categories
 const selectedCategory = ref('')
 const selectedFilterCategory = ref('')
 const loading = ref(false)
@@ -203,7 +204,7 @@ async function submitPost() {
   }
 
   try {
-    console.log('Fetching user data from Firestore...')
+    // console.log('Fetching user data from Firestore...')
     const userDoc = await getDoc(doc(db, 'users', currentUser.value.uid))
     if (!userDoc.exists()) {
       console.error('User not found in Firestore')
@@ -212,7 +213,7 @@ async function submitPost() {
     }
 
     const userData = userDoc.data()
-    console.log('User data fetched:', userData)
+    // console.log('User data fetched:', userData)
 
     const newPost = {
       username: userData.username || 'Anonymous',
@@ -228,10 +229,10 @@ async function submitPost() {
       likedBy: []
     }
 
-    console.log('Creating new post:', newPost)
+    // console.log('Creating new post:', newPost)
     const docRef = await addDoc(collection(db, 'posts'), newPost)
     newPost.id = docRef.id
-    console.log('Post added to Firestore with ID:', newPost.id)
+    // console.log('Post added to Firestore with ID:', newPost.id)
 
     emit('add-post', newPost) // Now emit should work
 
@@ -283,9 +284,9 @@ async function fetchPosts() {
 
     posts.value = await Promise.all(commentCountPromises)
 
-    posts.value.forEach((post) => {
-      console.log(`Post ID: ${post.id}, Comment Count: ${post.comments}`)
-    })
+    // posts.value.forEach((post) => {
+    //   // console.log(`Post ID: ${post.id}, Comment Count: ${post.comments}`)
+    // })
     postsLoaded.value = true
     await nextTick()
     observePosts()
@@ -555,7 +556,7 @@ async function computeTopUser(posts) {
     }
   }
 
-  console.log('User post counts:', userPostCounts)
+  // console.log('User post counts:', userPostCounts)
 
   // Find the user with the maximum number of posts
   let topUserId = null
@@ -567,8 +568,8 @@ async function computeTopUser(posts) {
     }
   }
 
-  console.log('Top user ID:', topUserId)
-  console.log('Max post count:', maxPostCount)
+  // console.log('Top user ID:', topUserId)
+  // console.log('Max post count:', maxPostCount)
 
   // If no user is found, return null
   if (topUserId === null) {
@@ -580,29 +581,29 @@ async function computeTopUser(posts) {
 
 async function getTopUser() {
   try {
-    console.log('getTopUser called')
+    // console.log('getTopUser called')
     if (postsLoaded.value && posts.value.length > 0) {
-      console.log('posts.value has', posts.value.length, 'items')
+      // console.log('posts.value has', posts.value.length, 'items')
       const topUserId = await computeTopUser(posts.value)
       if (topUserId) {
-        console.log('Top user ID:', topUserId)
+        // console.log('Top user ID:', topUserId)
         const userDoc = await getDoc(doc(db, 'users', topUserId))
         if (userDoc.exists()) {
           topUser.value = {
             id: userDoc.id,
             ...userDoc.data()
           }
-          console.log('Top user data:', topUser.value)
+          // console.log('Top user data:', topUser.value)
         } else {
-          console.log('Top user document not found')
+          // console.log('Top user document not found')
           topUser.value = null
         }
       } else {
-        console.log('No top user found')
+        // console.log('No top user found')
         topUser.value = null
       }
     } else {
-      console.log('posts.value is empty or not loaded yet')
+      // console.log('posts.value is empty or not loaded yet')
       topUser.value = null
     }
   } catch (error) {
@@ -619,7 +620,7 @@ onMounted(() => {
       getTopUser()
     }
   })
-  console.log(posts)
+  // console.log(posts)
   window.addEventListener('scroll', handleScroll)
   onAuthStateChanged(auth, (user) => {
     if (user) {
