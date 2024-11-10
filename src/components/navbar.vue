@@ -181,7 +181,7 @@ onUnmounted(() => {
           </li>
           <li v-if="isLoggedIn">
             <router-link
-              to="/personalProfile"
+              :to="`/profile/${authStore.userData?.userId}`"
               class="nav-link"
               active-class="active"
               @click="collapseNavbar"
