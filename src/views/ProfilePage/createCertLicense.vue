@@ -48,65 +48,49 @@
   import { useRouter } from 'vue-router';
   import { useRoute } from 'vue-router';
 
-  const certifications = ref('');
-  const existingCertifications = ref([]);
-  const router = useRouter();
-  const authStore = useAuthStore();
-  const route = useRoute();
+const certifications = ref('');
+const router = useRouter();
+const authStore = useAuthStore();
+const route = useRoute();
 
-  
-  // Fetch current user data
-  onMounted(() => {
-    const userId = route.params.userId;
-    showExisitingCertifications(userId)
-  });
+// Validation rules
+const rules = {
+  certifications: { required }
+};
 
-  async function showExisitingCertifications(userId) {
-    const user = await UserService.getUserData(userId);
-    const userCertifications = user.certificationsLicenses || []
-    existingCertifications.value = userCertifications;
-    certifications.value = userCertifications.join('\n');
+const v$ = useVuelidate(rules, { certifications });
+
+// Fetch current user certifications on mount and populate the text area
+onMounted(async () => {
+  const userId = route.params.userId;
+  const user = await UserService.getUserData(userId);
+  const userCertifications = user.certificationsLicenses || [];
+  certifications.value = userCertifications.join('\n'); // Prefill the textarea
+});
+
+async function submitCertifications() {
+  await v$.value.$touch();
+  if (v$.value.$invalid) {
+    console.log('Form is invalid');
+    return;
   }
-  
-  const rules = {
-    certifications: { required }
-  };
-  
-  const v$ = useVuelidate(rules, { certifications });
-  
-  async function submitCertifications() {
-    await v$.value.$touch();
-    if (v$.value.$invalid) {
-      console.log('Form is invalid');
-      return;
-    }
-  
-    // Split the certifications by line breaks and log the result
-    const certificationList = certifications.value.split('\n').map(cert => cert.trim()).filter(cert => cert !== '');
-  
-    console.log(certificationList);
-    const result = await UserService.updateCertLicense(certificationList);
-  
-    if (result.success) {
-      router.push('/profile/' + authStore.user.uid); // Navigate to the user's profile page
-    }
-  
-    // Reset the form after submission (optional)
-    certifications.value = '';
+
+  // Split the certifications by line breaks
+  const certificationList = certifications.value
+    .split('\n')
+    .map(cert => cert.trim())
+    .filter(cert => cert !== '');
+
+  console.log(certificationList);
+
+  const result = await UserService.updateCertLicense(certificationList);
+
+  if (result.success) {
+    // Redirect to the profile page after successful submission
+    router.push('/profile/' + authStore.user.uid);
   }
-  
-  // Delete certification
-  function deleteCertification(index) {
-    existingCertifications.value.splice(index, 1); // Remove from the existing list
-    certifications.value = existingCertifications.value.join('\n'); // Update the text area
-  
-    // Update the user's certifications in the database after deletion
-    const result = UserService.updateCertLicense(existingCertifications.value);
-    if (result.success) {
-      console.log("Certification removed successfully.");
-    }
-  }
-  </script>
+}
+</script>
   
   <style scoped>
   .entireform{

@@ -43,9 +43,8 @@
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
       
       <div v-else class="row services-container">
-        <div v-for="service in userservice" :key="service.id" class="service-rectangle col-md-6 col-lg-4">
+        <div v-for="service in userservice" :key="service.id" class="service-rectangle col-md-6 col-lg-4" @click="openModal(service)">
           <div v-for="(servicename, index) in service.service_type" :key="index">
-            <!-- <router-link class="service-rectangle no-underline"> -->
               <div class="label">{{ servicename }}</div>
               <img
                 :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
@@ -59,6 +58,15 @@
       <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
         Add service
       </button>
+
+      <ServiceModal
+          v-if="showModal"
+          :service="selectedService"
+          :serviceImage="selectedServiceImage"
+          :description="selectedServiceDescription"
+          :yearsExperience="selectedServiceExperience"
+          @close="closeModal"
+        />
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
       <div class="row request-container"></div>
@@ -101,6 +109,8 @@ import Services from '../Services/users'
 import UserService from '../../services/UserService'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import ServiceModal from './ServiceModal.vue'
+
 const authStore = useAuthStore()
 
 export default {
@@ -129,7 +139,12 @@ export default {
           'https://www.helpling.com.sg/wp-content/uploads/2023/06/Helpling-gardening_bg.webp',
         Cleaning: 'https://cleanlab.com.sg/wp-content/uploads//House-cleaning.jpg'
       },
-      isLoaded: false
+      isLoaded: false,
+      showModal: false,
+      selectedService: null,
+      selectedServiceImage: '',
+      selectedServiceDescription: '',
+      selectedServiceExperience: 0,
     }
   },
   setup() {
@@ -157,6 +172,9 @@ export default {
         }
       }
     }
+  },
+  components: {
+    ServiceModal,
   },
   computed: {
     averageRating() {
@@ -213,6 +231,26 @@ export default {
       } else {
         alert('You must be logged in to create a new service.')
       }
+    },
+    async openModal(service) {
+      // Fetch the detailed info based on serviceId and service_type
+      const detailedService = await Services.getDetailedService(service.serviceId, service.service_type[0])
+
+      if (detailedService) {
+        this.selectedService = service
+        this.selectedServiceImage = this.serviceImgs[service.service_type[0]] || 'fallback-image-url.jpg'
+        this.selectedServiceDescription = detailedService.description
+        this.selectedServiceExperience = detailedService.yearsExperience
+        this.showModal = true
+      } else {
+        alert('Service details could not be retrieved.')
+      }
+    },
+    closeModal() {
+      this.showModal = false
+      this.selectedService = null
+      this.selectedServiceDescription = ''
+      this.selectedServiceExperience = 0
     },
   },
   mounted() {

@@ -158,7 +158,7 @@ async function createService() {
       </div>
     </div>
 
-    <!-- Step 1: Basic Information -->
+
     <div v-if="currentStep === 0" class="form-step">
       <h4>Basic Information</h4>
       <p class="text-secondary">Let's start with your location and services</p>
