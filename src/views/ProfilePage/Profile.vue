@@ -41,6 +41,7 @@
       <h2 class="section-title">{{ user.username }}'s' Services</h2>
       <div class="row services-container "></div>
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
+      
       <div v-else class="row services-container">
         <div v-for="service in userservice" :key="service.id" class="service-rectangle col-md-6 col-lg-4">
           <div v-for="(servicename, index) in service.service_type" :key="index">
@@ -51,10 +52,10 @@
                 :alt="`${servicename} Image`"
                 class="service-image"
               />
-            <!-- </router-link> -->
           </div>
         </div>
       </div>
+      
       <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
         Add service
       </button>
@@ -352,9 +353,7 @@ export default {
   border-radius: 15px;
 
 }
-/* .row{
-  max-width: 700px;
-} */
+
 .addservice,
 .addrequest {
   padding: 2px;
@@ -396,10 +395,10 @@ export default {
 
 /* Service image styling */
 .service-image {
-  width: 100%;
-  height: 100%;
-  max-width: 250px;
-  max-height: 280px;
+  width: 250px;
+  height: 300px;
+  /* max-width: 250px;
+  max-height: 300px; */
   object-fit: cover;
   border-radius: 0 0 15px 15px;
 }
