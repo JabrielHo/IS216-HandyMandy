@@ -1279,7 +1279,7 @@ onMounted(() => {
 .topcontainer h1 {
   font-size: 3.5rem;
   font-weight: 700;
-  background: linear-gradient(45deg, #e77d89,#ec6116);
+  background: linear-gradient(45deg, #ff6b6b, #ff8e53);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
