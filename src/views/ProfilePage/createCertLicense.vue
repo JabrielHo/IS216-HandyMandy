@@ -1,12 +1,12 @@
 <template>
     <section class="background">
+      <div class="entireform">
       <div class="container con-background">
         <h4>Enter/Edit Your Certifications and Licenses</h4>
         <p class="secondary">Please list each certification/license, separated by line breaks</p>
   
         <div class="formgroup">
           <label for="certifications" class="form-label" :class="{ 'is-invalid': v$.certifications.$error }">
-            Certifications/ Licenses (separate each with a line break)
           </label>
           <textarea
             id="certifications"
@@ -35,6 +35,7 @@
           <button class="btn submitBtn" @click="submitCertifications">Submit Certifications</button>
         </div>
       </div>
+    </div>
     </section>
   </template>
   
@@ -108,6 +109,10 @@
   </script>
   
   <style scoped>
+  .entireform{
+    margin: 20px;
+    width:100%;
+  }
   .submitBtn {
     background-color: #ffad60;
     color: white;
@@ -131,7 +136,12 @@
   }
   
   .background {
-    background-image: url('../../assets/bg1.png');
+  padding: 5% 10%;
+  display: flex;
+  align-items: center;
+  background: url('../../assets/bg1.png');
+  background-size: cover;
+  background-position: bottom; /* Anchors background to the bottom */ 
   }
   
   .secondary {
@@ -139,6 +149,7 @@
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
+    margin-bottom: 0px;
   }
   
   label {

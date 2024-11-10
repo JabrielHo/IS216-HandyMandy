@@ -120,7 +120,7 @@ onMounted(() => {
 
 <template>
   <div class="background">
-  <section class="text-center container">
+  <section class="text-center container-fluid">
     <div class="row pt-4">
       <div class="col-lg-6 col-md-8 mx-auto">
         <h1 class="heading">Available Services</h1>
@@ -135,8 +135,9 @@ onMounted(() => {
         </p>
       </div>
     </div>
+    <hr>
   </section>
-  <hr>
+  
   <section class="container">
     <div v-if="!loading" class="my-4 filter">
       <!-- Filters for Categories and Locations -->
@@ -216,6 +217,7 @@ onMounted(() => {
           v-for="service in services"
           :key="service.userId"
         >
+
         
           <ServiceCard v-if="service" :service="service" class="each"/>
         </div>
@@ -354,5 +356,13 @@ li {
   border-radius: 15px;
   height:auto;
   overflow: hidden; /* Keeps content within the rounded corners */
+}
+
+.text-center{
+  width: 100%;
+  background-color: #fff9e0;
+  padding: 20px 0;
+  text-align: center;
+  height:270px;
 }
 </style>
