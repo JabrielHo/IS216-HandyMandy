@@ -31,7 +31,7 @@
             </ul>
           </div>
           <div class="certs">
-          <button v-if="currUId == userId" class="addservice" style="margin-top: 8px;" @click="navigateToCreateService">
+          <button v-if="currUId == userId" class="addservice" style="margin-top: 8px;" @click="navigateToCreateCertLicense(userId)">
             Add Certifications and Licenses
           </button>
         </div>
@@ -44,14 +44,14 @@
       <div v-else class="row services-container">
         <div v-for="service in userservice" :key="service.id" class="service-rectangle col-md-6 col-lg-4">
           <div v-for="(servicename, index) in service.service_type" :key="index">
-            <router-link class="service-rectangle no-underline">
+            <!-- <router-link class="service-rectangle no-underline"> -->
               <div class="label">{{ servicename }}</div>
               <img
                 :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
                 :alt="`${servicename} Image`"
                 class="service-image"
               />
-            </router-link>
+            <!-- </router-link> -->
           </div>
         </div>
       </div>
@@ -205,7 +205,14 @@ export default {
       } else {
         alert('You must be logged in to create a new service.')
       }
-    }
+    },
+    async navigateToCreateCertLicense(userId) {
+      if (authStore.user?.uid) {
+        this.$router.push({ name: 'createCertificationLicenses', params: { userId } })
+      } else {
+        alert('You must be logged in to create a new service.')
+      }
+    },
   },
   mounted() {
     const userId = this.$route.params.userId 

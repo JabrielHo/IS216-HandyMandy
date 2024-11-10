@@ -16,7 +16,7 @@
           </button>
         </div>
         <div class="view-details-wrapper" v-if="service.userId == userData?.uid">
-          <button id="view_details" @click="navigateToPersonalProfile(userData.uId)">
+          <button id="view_details" @click="navigateToProfile(userData.uid)">
             <span class="button-text">Edit Your Profile</span>
           </button>
         </div>
