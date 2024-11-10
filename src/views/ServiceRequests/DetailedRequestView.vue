@@ -173,12 +173,13 @@ onMounted(async () => {
     
          
 <template class="card">
-  <div class="card-content ">
+  <div class="card-content">
     <!-- Image on the left -->
-    <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded card-img" />
+     <div class="row">
+    <img :src="serviceRequest.imgSrc" alt="RequestImg" class="responsive-img rounded card-img col-xs-12 col-sm-12" />
     
     <!-- Text content on the right -->
-    <div class="card-text ">
+    <div class="card-text col-xs-12 col-sm-12">
       <h1 class="title">{{ serviceRequest.title }}</h1>
       <hr />
       <div class="contain">
@@ -196,7 +197,7 @@ onMounted(async () => {
       <span class="desc">{{ serviceRequest.description }}</span>
       <hr />
     </div>
-    
+  </div>
   </div>
   <h1 class="description-header">Location</h1>
   <div id="map" class="responsive-map rounded"></div>
@@ -234,11 +235,14 @@ onMounted(async () => {
 
 <style scoped>
 
-
-
 .chatBtn {
   background-color: #ffad60;
   color: white;
+  padding: 8px 16px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
 }
 
 .chatBtn:hover {
@@ -255,21 +259,100 @@ onMounted(async () => {
   object-fit: cover;
 }
 .card {
-  padding: 18px;
+  padding: 16px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  
 }
 .responsive-img {
-  height:230px;
-  width: auto;
+  width: 200px;
+  height: 230px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .responsive-map {
   height: 300px;
-  width: 100%
+  width: 100%;
+  margin: 16px 0;
+  border-radius: 8px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 992px) {
+  .card {
+    padding: 12px;
+  }
+  
+  .responsive-img {
+    width: 180px;
+    height: 200px;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+  }
+  
+  .description-header {
+    font-size: 1.125rem;
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .card-content {
+    flex-direction: column;
+  }
+  
+  .responsive-img {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 16px;
+  }
+  
+  .contain {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .left,
+  .right {
+    width: 100%;
+  }
+  
+  .chatBtn {
+    max-width: 100%;
+  }
+}
+
+/* Small mobile devices (iPhone SE etc.) */
+@media (max-width: 375px) {
+  .card {
+    padding: 8px;
+  }
+  
+  .title {
+    font-size: 1.125rem;
+  }
+  
+  .category-header {
+    font-size: 0.75rem;
+  }
+  
+  .category {
+    font-size: 0.875rem;
+  }
+  
+  .description-header {
+    font-size: 1rem;
+  }
+  
   .responsive-map {
-    min-height: 300px;
+    height: 250px;
+  }
+  
+  .usercard {
+    padding: 12px;
   }
 }
 .card-img {
@@ -279,16 +362,20 @@ onMounted(async () => {
 
 .card-content {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
+  gap: 20px;
 }
 
 .card-text {
-  flex: 1; /* Allows text content to take up the remaining space */
+  flex: 1;
+  min-width: 0; 
 }
 .contain {
   display: flex;
-  /* gap: 50px; */
   justify-content: space-between;
+  gap: 16px;
+  margin: 16px 0;
 }
 
 .left,
@@ -308,44 +395,54 @@ onMounted(async () => {
 }
 
 .title {
-  font-size: 24px;
-  line-height: 32px;
+  font-size: 1.5rem;
+  line-height: 1.3;
   margin-bottom: 8px;
+  word-wrap: break-word;
 }
 
 .category-header {
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 0.875rem;
+  line-height: 1.4;
   color: rgb(109, 110, 113);
+  margin-bottom: 4px;
 }
 
 .category {
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .description-header {
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin: 16px 0 8px 0;
+}
+
+.desc {
+  display: block;
+  word-wrap: break-word;
 }
 
 .usercard {
-  margin-top: 10px;
-  padding: 10px;
-  box-shadow:
-    0 5px 10px rgba(154, 160, 185, 0.05),
-    0 15px 40px rgba(166, 173, 201, 0.2);
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 5px 10px rgba(154, 160, 185, 0.05),
+              0 15px 40px rgba(166, 173, 201, 0.2);
 }
 
 .userInfo {
   display: flex;
   align-items: center;
+  gap: 12px;
   cursor: pointer;
 }
 
 .text-container {
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
 .name {
