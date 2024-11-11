@@ -46,9 +46,9 @@ const slides = ref([
   },
   {
     image: 'https://www.socool.sg/wp-content/uploads/2022/11/Ac-service-3-2-1080x675.jpg',
-    alt: 'Air-Con',
+    alt: 'Air-con',
     caption: 'This is the second slide',
-    service: 'Aircon'
+    service: 'Air-con'
   },
   {
     image: 'https://hw-singaporeplumbing.com.sg/wp-content/uploads/2018/12/sanitary-repair.png',
@@ -149,7 +149,7 @@ onMounted(() => {
 
 .card {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
-  background-color: #F88765; /* Fallback color */
+  background-color: #f88765; /* Fallback color */
   background-size: cover; /* Ensure background image covers the card */
   background-position: center; /* Center the image */
   height: clamp(10rem, 30vw, 25rem); /* Set a height for the card */
