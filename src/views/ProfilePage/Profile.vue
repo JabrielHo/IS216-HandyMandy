@@ -51,7 +51,7 @@
             v-for="(servicename, index) in service.service_type"
             :key="index"
             class="service-rectangle col-md-6 col-lg-4"
-            @click="openModal(service)"
+            @click="openModal(service, servicename)"
           >
             <div>
               <div class="label">{{ servicename }}</div>
@@ -79,7 +79,7 @@
       />
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
-      <div class="row request-container"></div>
+      <div class="row request-container">
       <div v-if="userrequest.length === 0" class="no-requests-message">No requests available.</div>
       <div v-else class="row services-container">
         <div
@@ -114,6 +114,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -246,16 +247,17 @@ export default {
         alert('You must be logged in to create a new service.')
       }
     },
-    async openModal(service) {
+    async openModal(service, servicename) {
+      // console.log(service, servicename)
       const detailedService = await Services.getDetailedService(
         service.serviceId,
-        service.service_type[0]
+        servicename
       )
 
       if (detailedService) {
         this.selectedService = service
         this.selectedServiceImage =
-          this.serviceImgs[service.service_type[0]] || 'fallback-image-url.jpg'
+          this.serviceImgs[servicename]
         this.selectedServiceDescription = detailedService.description
         this.selectedServiceExperience = detailedService.yearsExperience
         this.showModal = true
