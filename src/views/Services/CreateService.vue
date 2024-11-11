@@ -34,12 +34,12 @@ const serviceDetailsRules = computed(() => {
 
 const v$ = useVuelidate(baseRules, { location, selectedServices })
 const v$ServiceDetails = useVuelidate(serviceDetailsRules, serviceDetails)
-const serviceError = ref(false);
+const serviceError = ref(false)
 
 const serviceOptions = [
   'Plumbing',
   'Electrical',
-  'Air-Con',
+  'Air-con',
   'Cleaning',
   'Gardening',
   'Painting',
@@ -71,8 +71,7 @@ function nextStep() {
       serviceError.value = false
       initializeServiceDetails()
     }
-  }
-  else {
+  } else {
     const currentService = getCurrentService()
     v$ServiceDetails.value[currentService].$touch()
     if (v$ServiceDetails.value[currentService].$invalid) return
@@ -97,7 +96,7 @@ async function createService() {
     isLoading.value = false
     return
   }
-  
+
   for (const service of selectedServices.value) {
     const detailsValidation = v$ServiceDetails.value[service]
     detailsValidation.$touch()
@@ -167,7 +166,6 @@ async function createService() {
       </div>
     </div>
 
-
     <div v-if="currentStep === 0" class="form-step">
       <h4>Basic Information</h4>
       <p class="text-secondary">Let's start with your location and services</p>
@@ -207,7 +205,7 @@ async function createService() {
         </div>
         <div v-if="serviceError" class="invalid-feedback">
           You must select at least one service to proceed.
-      </div>
+        </div>
       </div>
     </div>
 
@@ -287,12 +285,12 @@ async function createService() {
 }
 
 .progress-step.active {
-  color: #F88765;
+  color: #f88765;
   font-weight: bold;
 }
 
 .progress-step.active::after {
-  background: #F88765;
+  background: #f88765;
 }
 
 .form-step {
@@ -316,13 +314,13 @@ async function createService() {
 }
 
 .service-option:hover {
-  border-color: #F88765;
+  border-color: #f88765;
 }
 
 .service-option.selected {
-  background: #F88765;
+  background: #f88765;
   color: white;
-  border-color: #F88765;
+  border-color: #f88765;
 }
 
 .form-group {
@@ -338,7 +336,7 @@ async function createService() {
 }
 
 .form-control:focus {
-  border-color: #F88765;
+  border-color: #f88765;
   outline: none;
 }
 
@@ -374,7 +372,7 @@ async function createService() {
 }
 
 .btn-primary {
-  background: #F88765;
+  background: #f88765;
   color: white;
 }
 
@@ -384,7 +382,7 @@ async function createService() {
 }
 
 .btn-success {
-  background: #F88765;
+  background: #f88765;
   color: white;
 }
 

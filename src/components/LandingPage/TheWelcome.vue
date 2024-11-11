@@ -79,7 +79,7 @@ export default {
       services: [
         'Plumbing',
         'Electrical',
-        'Aircon',
+        'Air-con',
         'Cleaning',
         'Gardening',
         'Painting',
@@ -91,7 +91,7 @@ export default {
           'Professional services for fixing leaks, unclogging drains, installing and repairing pipes and water systems.',
         electrical:
           'Certified services for wiring, electrical installations, repairs, and troubleshooting power issues.',
-        aircon:
+        'air-con':
           'Installation, maintenance, and repair services for air-conditioning units to ensure optimal cooling performance.',
         cleaning:
           'Thorough cleaning services for homes, offices, and commercial spaces, including deep cleaning and sanitation.',
