@@ -19,14 +19,28 @@ export const useAuthStore = defineStore('auth', {
         console.error('Logout failed', error)
       }
     },
-    checkAuth() {
-      this.loading = true
-      onAuthStateChanged(auth, async (user) => {
-        this.user = user
-        if (user && !this.userData) {
-          await this.getUserData(user)
-        }
-        this.loading = false
+    async checkAuth() {
+      return new Promise((resolve, reject) => {
+        const unsubscribe = onAuthStateChanged(
+          auth,
+          async (user) => {
+            try {
+              this.user = user
+              if (user && !this.userData) {
+                await this.getUserData(user)
+              }
+              this.loading = false
+              unsubscribe() // Clean up listener
+              resolve(user)
+            } catch (error) {
+              reject(error)
+            }
+          },
+          (error) => {
+            this.loading = false
+            reject(error)
+          }
+        )
       })
     },
     async getUserData(user) {

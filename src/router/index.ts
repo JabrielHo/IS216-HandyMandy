@@ -107,17 +107,26 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  if (authStore.loading) {
-    authStore.checkAuth()
-  }
-  if (to.matched.some((record) => record.meta.requiresAuth === true) && !authStore.user) {
+
+  try {
+    // Wait for auth check to complete
+    await authStore.checkAuth()
+
+    // Default requiresAuth to true if not specified
+    const requiresAuth = to.matched.some((record) => record.meta.requiresAuth === true)
+
+    if (requiresAuth && !authStore.user) {
+      // Protected route, no user
+      next('/signin')
+    } else if (to.meta.requiresAuth === false && authStore.user) {
+      next('/')
+    } else {
+      next()
+    }
+  } catch (error) {
     next('/signin')
-  } else if (to.matched.some((record) => record.meta.requiresAuth === false) && authStore.user) {
-    next('/')
-  } else {
-    next()
   }
 })
 

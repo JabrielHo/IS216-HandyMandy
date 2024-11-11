@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <h2 class="section-title">{{ user.username }}'s' Services</h2>
+      <h2 class="section-title">{{ user.username }}'s Services</h2>
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
       <div v-else class="row services-container">
         <template v-for="service in userservice" :key="service.id">
@@ -213,7 +213,6 @@ export default {
     async fetchServicesByUser(userId) {
       const serviceresult = await Services.getServicesByUser(userId)
       this.userservice = serviceresult
-      console.log(serviceresult)
       const detailedServiceMap = {}
 
       for (const service of serviceresult) {

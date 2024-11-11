@@ -146,7 +146,10 @@ const loginWithGoogle = async () => {
       await setDoc(userDocRef, {
         username: user.displayName || user.email.split('@')[0] || 'Anonymous',
         userId: user.uid,
-        email: user.email
+        email: user.email,
+        profilePicture:
+          'https://static.vecteezy.com/system/resources/previews/020/765/399/non_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg',
+        loginMethod: 'google'
       })
     }
 
@@ -335,9 +338,7 @@ input:focus {
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
   cursor: pointer;
-  transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
   margin: 0 auto;
   /* Center the button horizontally */
   width: 100%;

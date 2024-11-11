@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { auth, db } from '../../firebaseConfig' // Import Firestore
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore' // Import Firestore methods
-import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter()
 
@@ -13,7 +12,6 @@ const name = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const authStore = useAuthStore()
 
 // const category = ref<string[]>([]); // Keep only the selected categories
 
