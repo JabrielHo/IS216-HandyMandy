@@ -1387,7 +1387,7 @@ onMounted(() => {
 }
 
 .addpost {
-  background-color: #ff7043;
+  background-color: #f88765;
   color: white;
   border: none;
   border-radius: 20px;
