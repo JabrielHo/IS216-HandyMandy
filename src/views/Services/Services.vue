@@ -27,9 +27,9 @@ const totalItems = ref(0)
 
 async function fetchServices() {
   loading.value = true
-  console.log('Fetching services...')
-  console.log(selectedCategoryOption.value)
-  console.log(route.params.selectedservice)
+  // console.log('Fetching services...')
+  // console.log(selectedCategoryOption.value)
+  // console.log(route.params.selectedservice)
   const result = await Services.getAllServices(
     selectedCategoryOption.value,
     selectedLocationOption.value,
@@ -37,7 +37,7 @@ async function fetchServices() {
     itemsPerPage.value
   )
 
-  console.log('Fetched result:', result)
+  // console.log('Fetched result:', result)
 
   const servicePromises = result.items.map((service) => {
     return UserService.getUserData(service.userId).then((userData) => {
@@ -52,13 +52,13 @@ async function fetchServices() {
     totalItems.value = result.totalItems
     loading.value = false
   })
-  console.log(services)
+  // console.log(services)
 }
 
 async function populateCategoryFilter() {
   const result = await Services.getAllCategories()
   categories.value = result
-  console.log('categories', categories.value)
+  // console.log('categories', categories.value)
 }
 
 async function populateLocationFilter() {

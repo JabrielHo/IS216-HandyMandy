@@ -55,31 +55,6 @@ const router = createRouter({
       component: () => import('../views/ProfilePage/Profile.vue')
     },
     {
-      path: '/plumbing',
-      name: 'plumbing',
-      component: () => import('../views/ProfilePage/plumbing.vue')
-    },
-    {
-      path: '/phonefix',
-      name: 'phonefix',
-      component: () => import('../views/ProfilePage/phonefix.vue')
-    },
-    {
-      path: '/paintmyroom',
-      name: 'paintmyroom',
-      component: () => import('../views/ProfilePage/paintmyroom.vue')
-    },
-    {
-      path: '/furnitureassembly',
-      name: 'furnitureassembly',
-      component: () => import('../views/ProfilePage/Furniture_Assembly.vue')
-    },
-    {
-      path: '/wifi_fixer',
-      name: 'wifi_fixer',
-      component: () => import('../views/ProfilePage/Wifi_fixer.vue')
-    },
-    {
       path: '/forum',
       name: 'forumpage',
       component: () => import('../views/Forum/forumpage.vue')

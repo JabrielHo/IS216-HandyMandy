@@ -198,7 +198,7 @@ export default {
       const detailedServiceMap = {}
 
       for (const service of serviceresult) {
-        console.log(service)
+        // console.log(service)
         for (const type of service.service_type) {
           const detailedService = await Services.getDetailedService(service.serviceId, type)
           detailedServiceMap[type] = {
