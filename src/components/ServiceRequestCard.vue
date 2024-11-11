@@ -99,7 +99,7 @@ function formatDate(timestamp) {
 }
 
 .category-badge {
-  background-color: #ffad60 !important;
+  background-color: #F88765 !important;
   position: absolute;
   bottom: 1px;
   right: 5px;

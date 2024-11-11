@@ -85,7 +85,7 @@ async function submitCertifications() {
     width:100%;
   }
   .submitBtn {
-    background-color: #ffad60;
+    background-color: #F88765;
     color: white;
   }
   

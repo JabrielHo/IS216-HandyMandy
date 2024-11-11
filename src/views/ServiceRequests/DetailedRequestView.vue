@@ -241,7 +241,7 @@ onMounted(async () => {
 }
 
 .chatBtn {
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
 }
 
@@ -292,7 +292,7 @@ onMounted(async () => {
 }
 
 .back:hover {
-  color: #ffad60;
+  color: #F88765;
   text-decoration: underline;
   cursor: pointer;
 }

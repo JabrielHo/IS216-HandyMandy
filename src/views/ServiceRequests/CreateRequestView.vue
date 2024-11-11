@@ -182,7 +182,7 @@ async function createRequest() {
 
 <style scoped>
 .submitBtn {
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
 }
 

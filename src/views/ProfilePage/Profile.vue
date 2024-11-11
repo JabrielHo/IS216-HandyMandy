@@ -17,13 +17,13 @@
           <h3 class="certifications">Certifications & Licenses</h3>
           <div
             v-if="!user.certificationsLicenses || user.certificationsLicenses.length === 0"
-            style="text-align: center;"
+            style="text-align: center"
           >
             No certifications or licenses
           </div>
           <div v-else class="certs">
             <ul
-              class="certifications-list" 
+              class="certifications-list"
               v-for="(certs, index) in user.certificationsLicenses"
               :key="index"
             >
@@ -31,52 +31,63 @@
             </ul>
           </div>
           <div class="certs">
-          <button v-if="currUId == userId" class="addservice" style="margin-top: 8px;" @click="navigateToCreateCertLicense(userId)">
-            Add Certifications and Licenses
-          </button>
-        </div>
+            <button
+              v-if="currUId == userId"
+              class="addservice"
+              style="margin-top: 8px"
+              @click="navigateToCreateCertLicense(userId)"
+            >
+              Add Certifications and Licenses
+            </button>
+          </div>
         </div>
       </div>
 
       <h2 class="section-title">{{ user.username }}'s' Services</h2>
-      <div class="row services-container "></div>
+      <div class="row services-container"></div>
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
-      
+
       <div v-else class="row services-container">
-        <div v-for="service in userservice" :key="service.id" class="service-rectangle col-md-6 col-lg-4" @click="openModal(service)">
+        <div
+          v-for="service in userservice"
+          :key="service.id"
+          class="service-rectangle col-md-6 col-lg-4"
+          @click="openModal(service)"
+        >
           <div v-for="(servicename, index) in service.service_type" :key="index">
-              <div class="label">{{ servicename }}</div>
-              <img
-                :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
-                :alt="`${servicename} Image`"
-                class="service-image"
-              />
+            <div class="label">{{ servicename }}</div>
+            <img
+              :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
+              :alt="`${servicename} Image`"
+              class="service-image"
+            />
           </div>
         </div>
       </div>
-      
+
       <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
         Add service
       </button>
 
       <ServiceModal
-          v-if="showModal"
-          :service="selectedService"
-          :serviceImage="selectedServiceImage"
-          :description="selectedServiceDescription"
-          :yearsExperience="selectedServiceExperience"
-          @close="closeModal"
+        v-if="showModal"
+        :service="selectedService"
+        :serviceImage="selectedServiceImage"
+        :description="selectedServiceDescription"
+        :yearsExperience="selectedServiceExperience"
+        @close="closeModal"
       />
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
       <div class="row request-container"></div>
       <div v-if="userrequest.length === 0" class="no-requests-message">No requests available.</div>
       <div v-else class="row services-container">
-        <div v-for="request in userrequest" :key="request.id" class="service-rectangle col-md-6 col-lg-4">
-          <router-link
-            :to="`/request/${request.id}`"
-            class="service-rectangle no-underline"
-          >
+        <div
+          v-for="request in userrequest"
+          :key="request.id"
+          class="service-rectangle col-md-6 col-lg-4"
+        >
+          <router-link :to="`/request/${request.id}`" class="service-rectangle no-underline">
             <div class="label">{{ request.title }}</div>
             <img :src="request.imgSrc" alt="" class="service-image" />
           </router-link>
@@ -87,7 +98,9 @@
       </button>
 
       <h2 class="section-title">{{ user.username }}'s Reviews</h2>
-      <div v-if="!user.reviews || user.reviews.length === 0" class="no-reviews-message"> No reviews available. </div>
+      <div v-if="!user.reviews || user.reviews.length === 0" class="no-reviews-message">
+        No reviews available.
+      </div>
       <div v-else-if="user.reviews && user.reviews.length > 0" class="review-container">
         <div class="review-rectangle">
           <div v-for="(reviewItem, index) in user.reviews" :key="index" class="review">
@@ -145,7 +158,7 @@ export default {
       selectedService: null,
       selectedServiceImage: '',
       selectedServiceDescription: '',
-      selectedServiceExperience: 0,
+      selectedServiceExperience: 0
     }
   },
   setup() {
@@ -158,8 +171,8 @@ export default {
       handler(newValue) {
         if (newValue && newValue.uid) {
           this.currUId = newValue.uid
-          this.isLoaded = true
         }
+        this.isLoaded = true
       }
     },
     'route.params.userId': {
@@ -175,7 +188,7 @@ export default {
     }
   },
   components: {
-    ServiceModal,
+    ServiceModal
   },
   computed: {
     averageRating() {
@@ -234,11 +247,15 @@ export default {
       }
     },
     async openModal(service) {
-      const detailedService = await Services.getDetailedService(service.serviceId, service.service_type[0])
+      const detailedService = await Services.getDetailedService(
+        service.serviceId,
+        service.service_type[0]
+      )
 
       if (detailedService) {
         this.selectedService = service
-        this.selectedServiceImage = this.serviceImgs[service.service_type[0]] || 'fallback-image-url.jpg'
+        this.selectedServiceImage =
+          this.serviceImgs[service.service_type[0]] || 'fallback-image-url.jpg'
         this.selectedServiceDescription = detailedService.description
         this.selectedServiceExperience = detailedService.yearsExperience
         this.showModal = true
@@ -251,10 +268,10 @@ export default {
       this.selectedService = null
       this.selectedServiceDescription = ''
       this.selectedServiceExperience = 0
-    },
+    }
   },
   mounted() {
-    const userId = this.$route.params.userId 
+    const userId = this.$route.params.userId
     this.userId = userId
     this.fetchServiceRequestsByUser(userId)
     this.fetchServicesByUser(userId)
@@ -316,7 +333,6 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  
 }
 
 .profile-name {
@@ -326,7 +342,6 @@ export default {
   margin: 0;
   text-align: center;
   margin-top: 10px;
-
 }
 
 .profile-rating {
@@ -334,10 +349,9 @@ export default {
   color: #ffd700;
   margin-top: 5px;
 }
-.certifications{
+.certifications {
   text-align: center;
   margin-top: 10px;
-
 }
 .certifications-title {
   font-size: 24px;
@@ -375,7 +389,6 @@ export default {
   gap: 20px;
   margin-bottom: 50px;
   max-width: 1100px;
-  
 }
 
 .service-rectangle {
@@ -389,7 +402,6 @@ export default {
   overflow: hidden;
   transition: transform 0.3s ease;
   border-radius: 15px;
-
 }
 
 .addservice,
@@ -399,7 +411,7 @@ export default {
   border: none;
   border-radius: 20px;
   position: relative;
-  background-color: #ffad60;
+  background-color: #f88765;
 }
 
 .addservice:hover,
@@ -422,9 +434,9 @@ export default {
   text-align: center;
   z-index: 1;
 }
-.text{
+.text {
   width: 100%;
-  padding: 8px
+  padding: 8px;
 }
 /* Prevent blue underline */
 .no-underline {

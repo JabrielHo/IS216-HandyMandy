@@ -115,6 +115,7 @@ const handleSubmit = async () => {
     // Proceed with email/password login
     await signInWithEmailAndPassword(auth, email.value.toLowerCase(), password.value)
     if (auth.currentUser) {
+      authStore.checkAuth()
       router.push({ name: 'home' })
     }
   } catch (error) {
@@ -150,6 +151,7 @@ const loginWithGoogle = async () => {
     }
 
     // Proceed to the home page
+    authStore.checkAuth()
     router.push({ name: 'home' })
   } catch (error) {
     console.error('Error during Google sign in:', error)

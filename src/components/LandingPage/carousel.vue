@@ -149,7 +149,7 @@ onMounted(() => {
 
 .card {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
-  background-color: #ffad60; /* Fallback color */
+  background-color: #F88765; /* Fallback color */
   background-size: cover; /* Ensure background image covers the card */
   background-position: center; /* Center the image */
   height: clamp(10rem, 30vw, 25rem); /* Set a height for the card */

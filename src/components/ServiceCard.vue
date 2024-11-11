@@ -208,7 +208,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #ffad60;
+  background: #F88765;
   opacity: 0;
   transition: all 200ms ease-out;
 }
@@ -253,7 +253,7 @@ export default {
 
 #view_details:hover {
   background: #fff;
-  color: #ffad60;
+  color: #F88765;
   cursor: pointer;
 }
 
@@ -264,7 +264,7 @@ export default {
 .chat-button {
   display: none;
   width: 100%;
-  background-color: #ffad60;
+  background-color: #F88765;
   color: #fff;
   border: none;
   padding: clamp(6px, 1.5vw, 12px);

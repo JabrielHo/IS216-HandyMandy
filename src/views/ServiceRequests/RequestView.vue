@@ -264,7 +264,7 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
 }
 .pagination .active .page-link {
-  background-color: #ffad60; /* Desired active background color */
+  background-color: #F88765; /* Desired active background color */
   border-color: gray; /* Desired active border color */
   color: #ffffff; /* Desired active text color */
 }
@@ -272,8 +272,9 @@ onMounted(() => {
 .pagination .page-link {
   color: black;
 }
+
 .createBtn {
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
 }
 
@@ -304,7 +305,7 @@ li {
 }
 
 .active {
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
 }
 
@@ -327,7 +328,7 @@ li {
   position: fixed;
   width: 55px;
   height: 55px;
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
   border-radius: 50%;
   bottom: 20px;

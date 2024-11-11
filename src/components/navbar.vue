@@ -540,7 +540,7 @@ onUnmounted(() => {
 .modal-logout {
   padding: 0.5rem 1rem;
   border: none;
-  background: #ffad60;
+  background: #F88765;
   color: white;
   border-radius: 6px;
   font-weight: 500;

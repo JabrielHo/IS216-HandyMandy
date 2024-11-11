@@ -98,139 +98,142 @@ onMounted(() => {
   populateCategoryFilter()
   populateLocationFilter()
 })
-
 </script>
 
 <template>
   <div class="background">
-  <section class="text-center container-fluid">
-    <div class="row pt-4">
-      <div class="col-lg-6 col-md-8 mx-auto">
-        <h1 class="heading">Available Services</h1>
-        <p>
-          Discover a variety of services offered by others. Whether you're looking for help or
-          offering services, connect today!
-        </p>
-        <p>
-          <button v-if="isLoggedIn" class="createBtn btn my-2" @click="navigateToCreateService">
-            Add Your Service!
-          </button>
-        </p>
-      </div>
-    </div>
-    <hr>
-  </section>
-  
-  <section class="container">
-    <div v-if="!loading" class="my-4 filter">
-      <!-- Filters for Categories and Locations -->
-      <!-- Dropdown for Categories -->
-      <div class="dropdown me-md-2 button">
-        <button
-          class="btn drop dropdown-toggle rounded-pill"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          style="color:white"
-        >
-          {{ selectedCategoryOption }}
-        </button>
-        <ul class="dropdown-menu">
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedCategoryOption === 'All Categories' }"
-            @click="selectCategoryOption('All Categories')"
-          >
-            All Categories
-          </li>
-          <div v-for="category in categories" :key="category">
-            <li
-              class="dropdown-item"
-              :class="{ active: selectedCategoryOption === category }"
-              @click="selectCategoryOption(category)"
-            >
-              {{ category }}
-            </li>
-          </div>
-        </ul>
-      </div>
-
-      <!-- Dropdown for Locations -->
-      <div class="dropdown me-md-2 button">
-        <button
-          class="btn drop dropdown-toggle rounded-pill"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-           style="color:white"
-        >
-          {{ selectedLocationOption }}
-        </button>
-        <ul class="dropdown-menu">
-          <li
-            class="dropdown-item"
-            :class="{ active: selectedLocationOption === 'All Locations' }"
-            @click="selectLocationOption('All Locations')"
-          >
-            All Locations
-          </li>
-          <div v-for="location in locations" :key="location">
-            <li
-              class="dropdown-item"
-              :class="{ active: selectedLocationOption === location }"
-              @click="selectLocationOption(location)"
-            >
-              {{ location }}
-            </li>
-          </div>
-        </ul>
-      </div>
-    </div>
-<!--service cards-->
-    <div v-if="loading" class="row">
-      <PlaceholderCard />
-    </div>
-
-    <div v-if="!loading && services.length === 0" class="noRequests">
-      <h1 class="fw-light">No Services Found</h1>
-    </div>
-
-    <div v-else>
-      <div class="row">
-        <div
-          class="col-xl-3 col-lg-3 col-md-4 col-sm-6 service-card"
-          v-for="service in services"
-          :key="service.userId"
-        >
-          <ServiceCard v-if="service" :service="service" class="each"/>
+    <section class="text-center container-fluid">
+      <div class="row pt-4">
+        <div class="col-lg-6 col-md-8 mx-auto">
+          <h1 class="heading">Available Services</h1>
+          <p>
+            Discover a variety of services offered by others. Whether you're looking for help or
+            offering services, connect today!
+          </p>
+          <p>
+            <button v-if="isLoggedIn" class="createBtn btn my-2" @click="navigateToCreateService">
+              Add Your Service!
+            </button>
+          </p>
         </div>
       </div>
+      <hr />
+    </section>
 
-      <!-- Pagination Controls -->
-      <nav aria-label="pagination" class="d-flex justify-content-end">
-        <ul class="pagination">
-          <li class="page-item" :class="{ disabled: currentPage === 1 }">
-            <a class="page-link" @click="changePage(currentPage - 1)"><i class="bi bi-chevron-left"></i></a>
-          </li>
-          <li
-            class="page-item"
-            v-for="page in Math.ceil(totalItems / itemsPerPage)"
-            :key="page"
-            :class="{ active: currentPage === page }"
+    <section class="container">
+      <div v-if="!loading" class="my-4 filter">
+        <!-- Filters for Categories and Locations -->
+        <!-- Dropdown for Categories -->
+        <div class="dropdown me-md-2 button">
+          <button
+            class="btn drop dropdown-toggle rounded-pill"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="color: white"
           >
-            <a class="page-link" @click="changePage(page)">{{ page }}</a>
-          </li>
-          <li
-            class="page-item"
-            :class="{ disabled: currentPage === Math.ceil(totalItems / itemsPerPage) }"
+            {{ selectedCategoryOption }}
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedCategoryOption === 'All Categories' }"
+              @click="selectCategoryOption('All Categories')"
+            >
+              All Categories
+            </li>
+            <div v-for="category in categories" :key="category">
+              <li
+                class="dropdown-item"
+                :class="{ active: selectedCategoryOption === category }"
+                @click="selectCategoryOption(category)"
+              >
+                {{ category }}
+              </li>
+            </div>
+          </ul>
+        </div>
+
+        <!-- Dropdown for Locations -->
+        <div class="dropdown me-md-2 button">
+          <button
+            class="btn drop dropdown-toggle rounded-pill"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="color: white"
           >
-            <a class="page-link" @click="changePage(currentPage + 1)"><i class="bi bi-chevron-right"></i></a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </section>
-</div>
+            {{ selectedLocationOption }}
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              class="dropdown-item"
+              :class="{ active: selectedLocationOption === 'All Locations' }"
+              @click="selectLocationOption('All Locations')"
+            >
+              All Locations
+            </li>
+            <div v-for="location in locations" :key="location">
+              <li
+                class="dropdown-item"
+                :class="{ active: selectedLocationOption === location }"
+                @click="selectLocationOption(location)"
+              >
+                {{ location }}
+              </li>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <!--service cards-->
+      <div v-if="loading" class="row">
+        <PlaceholderCard />
+      </div>
+
+      <div v-if="!loading && services.length === 0" class="noRequests">
+        <h1 class="fw-light">No Services Found</h1>
+      </div>
+
+      <div v-else>
+        <div class="row">
+          <div
+            class="col-xl-3 col-lg-3 col-md-4 col-sm-6 service-card"
+            v-for="service in services"
+            :key="service.userId"
+          >
+            <ServiceCard v-if="service" :service="service" class="each" />
+          </div>
+        </div>
+
+        <!-- Pagination Controls -->
+        <nav aria-label="pagination" class="d-flex justify-content-end">
+          <ul class="pagination">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" @click="changePage(currentPage - 1)"
+                ><i class="bi bi-chevron-left"></i
+              ></a>
+            </li>
+            <li
+              class="page-item"
+              v-for="page in Math.ceil(totalItems / itemsPerPage)"
+              :key="page"
+              :class="{ active: currentPage === page }"
+            >
+              <a class="page-link" @click="changePage(page)">{{ page }}</a>
+            </li>
+            <li
+              class="page-item"
+              :class="{ disabled: currentPage === Math.ceil(totalItems / itemsPerPage) }"
+            >
+              <a class="page-link" @click="changePage(currentPage + 1)"
+                ><i class="bi bi-chevron-right"></i
+              ></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </section>
+  </div>
 </template>
 
 <style scoped>
@@ -242,7 +245,7 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
 }
 .pagination .active .page-link {
-  background-color: #ffad60;
+  background-color: #f88765;
   border-color: gray;
   color: #ffffff;
 }
@@ -250,7 +253,7 @@ onMounted(() => {
   color: black;
 }
 .createBtn {
-  background-color: #ffad60;
+  background-color: #f88765;
   color: white;
 }
 .background {
@@ -333,23 +336,22 @@ li {
   border-radius: 25px;
   overflow: hidden;
   border: 2px solid black;
-  
 }
 .service-card {
   border-radius: 15px;
-  height:auto;
+  height: auto;
   overflow: hidden;
 }
 
-.text-center{
+.text-center {
   width: 100%;
   background-color: #fff9e0;
   padding: 20px 0;
   text-align: center;
-  height:270px;
+  height: 270px;
 }
 
-.button{
+.button {
   background-color: #f88765;
   border-radius: 15px;
 }

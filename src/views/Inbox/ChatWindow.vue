@@ -487,7 +487,7 @@ function openImage(imageUrl) {
 .reviewBtn {
   display: flex;
   margin-left: auto;
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
 }
 
@@ -497,7 +497,7 @@ function openImage(imageUrl) {
 }
 
 .closeBtn {
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
 }
 
@@ -511,7 +511,7 @@ function openImage(imageUrl) {
 }
 
 .request {
-  background-color: #ffad60;
+  background-color: #F88765;
 }
 
 .profilePic {
@@ -521,7 +521,7 @@ function openImage(imageUrl) {
 
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus {
-  background-color: #ffad60;
+  background-color: #F88765;
   color: white;
   cursor: pointer;
 }
@@ -659,7 +659,7 @@ function openImage(imageUrl) {
 }
 
 .chat-bubble.me {
-  background-color: #ffad60;
+  background-color: #F88765;
   border: 1px solid lightgray;
   color: black;
   align-self: flex-end;
