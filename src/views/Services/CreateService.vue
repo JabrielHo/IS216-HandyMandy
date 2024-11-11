@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import Services from '../Services/users'
 import useVuelidate from '@vuelidate/core'
-import { required, minLength, helpers } from '@vuelidate/validators'
+import { required, minLength } from '@vuelidate/validators'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -14,9 +14,7 @@ const currentStep = ref(0)
 const serviceDetails = ref({})
 const isLoading = ref(false)
 const userData = computed(() => authStore.user)
-const image = ref(null)
 
-// Initial step validation rules
 const baseRules = {
   location: { required },
   selectedServices: { required, minLength: minLength(1) }
@@ -28,14 +26,15 @@ const serviceDetailsRules = computed(() => {
   selectedServices.value.forEach((service) => {
     rules[service] = {
       yearsExperience: { required },
-      description: { required },
-      image: { required }
+      description: { required }
     }
   })
   return rules
 })
 
 const v$ = useVuelidate(baseRules, { location, selectedServices })
+const v$ServiceDetails = useVuelidate(serviceDetailsRules, serviceDetails)
+const serviceError = ref(false);
 
 const serviceOptions = [
   'Plumbing',
@@ -54,25 +53,31 @@ function initializeServiceDetails() {
     if (!serviceDetails.value[service]) {
       serviceDetails.value[service] = {
         yearsExperience: 0,
-        description: '',
-        image: null,
-        imagePreview: null
+        description: ''
       }
     }
   })
 }
 
-function handleFileChange(event) {
-  image.value = event.target.files[0]
-  console.log(image.value)
-}
-
 // Navigation functions
 function nextStep() {
+  v$.value.$touch()
+  if (v$.value.$invalid) return
+
   if (currentStep.value === 0) {
-    v$.value.$touch()
-    if (v$.value.$invalid) return
-    initializeServiceDetails()
+    if (selectedServices.value.length === 0) {
+      serviceError.value = true
+      return
+    } else {
+      serviceError.value = false
+      initializeServiceDetails()
+    }
+  }
+  else {
+    // Validate the current service details before moving to the next step
+    const currentService = getCurrentService()
+    v$ServiceDetails.value[currentService].$touch()
+    if (v$ServiceDetails.value[currentService].$invalid) return
   }
   currentStep.value++
 }
@@ -88,8 +93,25 @@ function getCurrentService() {
 // Form submission
 async function createService() {
   isLoading.value = true
+  v$.value.$touch()
+
+  if (v$.value.$invalid) {
+    isLoading.value = false
+    return
+  }
+  
+  for (const service of selectedServices.value) {
+    const detailsValidation = v$ServiceDetails.value[service]
+    detailsValidation.$touch() // Mark fields as touched
+    if (detailsValidation.$invalid) {
+      alert(`Please complete all fields for the "${service}" service.`)
+      isLoading.value = false
+      return
+    }
+  }
+
   try {
-    const serviceTypes = selectedServices.value // Array of selected services
+    const serviceTypes = selectedServices.value
     const userId = userData.value.uid
     const userLocation = location.value.trim()
 
@@ -103,8 +125,7 @@ async function createService() {
     const result = await Services.createService(requestData)
 
     if (result.success) {
-      const serviceId = result.id // Capture serviceId from the created service
-      // Now create detailed services
+      const serviceId = result.id
       for (const service of serviceTypes) {
         const details = serviceDetails.value[service]
 
@@ -116,21 +137,12 @@ async function createService() {
           yearsExperience: details.yearsExperience
         }
 
-        // Upload image and create detailed service
-        if (image.value) {
-          console.log("You've entered the uploading of data is userDetailedServices")
-          const detailedResult = await Services.createDetailedServices(
-            {
-              ...detailedRequest
-            },
-            image.value
-          )
+        const detailedResult = await Services.createDetailedServices(detailedRequest)
 
-          if (detailedResult.success) {
-            console.log(`Detailed service created with ID: ${detailedResult.id}`)
-          } else {
-            console.error('Error creating detailed service:', detailedResult.error)
-          }
+        if (detailedResult.success) {
+          console.log(`Detailed service created with ID: ${detailedResult.id}`)
+        } else {
+          console.error('Error creating detailed service:', detailedResult.error)
         }
       }
     }
@@ -196,6 +208,9 @@ async function createService() {
         <div v-if="v$.selectedServices.$error" class="invalid-feedback">
           Please select at least one service.
         </div>
+        <div v-if="serviceError" class="invalid-feedback">
+          You must select at least one service to proceed.
+      </div>
       </div>
     </div>
 
@@ -223,30 +238,6 @@ async function createService() {
             placeholder="Describe your service offerings"
             rows="3"
           ></textarea>
-        </div>
-        <!-- 
-        <div class="form-group">
-          <label>Hourly Rate (SGD)</label>
-          <input
-            type="number"
-            class="form-control"
-            v-model="serviceDetails[getCurrentService()].rate"
-            placeholder="Enter your hourly rate"
-          />
-        </div> -->
-
-        <div class="form-group">
-          <label for="image" class="form-label">Attach an image of your service</label>
-          <input
-            class="form-control"
-            type="file"
-            id="image"
-            accept="image/*"
-            @change="handleFileChange"
-          />
-          <div v-if="serviceDetails[getCurrentService()].imagePreview" class="image-preview">
-            <img :src="serviceDetails[getCurrentService()].imagePreview" alt="Preview" />
-          </div>
         </div>
       </div>
     </div>
@@ -296,22 +287,6 @@ async function createService() {
   text-align: center;
   padding: 0.5rem;
   color: #6c757d;
-  position: relative;
-}
-
-.progress-step::after {
-  content: '';
-  position: absolute;
-  right: -50%;
-  top: 50%;
-  width: 100%;
-  height: 2px;
-  background: #dee2e6;
-  z-index: 1;
-}
-
-.progress-step:last-child::after {
-  display: none;
 }
 
 .progress-step.active {
@@ -370,12 +345,6 @@ async function createService() {
   outline: none;
 }
 
-.image-upload-container {
-  border: 2px dashed #dee2e6;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
 .upload-placeholder {
   padding: 2rem;
   text-align: center;
@@ -385,30 +354,6 @@ async function createService() {
 
 .upload-placeholder:hover {
   background: #e9ecef;
-}
-
-.image-preview {
-  position: relative;
-  padding: 1rem;
-}
-
-.image-preview img {
-  width: 100%;
-  max-height: 200px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.remove-image {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
 }
 
 .form-navigation {

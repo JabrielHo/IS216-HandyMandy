@@ -66,7 +66,7 @@
           :description="selectedServiceDescription"
           :yearsExperience="selectedServiceExperience"
           @close="closeModal"
-        />
+      />
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
       <div class="row request-container"></div>
@@ -87,7 +87,8 @@
       </button>
 
       <h2 class="section-title">{{ user.username }}'s Reviews</h2>
-      <div class="review-container">
+      <div v-if="!user.reviews || user.reviews.length === 0" class="no-reviews-message"> No reviews available. </div>
+      <div v-else-if="user.reviews && user.reviews.length > 0" class="review-container">
         <div class="review-rectangle">
           <div v-for="(reviewItem, index) in user.reviews" :key="index" class="review">
             <p class="review-text">{{ reviewItem.review }}</p>
