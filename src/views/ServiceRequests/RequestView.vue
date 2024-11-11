@@ -101,7 +101,7 @@ onMounted(() => {
 <template>
   <div class="background">
     <section class="text-center container-fluid">
-      <div class="row pt-4">
+      <div class="row m-0">
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="heading">Service Requests</h1>
           <p>
@@ -118,9 +118,9 @@ onMounted(() => {
           </p>
         </div>
       </div>
-      <hr />
     </section>
-    
+    <hr class="m-0" />
+
     <section class="container">
       <div v-if="!loading" class="my-4 filter">
         <div class="dropdown button">
@@ -129,7 +129,7 @@ onMounted(() => {
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style="color:white"
+            style="color: white"
           >
             {{ selectedSortOption }}
           </button>
@@ -156,7 +156,7 @@ onMounted(() => {
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style="color:white"
+            style="color: white"
           >
             {{ selectedLocationOption }}
           </button>
@@ -185,7 +185,7 @@ onMounted(() => {
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            style="color: white;"
+            style="color: white"
           >
             {{ selectedCategoryOption }}
           </button>
@@ -264,7 +264,7 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
 }
 .pagination .active .page-link {
-  background-color: #F88765; /* Desired active background color */
+  background-color: #f88765; /* Desired active background color */
   border-color: gray; /* Desired active border color */
   color: #ffffff; /* Desired active text color */
 }
@@ -274,7 +274,7 @@ onMounted(() => {
 }
 
 .createBtn {
-  background-color: #F88765;
+  background-color: #f88765;
   color: white;
 }
 
@@ -305,7 +305,7 @@ li {
 }
 
 .active {
-  background-color: #F88765;
+  background-color: #f88765;
   color: white;
 }
 
@@ -321,23 +321,6 @@ li {
 .dropdown-item:focus {
   background-color: transparent !important;
   color: inherit !important;
-}
-
-.fab {
-  display: none;
-  position: fixed;
-  width: 55px;
-  height: 55px;
-  background-color: #F88765;
-  color: white;
-  border-radius: 50%;
-  bottom: 20px;
-  right: 20px;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 100;
-  font-size: 30px;
 }
 
 .noRequests {
@@ -376,15 +359,32 @@ li {
     display: none;
   }
 }
-.text-center{
+
+.fab {
+  display: none;
+  position: fixed;
+  width: 55px;
+  height: 55px;
+  background-color: #f88765;
+  color: white;
+  border-radius: 50%;
+  bottom: 20px;
+  right: 20px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+  font-size: 30px;
+}
+
+.text-center {
   width: 100%;
   background-color: #fff9e0;
   padding: 20px 0;
   text-align: center;
-  height:270px;
 }
 
-.button{
+.button {
   background-color: #f88765;
   border-radius: 15px;
 }
