@@ -169,7 +169,7 @@ import carousel from '@/components/LandingPage/carousel.vue'
 .cta-button {
   padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
   font-size: clamp(0.875rem, 1vw + 0.5rem, 1.25rem);
-  background-color: #8a5a00;
+  background-color: #f88765;
   color: white;
   border: none;
   border-radius: clamp(0.25rem, 0.5vw, 0.5rem);
@@ -181,7 +181,7 @@ import carousel from '@/components/LandingPage/carousel.vue'
 }
 
 .cta-button:hover {
-  background-color: #6d4700;
+  background-color: #e97754;
   transform: translateY(-2px);
 }
 
