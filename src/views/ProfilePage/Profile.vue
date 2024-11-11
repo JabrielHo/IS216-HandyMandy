@@ -148,7 +148,7 @@ export default {
       serviceImgs: {
         Electrical:
           'https://pluggedinatl.com/wp-content/uploads/2021/06/iStock-1025303196-scaled.jpg',
-        'Air-con': 'https://www.socool.sg/wp-content/uploads/2022/11/Ac-service-3-2-1080x675.jpg',
+        'Air-Con': 'https://www.socool.sg/wp-content/uploads/2022/11/Ac-service-3-2-1080x675.jpg',
         Plumbing:
           'https://hw-singaporeplumbing.com.sg/wp-content/uploads/2018/12/sanitary-repair.png',
         Repair:
