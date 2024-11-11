@@ -144,7 +144,7 @@ export default {
       // Watching selectedService instead of inputplaceholder
       if (newService) {
         this.serviceplaceholder = newService
-        console.log('Placeholder updated to selected service')
+        // console.log('Placeholder updated to selected service')
       } else {
         this.serviceplaceholder = 'Enter a service!'
       }
@@ -177,7 +177,7 @@ export default {
       this.showWheel = true // Show the wheel when the button is clicked
     },
     filterServices() {
-      console.log(this.typedService)
+      // console.log(this.typedService)
       if (this.typedService) {
         this.filteredServices = this.services.filter((service) =>
           service.toLowerCase().startsWith(this.typedService.toLowerCase())
@@ -217,7 +217,7 @@ export default {
       const seatradius = 40
       const seatdistance = radius + seatradius + 10
 
-      console.log(this.data.length)
+      // console.log(this.data.length)
 
       if (this.data.length == 0) {
         let tagline = document.getElementById('tagline')
@@ -437,7 +437,7 @@ export default {
               if (Math.abs(currentAngle - targetRotation) < 1) {
                 // If the angle is close enough, stop adjusting
                 this.propellerInstance.angle = targetRotation
-                console.log('Aligned to target:', this.selectedService)
+                // console.log('Aligned to target:', this.selectedService)
                 return
               }
 
@@ -455,7 +455,7 @@ export default {
     },
     start() {
       if (this.data.length == 1) {
-        console.log('tests')
+        // console.log('tests')
       }
     },
     setService(turn) {
@@ -468,15 +468,15 @@ export default {
 
       for (const service of this.data) {
         if (turn > service.rotate && turn < service.endrotate) {
-          console.log('Search for', service.name)
-          console.log('Current angle:', turn)
+          // console.log('Search for', service.name)
+          // console.log('Current angle:', turn)
           let tagline = document.getElementById('tagline')
           let taglinetext = document.getElementById('taglinetext')
           this.selectedService = service.name.toLowerCase()
           tagline.innerText = this.selectedService
           taglinetext.innerText = this.servicedescriptions[this.selectedService]
-          console.log(this.selectedService)
-          console.log('Angle to meet:', service.rotate, 'to', service.endrotate)
+          // console.log(this.selectedService)
+          // console.log('Angle to meet:', service.rotate, 'to', service.endrotate)
         }
       }
     }
@@ -676,7 +676,7 @@ export default {
 .cta-button {
   padding: clamp(0.5rem, 1vw, 0.75rem) clamp(1rem, 2vw, 1.5rem);
   font-size: clamp(0.875rem, 1vw + 0.5rem, 1.25rem);
-  background-color: #8a5a00;
+  background-color: #f88765;
   color: white;
   border: none;
   border-radius: clamp(0.25rem, 0.5vw, 0.5rem);
@@ -688,7 +688,7 @@ export default {
 }
 
 .cta-button:hover {
-  background-color: #6d4700;
+  background-color: #e97754;
   transform: translateY(-2px);
 }
 

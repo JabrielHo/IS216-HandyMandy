@@ -136,14 +136,14 @@ async function createService() {
 
         const detailedResult = await Services.createDetailedServices(detailedRequest)
 
-        if (detailedResult.success) {
-          console.log(`Detailed service created with ID: ${detailedResult.id}`)
-        } else {
-          console.error('Error creating detailed service:', detailedResult.error)
-        }
+        // if (detailedResult.success) {
+        //   console.log(`Detailed service created with ID: ${detailedResult.id}`)
+        // } else {
+        //   console.error('Error creating detailed service:', detailedResult.error)
+        // }
       }
     }
-    console.log(result)
+    // console.log(result)
     router.push('/services')
   } catch (error) {
     console.error('Error creating service:', error)
