@@ -3,66 +3,73 @@
     <div class="overall">
       <!-- Profile Section -->
       <div class="row profile-section">
-        <img
-          :src="user?.profilePicture"
-          :alt="`${user.name}'s Profile Picture`"
-          class="profile-pic col-md-6"
-        />
-        <div class="profile-details">
+        <div class="col-md-4">
+          <img
+            :src="user?.profilePicture"
+            :alt="`${user.name}'s Profile Picture`"
+            class="profile-pic"
+          />
+        </div>
+        <div class="profile-details col-md-8">
           <h1 class="profile-name">{{ user.username }}</h1>
           <p v-if="averageRating !== 'No ratings'" class="profile-rating profile-name">
             {{ '⭐'.repeat(averageRating) }}
           </p>
           <p v-else class="profile-rating profile-name">{{ averageRating }}</p>
-          <h3 class="certifications">Certifications & Licenses</h3>
-          <div
-            v-if="!user.certificationsLicenses || user.certificationsLicenses.length === 0"
-            style="text-align: center"
-          >
-            No certifications or licenses
-          </div>
-          <div v-else class="certs">
-            <ul
-              class="certifications-list"
-              v-for="(certs, index) in user.certificationsLicenses"
-              :key="index"
-            >
-              <li>{{ certs }}</li>
-            </ul>
-          </div>
-          <div class="certs">
-            <button
-              v-if="currUId == userId"
-              class="addservice"
-              style="margin-top: 8px"
-              @click="navigateToCreateCertLicense(userId)"
-            >
-              Add Certifications and Licenses
-            </button>
-          </div>
         </div>
       </div>
 
-      <h2 class="section-title">{{ user.username }}'s Services</h2>
-      <div v-if="userservice.length === 0">No services available.</div>
-      <div v-else class="row services-container">
-        <template v-for="service in userservice" :key="service.id">
-          <div
-            v-for="(servicename, index) in service.service_type"
+      <div if="certification-container">
+        <h2 class="section-title">Certifications & Licenses</h2>
+        <div
+          v-if="!user.certificationsLicenses || user.certificationsLicenses.length === 0"
+          style="text-align: center"
+        >
+          No certifications or licenses
+        </div>
+        <div v-else class="certs">
+          <ul
+            class="certifications-list"
+            v-for="(certs, index) in user.certificationsLicenses"
             :key="index"
-            class="service-rectangle col-md-6 col-lg-4 col-sm-3"
-            @click="openModal(service, servicename)"
           >
-            <div>
-              <div class="label">{{ servicename }}</div>
-              <img
-                :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
-                :alt="`${servicename} Image`"
-                class="service-image"
-              />
+            <li>{{ certs }}</li>
+          </ul>
+        </div>
+        <div class="certs">
+          <button
+            v-if="currUId == userId"
+            class="addservice"
+            style="margin-top: 8px"
+            @click="navigateToCreateCertLicense(userId)"
+          >
+            Add Certifications and Licenses
+          </button>
+        </div>
+      </div>
+
+      <div id="service-container">
+        <h2 class="section-title">{{ user.username }}'s Services</h2>
+        <div v-if="userservice.length === 0">No services available.</div>
+        <div v-else class="row services-container">
+          <template v-for="service in userservice" :key="service.id">
+            <div
+              v-for="(servicename, index) in service.service_type"
+              :key="index"
+              class="service-rectangle col-lg-4 col-md-6 col-sm-3"
+              @click="openModal(service, servicename)"
+            >
+              <div>
+                <div class="label">{{ servicename }}</div>
+                <img
+                  :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
+                  :alt="`${servicename} Image`"
+                  class="service-image"
+                />
+              </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
       </div>
 
       <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
@@ -84,7 +91,7 @@
         <div
           v-for="request in userrequest"
           :key="request.id"
-          class="service-rectangle col-md-6 col-lg-4"
+          class="service-rectangle col-sm-3 col-md-6 col-lg-4"
         >
           <router-link :to="`/request/${request.id}`" class="service-rectangle no-underline">
             <div class="label">{{ request.title }}</div>
@@ -97,19 +104,19 @@
         Add request
       </button>
 
-      <h2 class="section-title">{{ user.username }}'s Reviews</h2>
-      <div v-if="!user.reviews || user.reviews.length === 0">
-        No reviews available.
-      </div>
-      <div v-else-if="user.reviews && user.reviews.length > 0" class="review-container">
-        <div class="review-rectangle">
-          <div v-for="(reviewItem, index) in user.reviews" :key="index" class="review">
-            <p class="review-text">{{ reviewItem.review }}</p>
-            <div class="reviewer-info">
-              <span class="username">- by {{ reviewItem.username }}</span>
-              <span class="stars">{{ '⭐'.repeat(reviewItem.rating) }}</span>
+      <div id="review-container" class="mx-auto text-center mb-5">
+        <h2 class="section-title">{{ user.username }}'s Reviews</h2>
+        <div v-if="!user.reviews || user.reviews.length === 0">No reviews available.</div>
+        <div v-else-if="user.reviews && user.reviews.length > 0" class="review-container">
+          <div class="review-rectangle">
+            <div v-for="(reviewItem, index) in user.reviews" :key="index" class="review">
+              <p class="review-text">{{ reviewItem.review }}</p>
+              <div class="reviewer-info">
+                <span class="username">- by {{ reviewItem.username }}</span>
+                <span class="stars">{{ '⭐'.repeat(reviewItem.rating) }}</span>
+              </div>
+              <hr v-if="index < user.reviews.length - 1" />
             </div>
-            <hr v-if="index < user.reviews.length - 1" />
           </div>
         </div>
       </div>
@@ -283,6 +290,7 @@ export default {
   flex-direction: column;
   align-items: center;
 }
+
 .yellowbg {
   padding: 5% 10%;
   display: flex;
@@ -298,7 +306,7 @@ export default {
   z-index: 3;
   background-color: #fff8e6;
   border: 2px solid #ffc935;
-  padding: 20px;
+  padding-top: clamp(1rem, 1vw, 2rem);
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -310,20 +318,21 @@ export default {
 .profile-section {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   width: 80%;
   max-width: 1200px;
-  margin-top: clamp(2rem, 4rem, 5rem);
-  margin-bottom: clamp(2rem, 4rem, 5rem);
+  margin-top: clamp(2rem, 2vw, 5rem);
+  margin-bottom: clamp(1rem, 1vw, 5rem);
 }
 
 .profile-pic {
   /* width: 25%; */
-  width: clamp(200px, 300px, 300px);
-  height: auto;
+  width: 100%;
+  height: 100%;
   border-radius: 100px;
-  margin-right: 100px;
-  margin-left: 100px; /* Increased margin to push text further */
+  /* margin-right: 100px;
+  margin-left: 100px;
+  margin-bottom: 20px; */
 }
 
 .profile-details {
@@ -333,7 +342,7 @@ export default {
 }
 
 .profile-name {
-  font-size: clamp(3vw, 2rem, 5vw);
+  font-size: clamp(2rem, 4vw, 5rem);
   font-weight: bold;
   color: #a66e38;
   margin: 0;
@@ -342,13 +351,13 @@ export default {
 }
 
 .profile-rating {
-  font-size: 24px;
+  font-size: clamp(1rem, 4vw, 5rem);
   color: #ffd700;
   margin-top: 5px;
 }
 .certifications {
   text-align: center;
-  margin-top: 10px;
+  margin-top: clamp(2rem, 2vw, 2rem);
 }
 .certifications-title {
   font-size: 24px;
@@ -383,14 +392,16 @@ export default {
 .review-container {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 50px;
-  max-width: 1100px;
+  gap: 1vw;
+  /* margin-bottom: 50px; */
+  /* max-width: 1100px;
+  margin-top: 10px;
+  width: 100%; */
 }
 
 .service-rectangle {
-  width: 250px;
-  height: 300px;
+  width: clamp(100px, 100%, 120px);
+  height: clamp(150px, 30vh, 220px);
   background-color: transparent;
   display: flex;
   flex-direction: column;
@@ -401,19 +412,70 @@ export default {
   border-radius: 15px;
 }
 
+/* iPhone SE and smaller screens */
+@media (max-width: 375px) {
+  .service-rectangle {
+    width: clamp(0px, 100%, 300px);
+    height: clamp(0px, 35vh, 250px);
+  }
+}
+
+/* Small tablets and larger phones */
+@media (min-width: 376px) and (max-width: 576px) {
+  .service-rectangle {
+    width: clamp(130px, 100%, 200px);
+    height: clamp(160px, 32vh, 230px);
+  }
+}
+
+/* Medium devices */
+@media (min-width: 577px) {
+  .service-rectangle {
+    width: clamp(160px, 100%, 220px);
+    height: clamp(180px, 35vh, 220px);
+  }
+}
+
+/* Service image styling */
+.service-image {
+  width: 100%;
+  height: 100%;
+  /* max-width: 250px;
+  max-height: 300px; */
+  object-fit: cover;
+  border-radius: 0 0 15px 15px;
+}
+
 .addservice,
 .addrequest {
-  padding: 2px;
-  width: 80%;
+  padding: 12px 24px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  width: min(80%, 300px);
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   position: relative;
   background-color: #f88765;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(248, 135, 101, 0.3);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .addservice:hover,
 .addrequest:hover {
   background-color: #ffad10;
+  box-shadow: 0 4px 15px rgba(255, 173, 16, 0.4);
+  transform: translateY(-2px);
 }
 
 .service-rectangle:hover {
@@ -426,7 +488,7 @@ export default {
   color: white;
   padding: 10px 0;
   border-radius: 15px 15px 0 0;
-  font-size: 16px;
+  font-size: clamp(1rem, 1vw, 2rem);
   font-weight: bold;
   text-align: center;
   z-index: 1;
@@ -440,16 +502,6 @@ export default {
   text-decoration: none;
 }
 
-/* Service image styling */
-.service-image {
-  width: 250px;
-  height: 300px;
-  /* max-width: 250px;
-  max-height: 300px; */
-  object-fit: cover;
-  border-radius: 0 0 15px 15px;
-}
-
 /* Review container styling */
 .review-container {
   display: flex;
@@ -461,7 +513,6 @@ export default {
 .review-rectangle {
   width: 100%;
   max-width: 600px; /* Increased width */
-  background-color: #96ceb4;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 15px;
   overflow-y: auto;
