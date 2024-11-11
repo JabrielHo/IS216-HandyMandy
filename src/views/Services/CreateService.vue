@@ -47,7 +47,6 @@ const serviceOptions = [
   'Installation'
 ]
 
-// Initialize service details when services are selected
 function initializeServiceDetails() {
   selectedServices.value.forEach((service) => {
     if (!serviceDetails.value[service]) {
@@ -74,7 +73,6 @@ function nextStep() {
     }
   }
   else {
-    // Validate the current service details before moving to the next step
     const currentService = getCurrentService()
     v$ServiceDetails.value[currentService].$touch()
     if (v$ServiceDetails.value[currentService].$invalid) return
@@ -102,7 +100,7 @@ async function createService() {
   
   for (const service of selectedServices.value) {
     const detailsValidation = v$ServiceDetails.value[service]
-    detailsValidation.$touch() // Mark fields as touched
+    detailsValidation.$touch()
     if (detailsValidation.$invalid) {
       alert(`Please complete all fields for the "${service}" service.`)
       isLoading.value = false
@@ -115,7 +113,6 @@ async function createService() {
     const userId = userData.value.uid
     const userLocation = location.value.trim()
 
-    // Construct the data object
     const requestData = {
       userId,
       location: userLocation,

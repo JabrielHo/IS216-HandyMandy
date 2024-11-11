@@ -9,7 +9,7 @@ import PlaceholderCard from '../../components/PlaceholderCard.vue'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const router = useRouter()
-const route = useRoute() // Use useRoute to access route params
+const route = useRoute()
 const authStore = useAuthStore()
 const isLoggedIn = computed(() => authStore.user !== null)
 
@@ -37,7 +37,7 @@ async function fetchServices() {
     itemsPerPage.value
   )
 
-  console.log('Fetched result:', result) // Debug fetched result
+  console.log('Fetched result:', result)
 
   const servicePromises = result.items.map((service) => {
     return UserService.getUserData(service.userId).then((userData) => {
@@ -55,7 +55,6 @@ async function fetchServices() {
   console.log(services)
 }
 
-// Fetch Categories and Locations
 async function populateCategoryFilter() {
   const result = await Services.getAllCategories()
   categories.value = result
@@ -67,7 +66,6 @@ async function populateLocationFilter() {
   locations.value = result
 }
 
-// Create a new service request
 function navigateToCreateService() {
   if (isLoggedIn.value) {
     router.push('/create-service')
@@ -76,7 +74,6 @@ function navigateToCreateService() {
   }
 }
 
-// Handle pagination
 function changePage(page) {
   if (page >= 1 && page <= Math.ceil(totalItems.value / itemsPerPage.value)) {
     currentPage.value = page
@@ -84,38 +81,24 @@ function changePage(page) {
   }
 }
 
-// Handle selection of category option
 function selectCategoryOption(category) {
   selectedCategoryOption.value = category
-  currentPage.value = 1 // Reset to the first page when changing the filter
-  fetchServices() // Fetch services with the new filter
+  currentPage.value = 1
+  fetchServices()
 }
 
-// Handle selection of location option
 function selectLocationOption(location) {
   selectedLocationOption.value = location
-  currentPage.value = 1 // Reset to the first page when changing the filter
-  fetchServices() // Fetch services with the new filter
+  currentPage.value = 1
+  fetchServices()
 }
 
 onMounted(() => {
   fetchServices()
   populateCategoryFilter()
   populateLocationFilter()
-  // inisetup()
 })
 
-// Access the selected service from the route
-// function inisetup() {
-//   const serviceParam = route.params.selectedservice // Access the route parameter
-//   console.log('Selected service:', serviceParam)
-//   if (typeof serviceParam !== 'undefined') {
-//     console.log('success')
-//     selectCategoryOption(serviceParam)
-//   } else {
-//     console.log('failed')
-//   }
-// }
 </script>
 
 <template>
@@ -219,8 +202,6 @@ onMounted(() => {
           v-for="service in services"
           :key="service.userId"
         >
-
-        
           <ServiceCard v-if="service" :service="service" class="each"/>
         </div>
       </div>
@@ -261,9 +242,9 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
 }
 .pagination .active .page-link {
-  background-color: #ffad60; /* Desired active background color */
-  border-color: gray; /* Desired active border color */
-  color: #ffffff; /* Desired active text color */
+  background-color: #ffad60;
+  border-color: gray;
+  color: #ffffff;
 }
 .pagination .page-link {
   color: black;
@@ -357,7 +338,7 @@ li {
 .service-card {
   border-radius: 15px;
   height:auto;
-  overflow: hidden; /* Keeps content within the rounded corners */
+  overflow: hidden;
 }
 
 .text-center{

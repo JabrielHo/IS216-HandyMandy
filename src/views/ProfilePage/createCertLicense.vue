@@ -60,12 +60,11 @@ const rules = {
 
 const v$ = useVuelidate(rules, { certifications });
 
-// Fetch current user certifications on mount and populate the text area
 onMounted(async () => {
   const userId = route.params.userId;
   const user = await UserService.getUserData(userId);
   const userCertifications = user.certificationsLicenses || [];
-  certifications.value = userCertifications.join('\n'); // Prefill the textarea
+  certifications.value = userCertifications.join('\n');
 });
 
 async function submitCertifications() {
@@ -75,7 +74,6 @@ async function submitCertifications() {
     return;
   }
 
-  // Split the certifications by line breaks
   const certificationList = certifications.value
     .split('\n')
     .map(cert => cert.trim())
@@ -86,7 +84,6 @@ async function submitCertifications() {
   const result = await UserService.updateCertLicense(certificationList);
 
   if (result.success) {
-    // Redirect to the profile page after successful submission
     router.push('/profile/' + authStore.user.uid);
   }
 }

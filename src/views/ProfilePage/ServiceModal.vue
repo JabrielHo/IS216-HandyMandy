@@ -46,7 +46,7 @@ export default {
   border-radius: 8px;
   max-width: 500px;
   width: 100%;
-  text-align: center; /* Center all text and elements inside the modal */
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;

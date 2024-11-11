@@ -181,7 +181,7 @@ export default {
     averageRating() {
       if (this.user.reviews && this.user.reviews.length > 0) {
         const totalRating = this.user.reviews.reduce((sum, review) => sum + review.rating, 0)
-        return (totalRating / this.user.reviews.length).toFixed(1) // Rounded to 1 decimal place
+        return (totalRating / this.user.reviews.length).toFixed(1)
       }
       return 'No ratings'
     }
@@ -234,7 +234,6 @@ export default {
       }
     },
     async openModal(service) {
-      // Fetch the detailed info based on serviceId and service_type
       const detailedService = await Services.getDetailedService(service.serviceId, service.service_type[0])
 
       if (detailedService) {
