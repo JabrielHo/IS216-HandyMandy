@@ -4,7 +4,7 @@
       <!-- Profile Section -->
       <div class="row profile-section">
         <img
-          :src="user.profilePicture"
+          :src="user?.profilePicture"
           :alt="`${user.name}'s Profile Picture`"
           class="profile-pic col-md-6"
         />
@@ -44,25 +44,25 @@
       </div>
 
       <h2 class="section-title">{{ user.username }}'s' Services</h2>
-      <div class="row services-container"></div>
       <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
-
       <div v-else class="row services-container">
-        <div
-          v-for="service in userservice"
-          :key="service.id"
-          class="service-rectangle col-md-6 col-lg-4"
-          @click="openModal(service)"
-        >
-          <div v-for="(servicename, index) in service.service_type" :key="index">
-            <div class="label">{{ servicename }}</div>
-            <img
-              :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
-              :alt="`${servicename} Image`"
-              class="service-image"
-            />
+        <template v-for="service in userservice" :key="service.id">
+          <div
+            v-for="(servicename, index) in service.service_type"
+            :key="index"
+            class="service-rectangle col-md-6 col-lg-4"
+            @click="openModal(service)"
+          >
+            <div>
+              <div class="label">{{ servicename }}</div>
+              <img
+                :src="serviceImgs[servicename] || 'fallback-image-url.jpg'"
+                :alt="`${servicename} Image`"
+                class="service-image"
+              />
+            </div>
           </div>
-        </div>
+        </template>
       </div>
 
       <button v-if="currUId == userId" class="addservice" @click="navigateToCreateService">
@@ -207,7 +207,7 @@ export default {
     async fetchServicesByUser(userId) {
       const serviceresult = await Services.getServicesByUser(userId)
       this.userservice = serviceresult
-
+      console.log(serviceresult)
       const detailedServiceMap = {}
 
       for (const service of serviceresult) {
