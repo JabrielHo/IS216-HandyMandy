@@ -6,20 +6,11 @@
         <div class="post-header">
           <div class="author-section">
             <div class="profile-image">
-              <img
-                :src="post.userImage || '/default-avatar.png'"
-                :alt="post.username"
-                @error="handleImageError"
-                @click.stop="goToProfile(post.userId)"
-                style="cursor: pointer"
-              />
+              <img :src="post.userImage || '/default-avatar.png'" :alt="post.username" @error="handleImageError"
+                @click.stop="goToProfile(post.userId)" style="cursor: pointer" />
             </div>
             <div class="author-info">
-              <h3
-                class="author-name"
-                @click.stop="goToProfile(post.userId)"
-                style="cursor: pointer"
-              >
+              <h3 class="author-name" @click.stop="goToProfile(post.userId)" style="cursor: pointer">
                 {{ post.username }}
               </h3>
               <span class="date">
@@ -43,20 +34,11 @@
           </div>
           <div class="edit-form" v-else>
             <input v-model="editedTitle" class="edit-title" type="text" placeholder="Post title" />
-            <textarea
-              v-model="editedContent"
-              class="edit-content"
-              placeholder="Post content"
-            ></textarea>
+            <textarea v-model="editedContent" class="edit-content" placeholder="Post content"></textarea>
             <div class="edit-actions">
-              <button
-                @click="saveEdit"
-                class="btn-save"
-                :disabled="
-                  editedTitle.trim() === post.title.trim() &&
-                  editedContent.trim() === post.content.trim()
-                "
-              >
+              <button @click="saveEdit" class="btn-save" :disabled="editedTitle.trim() === post.title.trim() &&
+                editedContent.trim() === post.content.trim()
+                ">
                 Save
               </button>
               <button @click="cancelEdit" class="btn-cancel">Cancel</button>
@@ -64,10 +46,7 @@
           </div>
           <div class="likes-comments">
             <button @click.stop="likePost(post.id)" class="btn-like">
-              <i
-                class="bi"
-                :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"
-              ></i>
+              <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
               <span class="like-count">{{ post.likes }}</span>
             </button>
             <span>Comments: {{ post.comments }}</span>
@@ -79,16 +58,14 @@
             <div class="comments-list">
               <div v-for="(comment, index) in comments" :key="index" class="comment-card">
                 <div class="comment-header">
-                  <div class="profile-image">
-                    <img
-                      :src="comment.profilePicture || '/default-avatar.png'"
-                      :alt="comment.username"
-                      @error="handleImageError"
-                    />
-                  </div>
+                  <router-link :to="`/profile/${comment.userId}`" class="profile-image">
+                    <img :src="comment.profilePicture || '/default-avatar.png'" :alt="comment.username"
+                      @error="handleImageError" />
+                  </router-link>
                   <div class="comment-info">
                     <div class="comment-meta">
-                      <p class="username">{{ comment.username }}</p>
+                      <p class="username" @click.stop="goToProfile(comment.userId)"
+                      style="cursor: pointer">{{ comment.username }}</p>
                       <p class="timestamp">{{ formatPostDate(comment.timestamp) }}</p>
                     </div>
                     <div class="comment-content">
@@ -102,18 +79,9 @@
             <div class="comment-form" ref="commentForm">
               <h3 class="form-title">Join the Discussion</h3>
               <div class="input-group">
-                <textarea
-                  v-model="newCommentContent"
-                  class="comment-input"
-                  rows="3"
-                  placeholder="Share your thoughts..."
-                  ref="commentInput"
-                ></textarea>
-                <button
-                  @click="addComment"
-                  class="btn-submit"
-                  :disabled="!newCommentContent.trim()"
-                >
+                <textarea v-model="newCommentContent" class="comment-input" rows="3"
+                  placeholder="Share your thoughts..." ref="commentInput"></textarea>
+                <button @click="addComment" class="btn-submit" :disabled="!newCommentContent.trim()">
                   Post Comment
                 </button>
               </div>
