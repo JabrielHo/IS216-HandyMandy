@@ -103,7 +103,7 @@ onMounted(() => {
 <template>
   <div class="background">
     <section class="text-center container-fluid">
-      <div class="row pt-4">
+      <div class="row m-0">
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="heading">Available Services</h1>
           <p>
@@ -114,11 +114,14 @@ onMounted(() => {
             <button v-if="isLoggedIn" class="createBtn btn my-2" @click="navigateToCreateService">
               Add Your Service!
             </button>
+            <a v-if="isLoggedIn" class="fab" @click="navigateToCreateService"
+              ><i class="bi bi-plus"></i
+            ></a>
           </p>
         </div>
       </div>
-      <hr />
     </section>
+    <hr class="m-0" />
 
     <section class="container">
       <div v-if="!loading" class="my-4 filter">
@@ -249,16 +252,20 @@ onMounted(() => {
   border-color: gray;
   color: #ffffff;
 }
+
 .pagination .page-link {
   color: black;
 }
+
 .createBtn {
   background-color: #f88765;
   color: white;
 }
+
 .background {
   background-image: url(../../assets/backdrop.png);
 }
+
 .filter {
   display: flex;
   justify-content: space-between;
@@ -307,6 +314,23 @@ li {
   height: 50vh;
 }
 
+.fab {
+  display: none;
+  position: fixed;
+  width: 55px;
+  height: 55px;
+  background-color: #f88765;
+  color: white;
+  border-radius: 50%;
+  bottom: 20px;
+  right: 20px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+  font-size: 30px;
+}
+
 @media (max-width: 500px) {
   .filter {
     flex-direction: column;
@@ -327,6 +351,10 @@ li {
     width: 100%;
   }
 
+  .fab {
+    display: flex;
+  }
+
   .createBtn {
     display: none;
   }
@@ -337,6 +365,7 @@ li {
   overflow: hidden;
   border: 2px solid black;
 }
+
 .service-card {
   border-radius: 15px;
   height: auto;

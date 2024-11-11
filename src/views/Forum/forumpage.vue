@@ -18,7 +18,7 @@ import {
   Timestamp,
   limit
 } from 'firebase/firestore'
-import { db, app } from '../../firebaseConfig'
+import { db } from '../../firebaseConfig'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import SavedPostsModal from './savedPostModal.vue'
 

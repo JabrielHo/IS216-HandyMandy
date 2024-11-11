@@ -557,6 +557,7 @@ async function likePost(postId: string) {
 .profile-image {
   width: 48px;
   height: 48px;
+  min-width: 48px;
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid rgba(255, 255, 255, 0.8);
