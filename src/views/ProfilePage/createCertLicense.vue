@@ -20,22 +20,12 @@
             <span>At least one certification or license is required.</span>
           </div>
         </div>
-  
-        <div v-if="existingCertifications.length > 0" class="existing-certifications">
-          <h5>Your Current Certifications/ Licenses:</h5>
-          <ul>
-            <li v-for="(cert, index) in existingCertifications" :key="index">
-              {{ cert }}
-              <button @click="deleteCertification(index)" class="delete-btn">Delete</button>
-            </li>
-          </ul>
         </div>
   
         <div class="submit-button">
           <button class="btn submitBtn" @click="submitCertifications">Submit Certifications</button>
         </div>
       </div>
-    </div>
     </section>
   </template>
   
