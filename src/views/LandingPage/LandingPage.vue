@@ -105,7 +105,7 @@ import carousel from '@/components/LandingPage/carousel.vue'
 }
 
 .volunteer-section {
-  background-color: #ffad60;
+  background-color: #F88765;
 }
 
 /* Layout */

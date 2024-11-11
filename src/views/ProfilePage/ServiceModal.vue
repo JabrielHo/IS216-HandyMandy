@@ -63,7 +63,7 @@ button {
   padding: 10px 20px;
   border: none;
   border-radius: 20px;
-  background-color: #ffad60;
+  background-color: #F88765;
   cursor: pointer;
   font-size: 16px;
   margin-top: 20px;

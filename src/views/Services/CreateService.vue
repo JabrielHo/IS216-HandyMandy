@@ -287,12 +287,12 @@ async function createService() {
 }
 
 .progress-step.active {
-  color: #ffad60;
+  color: #F88765;
   font-weight: bold;
 }
 
 .progress-step.active::after {
-  background: #ffad60;
+  background: #F88765;
 }
 
 .form-step {
@@ -316,13 +316,13 @@ async function createService() {
 }
 
 .service-option:hover {
-  border-color: #ffad60;
+  border-color: #F88765;
 }
 
 .service-option.selected {
-  background: #ffad60;
+  background: #F88765;
   color: white;
-  border-color: #ffad60;
+  border-color: #F88765;
 }
 
 .form-group {
@@ -338,7 +338,7 @@ async function createService() {
 }
 
 .form-control:focus {
-  border-color: #ffad60;
+  border-color: #F88765;
   outline: none;
 }
 
@@ -374,7 +374,7 @@ async function createService() {
 }
 
 .btn-primary {
-  background: #ffad60;
+  background: #F88765;
   color: white;
 }
 
@@ -384,7 +384,7 @@ async function createService() {
 }
 
 .btn-success {
-  background: #ffad60;
+  background: #F88765;
   color: white;
 }
 

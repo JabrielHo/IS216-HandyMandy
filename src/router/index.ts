@@ -13,14 +13,14 @@ const router = createRouter({
     {
       path: '/signin',
       name: 'signin',
-      component: () => import('../views/SigninPage/SignIn.vue')
-      // meta: { requiresAuth: false }
+      component: () => import('../views/SigninPage/SignIn.vue'),
+      meta: { requiresAuth: false }
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('../views/SigninPage/register.vue')
-      // meta: { requiresAuth: false }
+      component: () => import('../views/SigninPage/register.vue'),
+      meta: { requiresAuth: false }
     },
     {
       path: '/requests',
@@ -30,8 +30,8 @@ const router = createRouter({
     {
       path: '/service-request',
       name: 'serviceRequest',
-      component: () => import('../views/ServiceRequests/CreateRequestView.vue')
-      // meta: { requiresAuth: true }
+      component: () => import('../views/ServiceRequests/CreateRequestView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/services',
@@ -47,7 +47,7 @@ const router = createRouter({
       path: '/create-service',
       name: 'createService',
       component: () => import('../views/Services/CreateService.vue')
-      // meta: { requiresAuth: true }
+      meta: { requiresAuth: true }
     },
     {
       path: '/profile/:userId',
@@ -58,11 +58,6 @@ const router = createRouter({
       path: '/forum',
       name: 'forumpage',
       component: () => import('../views/Forum/forumpage.vue')
-    },
-    {
-      path: '/forumpost',
-      name: 'forumpost',
-      component: () => import('../views/Forum/individualPost.vue')
     },
     {
       path: '/request/:id',
@@ -78,26 +73,27 @@ const router = createRouter({
     {
       path: '/inbox',
       name: 'inbox',
-      component: () => import('../views/Inbox/ChatView.vue')
-      // meta: { requiresAuth: true }
+      component: () => import('../views/Inbox/ChatView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/inbox/:chatRoomId',
       name: 'chatView',
       component: () => import('../views/Inbox/ChatView.vue'),
-      props: true
-      // meta: { requiresAuth: true }
+      props: true,
+      meta: { requiresAuth: true }
     },
     {
       path: '/photo-upload',
       name: 'photoUpload',
-      component: () => import('../views/SigninPage/PhotoUpload.vue')
-      // meta: { requiresAuth: true }
+      component: () => import('../views/SigninPage/PhotoUpload.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/createCertLicense/:userId',
       name: 'createCertificationLicenses',
-      component: () => import('../views/ProfilePage/createCertLicense.vue')
+      component: () => import('../views/ProfilePage/createCertLicense.vue'),
+      meta: { requiresAuth: true }
     }
   ],
   scrollBehavior(to, from, savedPosition) {

@@ -414,7 +414,7 @@ onUnmounted(() => {
 }
 
 .list-group-item.active {
-  background-color: #ffad60 !important;
+  background-color: #F88765 !important;
   border: 0px;
   color: black;
 }
@@ -459,7 +459,7 @@ onUnmounted(() => {
 }
 
 .custom-dropdown-button {
-  background-color: #ffad60;
+  background-color: #F88765;
   text-align: left;
   color: black;
 }
