@@ -142,12 +142,13 @@ onMounted(() => {
     <div v-if="!loading" class="my-4 filter">
       <!-- Filters for Categories and Locations -->
       <!-- Dropdown for Categories -->
-      <div class="dropdown me-md-2">
+      <div class="dropdown me-md-2 button">
         <button
           class="btn drop dropdown-toggle rounded-pill"
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
+          style="color:white"
         >
           {{ selectedCategoryOption }}
         </button>
@@ -172,12 +173,13 @@ onMounted(() => {
       </div>
 
       <!-- Dropdown for Locations -->
-      <div class="dropdown me-md-2">
+      <div class="dropdown me-md-2 button">
         <button
           class="btn drop dropdown-toggle rounded-pill"
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
+           style="color:white"
         >
           {{ selectedLocationOption }}
         </button>
@@ -364,5 +366,10 @@ li {
   padding: 20px 0;
   text-align: center;
   height:270px;
+}
+
+.button{
+  background-color: #f88765;
+  border-radius: 15px;
 }
 </style>

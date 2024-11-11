@@ -100,7 +100,7 @@ onMounted(() => {
 
 <template>
   <div class="background">
-    <section class="text-center container">
+    <section class="text-center container-fluid">
       <div class="row pt-4">
         <div class="col-lg-6 col-md-8 mx-auto">
           <h1 class="heading">Service Requests</h1>
@@ -118,16 +118,18 @@ onMounted(() => {
           </p>
         </div>
       </div>
+      <hr />
     </section>
-    <hr />
+    
     <section class="container">
       <div v-if="!loading" class="my-4 filter">
-        <div class="dropdown">
+        <div class="dropdown button">
           <button
             class="btn drop dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
+            style="color:white"
           >
             {{ selectedSortOption }}
           </button>
@@ -148,12 +150,13 @@ onMounted(() => {
             </li>
           </ul>
         </div>
-        <div class="dropdown ml-auto">
+        <div class="dropdown ml-auto button">
           <button
             class="btn drop dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
+            style="color:white"
           >
             {{ selectedLocationOption }}
           </button>
@@ -176,12 +179,13 @@ onMounted(() => {
             </div>
           </ul>
         </div>
-        <div class="dropdown">
+        <div class="dropdown button">
           <button
             class="btn drop dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
+            style="color: white;"
           >
             {{ selectedCategoryOption }}
           </button>
@@ -370,5 +374,17 @@ li {
   .createBtn {
     display: none;
   }
+}
+.text-center{
+  width: 100%;
+  background-color: #fff9e0;
+  padding: 20px 0;
+  text-align: center;
+  height:270px;
+}
+
+.button{
+  background-color: #f88765;
+  border-radius: 15px;
 }
 </style>
