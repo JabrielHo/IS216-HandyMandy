@@ -119,7 +119,7 @@ onMounted(() => {
         </div>
       </div>
     </section>
-    <hr class="m-0" />
+    <hr class="m-0"/>
 
     <section class="container">
       <div v-if="!loading" class="my-4 filter">
@@ -323,6 +323,23 @@ li {
   color: inherit !important;
 }
 
+.fab {
+  display: none;
+  position: fixed;
+  width: 55px;
+  height: 55px;
+  background-color: #f88765;
+  color: white;
+  border-radius: 50%;
+  bottom: 20px;
+  right: 20px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+  font-size: 30px;
+}
+
 .noRequests {
   display: flex;
   justify-content: center;
@@ -359,24 +376,6 @@ li {
     display: none;
   }
 }
-
-.fab {
-  display: none;
-  position: fixed;
-  width: 55px;
-  height: 55px;
-  background-color: #f88765;
-  color: white;
-  border-radius: 50%;
-  bottom: 20px;
-  right: 20px;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 100;
-  font-size: 30px;
-}
-
 .text-center {
   width: 100%;
   background-color: #fff9e0;
