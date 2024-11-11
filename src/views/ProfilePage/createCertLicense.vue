@@ -60,7 +60,7 @@ onMounted(async () => {
 async function submitCertifications() {
   await v$.value.$touch();
   if (v$.value.$invalid) {
-    console.log('Form is invalid');
+    // console.log('Form is invalid');
     return;
   }
 
@@ -69,7 +69,7 @@ async function submitCertifications() {
     .map(cert => cert.trim())
     .filter(cert => cert !== '');
 
-  console.log(certificationList);
+  // console.log(certificationList);
 
   const result = await UserService.updateCertLicense(certificationList);
 
