@@ -151,7 +151,7 @@ async function createChat() {
 onMounted(async () => {
   // Fetch Data
   await fetchServiceRequest(route.params.id)
-  initializeMap(lat.value, long.value)
+  await initializeMap(lat.value, long.value)
 })
 </script>
 
@@ -266,7 +266,7 @@ onMounted(async () => {
 }
 
 .responsive-map {
-  height: 100%;
+  height: 400px;
   width: 100%;
 }
 

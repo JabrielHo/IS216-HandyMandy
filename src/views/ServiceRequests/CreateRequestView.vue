@@ -44,17 +44,24 @@ function handleFileChange(event) {
   image.value = event.target.files[0]
 }
 
+function capitalizeLocation(str) {
+  return str
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 async function createRequest() {
   await v$.value.$touch()
   if (v$.value.$invalid) {
-    console.log(v$.value.title)
     return
   }
 
   const fields = {
     title: title.value.trim(),
     description: description.value.trim(),
-    location: location.value.trim(),
+    location: capitalizeLocation(location.value.trim()),
     category: category.value.trim(),
     status: 'Open',
     userId: userData.value.uid,
