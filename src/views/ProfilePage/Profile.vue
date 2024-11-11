@@ -50,7 +50,7 @@
           <div
             v-for="(servicename, index) in service.service_type"
             :key="index"
-            class="service-rectangle col-md-6 col-lg-4"
+            class="service-rectangle col-md-6 col-lg-4 col-sm-3"
             @click="openModal(service, servicename)"
           >
             <div>
@@ -319,12 +319,13 @@ export default {
   justify-content: center;
   width: 80%;
   max-width: 1200px;
-  margin-bottom: 20px;
+  margin-top: clamp(2rem, 4rem, 5rem);
+  margin-bottom: clamp(2rem, 4rem, 5rem);
 }
 
 .profile-pic {
   /* width: 25%; */
-  max-width: 300px;
+  width: clamp(200px, 300px, 300px);
   height: auto;
   border-radius: 100px;
   margin-right: 100px;
@@ -338,7 +339,7 @@ export default {
 }
 
 .profile-name {
-  font-size: 36px;
+  font-size: clamp(3vw, 2rem, 5vw);
   font-weight: bold;
   color: #a66e38;
   margin: 0;
