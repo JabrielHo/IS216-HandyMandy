@@ -46,7 +46,7 @@ const router = createRouter({
     {
       path: '/create-service',
       name: 'createService',
-      component: () => import('../views/Services/CreateService.vue')
+      component: () => import('../views/Services/CreateService.vue'),
       meta: { requiresAuth: true }
     },
     {
@@ -104,20 +104,6 @@ const router = createRouter({
       // Otherwise, scroll to the top of the page
       return { top: 0 }
     }
-  }
-})
-
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
-  if (authStore.loading) {
-    authStore.checkAuth()
-  }
-  if (to.matched.some((record) => record.meta.requiresAuth === true) && !authStore.user) {
-    next('/signin')
-  } else if (to.matched.some((record) => record.meta.requiresAuth === false) && authStore.user) {
-    next('/')
-  } else {
-    next()
   }
 })
 
