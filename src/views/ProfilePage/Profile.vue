@@ -44,7 +44,7 @@
       </div>
 
       <h2 class="section-title">{{ user.username }}'s Services</h2>
-      <div v-if="userservice.length === 0" class="no-services-message">No services available.</div>
+      <div v-if="userservice.length === 0">No services available.</div>
       <div v-else class="row services-container">
         <template v-for="service in userservice" :key="service.id">
           <div
@@ -79,32 +79,26 @@
       />
 
       <h2 class="section-title">{{ user.username }}'s Requests</h2>
-      <div class="row">
-        <div v-if="userrequest.length === 0" class="no-requests-message" style="text-align: center">
-          No requests available.
-        </div>
-        <div v-else class="row request-container">
-          <div
-            v-for="request in userrequest"
-            :key="request.id"
-            class="service-rectangle col-md-6 col-lg-4"
-          >
-            <router-link :to="`/request/${request.id}`" class="service-rectangle no-underline">
-              <div class="label">{{ request.title }}</div>
-              <img :src="request.imgSrc" alt="" class="service-image" />
-            </router-link>
-          </div>
+      <div v-if="userrequest.length === 0">No requests available.</div>
+      <div v-else class="row request-container">
+        <div
+          v-for="request in userrequest"
+          :key="request.id"
+          class="service-rectangle col-md-6 col-lg-4"
+        >
+          <router-link :to="`/request/${request.id}`" class="service-rectangle no-underline">
+            <div class="label">{{ request.title }}</div>
+            <img :src="request.imgSrc" alt="" class="service-image" />
+          </router-link>
         </div>
       </div>
+
       <button v-if="currUId == userId" class="addrequest" @click="navigateToCreateRequest">
         Add request
       </button>
+
       <h2 class="section-title">{{ user.username }}'s Reviews</h2>
-      <div
-        v-if="!user.reviews || user.reviews.length === 0"
-        class="no-reviews-message"
-        style="text-align: center"
-      >
+      <div v-if="!user.reviews || user.reviews.length === 0">
         No reviews available.
       </div>
       <div v-else-if="user.reviews && user.reviews.length > 0" class="review-container">
