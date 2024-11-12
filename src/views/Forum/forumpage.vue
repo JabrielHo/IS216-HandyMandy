@@ -191,6 +191,27 @@ const isPostSaved = computed(() => {
   }
 })
 
+async function removeSavedPost(postId: string) {
+  if (!currentUser.value) {
+    alert('You must be logged in to remove saved posts.')
+    return
+  }
+
+  try {
+    // Remove from Firestore
+    const userRef = doc(db, 'users', currentUser.value.uid)
+    await updateDoc(userRef, {
+      savedPosts: arrayRemove(postId)
+    })
+
+    // Update local state
+    savedPosts.value = savedPosts.value.filter(post => post.id !== postId)
+  } catch (error) {
+    console.error('Error removing saved post:', error)
+    alert('Failed to remove saved post')
+  }
+}
+
 async function submitPost() {
   // Validate input fields
   if (!title.value || !description.value || !selectedCategory.value) {
@@ -655,12 +676,7 @@ onMounted(() => {
             <span class="input-group-text">
               <i class="bi bi-search"></i>
             </span>
-            <input
-              type="text"
-              v-model="searchQuery"
-              class="form-control"
-              placeholder="Search posts by title..."
-            />
+            <input type="text" v-model="searchQuery" class="form-control" placeholder="Search posts by title..." />
           </div>
         </div>
       </div>
@@ -675,41 +691,25 @@ onMounted(() => {
             <div class="p-4 bg-light mb-3 rounded-5">
               <h5 class="text-start mb-3">Create a post here:</h5>
               <div class="mb-3">
-                <input
-                  type="text"
-                  v-model="title"
-                  class="form-control post-input title-input"
-                  placeholder="Add a title"
-                />
+                <input type="text" v-model="title" class="form-control post-input title-input"
+                  placeholder="Add a title" />
               </div>
               <div class="mb-3">
-                <textarea
-                  v-model="description"
-                  class="form-control post-input content-input"
-                  placeholder="What's on your mind? 🤔"
-                ></textarea>
+                <textarea v-model="description" class="form-control post-input content-input"
+                  placeholder="What's on your mind? 🤔"></textarea>
               </div>
 
               <div class="btn-group d-flex flex-wrap mb-3" role="group">
-                <button
-                  v-for="(category, index) in categories"
-                  :key="index"
-                  type="button"
+                <button v-for="(category, index) in categories" :key="index" type="button"
                   class="btn btn-outline-primary rounded-pill flex-grow-1 mb-2 mx-1"
-                  :class="{ active: selectedCategory === category }"
-                  @click="selectedCategory = category"
-                >
+                  :class="{ active: selectedCategory === category }" @click="selectedCategory = category">
                   {{ category }}
                 </button>
               </div>
 
               <!-- Make Add Post button responsive and centered -->
               <div class="d-flex justify-content-center">
-                <button
-                  type="button"
-                  class="btn btn-primary addpost w-100 w-md-auto"
-                  @click="submitPost()"
-                >
+                <button type="button" class="btn btn-primary addpost w-100 w-md-auto" @click="submitPost()">
                   Add Post
                 </button>
               </div>
@@ -731,18 +731,10 @@ onMounted(() => {
               <div v-else>
                 <!-- Display paginated posts -->
                 <div v-for="post in paginatedPosts" :key="post.id" class="mb-3 post-card">
-                  <div
-                    class="d-flex align-items-start post-wrapper"
-                    @click="goToPostDetail(post.id)"
-                    style="cursor: pointer"
-                  >
-                    <img
-                      :src="post.profilePicture"
-                      alt="User profile"
-                      class="user-image me-2"
-                      @click.stop="goToProfile(post.userId)"
-                      style="cursor: pointer"
-                    />
+                  <div class="d-flex align-items-start post-wrapper" @click="goToPostDetail(post.id)"
+                    style="cursor: pointer">
+                    <img :src="post.profilePicture" alt="User profile" class="user-image me-2"
+                      @click.stop="goToProfile(post.userId)" style="cursor: pointer" />
                     <div class="post-content-wrapper">
                       <div class="d-flex justify-content-between align-items-start">
                         <div class="post-info">
@@ -756,22 +748,17 @@ onMounted(() => {
                           <h6>{{ post.title }}</h6>
                         </div>
                         <button @click.stop="toggleSavePost(event, post.id)" class="btn-save">
-                          <i
-                            class="bi"
-                            :class="{
-                              'bi-bookmark-fill': isPostSaved(post.id),
-                              'bi-bookmark': !isPostSaved(post.id)
-                            }"
-                          ></i>
+                          <i class="bi" :class="{
+                            'bi-bookmark-fill': isPostSaved(post.id),
+                            'bi-bookmark': !isPostSaved(post.id)
+                          }"></i>
                         </button>
                       </div>
-                      <div
-                        class="post-content"
-                        :style="{ 'max-height': expandedPostId === post.id ? '500px' : '4.5rem' }"
-                      >
+                      <div class="post-content"
+                        :style="{ 'max-height': expandedPostId === post.id ? '500px' : '4.5rem' }">
                         <span v-if="post.content.split(/\s+/).length <= 70">{{
                           post.content
-                        }}</span>
+                          }}</span>
                         <span v-else>
                           <span v-if="expandedPostId === post.id">{{ post.content }}</span>
                           <span v-else>{{ truncate(post.content, 65) }}</span>
@@ -780,42 +767,28 @@ onMounted(() => {
                       <button type="button" class="btn btn-outline-secondary btn-sm category-tag">
                         {{ post.category }}
                       </button>
-                      <div
-                        v-if="post.content.split(/\s+/).length > 70"
-                        class="d-flex justify-content-between align-items-center"
-                      >
+                      <div v-if="post.content.split(/\s+/).length > 70"
+                        class="d-flex justify-content-between align-items-center">
                         <div class="likes-comments">
                           <button @click.stop="likePost(post.id)" class="btn-like">
-                            <i
-                              class="bi"
-                              :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"
-                            ></i>
+                            <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
                             <span class="like-count">{{ post.likes }}</span>
                           </button>
                           <span>Comments: {{ post.comments }}</span>
                         </div>
-                        <button
-                          type="button"
-                          class="btn btn-outline-secondary btn-sm"
-                          @click.stop="toggleExpand(post.id)"
-                        >
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                          @click.stop="toggleExpand(post.id)">
                           <span>{{ expandedPostId !== post.id ? 'Expand' : 'Collapse' }}</span>
-                          <i
-                            class="fa-solid"
-                            :class="{
-                              'fa-chevron-down': expandedPostId !== post.id,
-                              'fa-chevron-up': expandedPostId === post.id
-                            }"
-                          ></i>
+                          <i class="fa-solid" :class="{
+                            'fa-chevron-down': expandedPostId !== post.id,
+                            'fa-chevron-up': expandedPostId === post.id
+                          }"></i>
                         </button>
                       </div>
                       <div v-else>
                         <div class="likes-comments">
                           <button @click.stop="likePost(post.id)" class="btn-like">
-                            <i
-                              class="bi"
-                              :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"
-                            ></i>
+                            <i class="bi" :class="{ 'bi-heart-fill': post.isLiked, 'bi-heart': !post.isLiked }"></i>
                             <span class="like-count">{{ post.likes }}</span>
                           </button>
                           <span>Comments: {{ post.comments }}</span>
@@ -832,11 +805,7 @@ onMounted(() => {
                     <ul class="pagination justify-content-center">
                       <!-- Previous button -->
                       <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button
-                          class="page-link"
-                          @click="previousPage"
-                          :disabled="currentPage === 1"
-                        >
+                        <button class="page-link" @click="previousPage" :disabled="currentPage === 1">
                           Previous
                         </button>
                       </li>
@@ -852,15 +821,9 @@ onMounted(() => {
                       </li>
 
                       <!-- Pages around current page -->
-                      <li
-                        v-for="page in pageNumbers"
-                        :key="page"
-                        class="page-item"
-                        v-if="
-                          page !== 1 && page !== totalPages && Math.abs(currentPage - page) <= 1
-                        "
-                        :class="{ active: page === currentPage }"
-                      >
+                      <li v-for="page in pageNumbers" :key="page" class="page-item" v-if="
+                        page !== 1 && page !== totalPages && Math.abs(currentPage - page) <= 1
+                      " :class="{ active: page === currentPage }">
                         <button class="page-link" @click="goToPage(page)">{{ page }}</button>
                       </li>
 
@@ -870,11 +833,7 @@ onMounted(() => {
                       </li>
 
                       <!-- Last page (if more than one page) -->
-                      <li
-                        v-if="totalPages > 1"
-                        class="page-item"
-                        :class="{ active: currentPage === totalPages }"
-                      >
+                      <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
                         <button class="page-link" @click="goToPage(totalPages)">
                           {{ totalPages }}
                         </button>
@@ -882,11 +841,7 @@ onMounted(() => {
 
                       <!-- Next button -->
                       <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <button
-                          class="page-link"
-                          @click="nextPage"
-                          :disabled="currentPage === totalPages"
-                        >
+                        <button class="page-link" @click="nextPage" :disabled="currentPage === totalPages">
                           Next
                         </button>
                       </li>
@@ -909,17 +864,9 @@ onMounted(() => {
         <div class="col-lg-4 col-md-12 rightbar">
           <div class="mb-3 p-3 bg-light rounded">
             <h6>Top discussion 🔥</h6>
-            <a
-              v-if="topDiscussion"
-              @click="goToPostDetail(topDiscussion.id)"
-              style="cursor: pointer"
-            >
-              <img
-                v-if="topDiscussion.profilePicture"
-                :src="topDiscussion.profilePicture"
-                class="user-image"
-                alt="Profile"
-              />
+            <a v-if="topDiscussion" @click="goToPostDetail(topDiscussion.id)" style="cursor: pointer">
+              <img v-if="topDiscussion.profilePicture" :src="topDiscussion.profilePicture" class="user-image"
+                alt="Profile" />
               <span>{{ topDiscussion.title }}</span>
             </a>
             <p v-else>No discussions yet.</p>
@@ -928,13 +875,8 @@ onMounted(() => {
           <div class="mb-3 p-3 bg-light rounded">
             <h6>Recommended topics</h6>
             <div class="btn-group-horizontal" role="group">
-              <button
-                v-for="category in categories"
-                :key="category"
-                @click="toggleFilter(category)"
-                :class="{ active: selectedFilterCategory === category }"
-                class="btn rounded-pill"
-              >
+              <button v-for="category in categories" :key="category" @click="toggleFilter(category)"
+                :class="{ active: selectedFilterCategory === category }" class="btn rounded-pill">
                 {{ category }}
               </button>
             </div>
@@ -943,13 +885,8 @@ onMounted(() => {
           <div class="p-3 bg-light rounded">
             <h6>Top User</h6>
             <div v-if="topUser" class="d-flex align-items-center mb-2">
-              <img
-                :src="topUser.profilePicture"
-                class="user-image me-2"
-                alt="Profile"
-                @click="goToProfile(topUser.id)"
-                style="cursor: pointer"
-              />
+              <img :src="topUser.profilePicture" class="user-image me-2" alt="Profile" @click="goToProfile(topUser.id)"
+                style="cursor: pointer" />
               <div>
                 <p class="m-0" style="cursor: pointer" @click="goToProfile(topUser.id)">
                   {{ topUser.username }}
@@ -965,33 +902,27 @@ onMounted(() => {
             </h6>
             <div v-if="currentUser">
               <div v-if="savedPosts.length > 0" class="saved-posts-list">
-                <div
-                  v-for="post in savedPosts.slice(0, 3)"
-                  :key="post.id"
-                  class="saved-post-item mb-2 p-2 border rounded"
-                  @click="goToPostDetail(post.id)"
-                  style="cursor: pointer"
-                >
+                <div v-for="post in savedPosts.slice(0, 3)" :key="post.id"
+                  class="saved-post-item mb-2 p-2 border rounded position-relative">
                   <div class="d-flex align-items-start">
-                    <img
-                      :src="post.userImage || 'default-profile.png'"
-                      alt="User profile"
-                      class="user-image me-2"
-                      style="width: 32px; height: 32px; border-radius: 50%"
-                    />
-                    <div class="flex-grow-1">
-                      <p class="mb-1 text-truncate fw-bold" style="font-size: 0.9rem">
+                    <img :src="post.userImage || 'default-profile.png'" alt="User profile" class="user-image me-2"
+                      style="width: 32px; height: 32px; border-radius: 50%" />
+                    <div class="flex-grow-1" @click="goToPostDetail(post.id)" style="cursor: pointer">
+                      <div class="saved-post-container">
+                      <p class="saved-post-title" style="font-size: 0.9rem">
                         {{ post.title }}
                       </p>
                       <small class="text-muted">{{ post.username }}</small>
                     </div>
                   </div>
+                    <button class="unsave-button" @click.stop="removeSavedPost(post.id)"
+                      style="position: absolute; right: 8px; top: 8px;">
+                      <i class="bi bi-bookmark-x"></i>
+                    </button>
+                  </div>
                 </div>
-                <button
-                  v-if="savedPosts.length > 3"
-                  class="btn btn-outline-primary btn-sm w-100 mt-2"
-                  @click="showAllSavedPosts"
-                >
+                <button v-if="savedPosts.length > 3" class="btn btn-outline-primary btn-sm w-100 mt-2"
+                  @click="showAllSavedPosts">
                   View All ({{ savedPosts.length }})
                 </button>
               </div>
@@ -1004,19 +935,10 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <SavedPostsModal
-      v-if="showSavedPostsModal"
-      :show="showSavedPostsModal"
-      :posts="savedPosts"
-      @close="showSavedPostsModal = false"
-      @unsave-post="handleUnsavePost"
-      @view-post="goToPostDetail"
-    />
+    <SavedPostsModal v-if="showSavedPostsModal" :show="showSavedPostsModal" :posts="savedPosts"
+      @close="showSavedPostsModal = false" @unsave-post="handleUnsavePost" @view-post="goToPostDetail" />
   </main>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
-  />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" />
 </template>
 
 <style scoped>
@@ -1132,111 +1054,109 @@ onMounted(() => {
   /* padding: 2rem; */
   padding-top: 0px;
   padding-bottom: 4rem;
-  clip-path: polygon(
-    100% 0%,
-    0% 0%,
-    0% 81.65%,
-    1% 81.9%,
-    2% 82.63%,
-    3% 83.79%,
-    4% 85.32%,
-    5% 87.13%,
-    6% 89.1%,
-    7% 91.12%,
-    8% 93.07%,
-    9% 94.83%,
-    10% 96.3%,
-    11% 97.39%,
-    12% 98.03%,
-    13% 98.19%,
-    14% 97.86%,
-    15% 97.05%,
-    16% 95.81%,
-    17% 94.23%,
-    18% 92.39%,
-    19% 90.4%,
-    20% 88.38%,
-    21% 86.45%,
-    22% 84.73%,
-    23% 83.33%,
-    24% 82.31%,
-    25% 81.76%,
-    26% 81.69%,
-    27% 82.11%,
-    28% 83%,
-    29% 84.3%,
-    30% 85.94%,
-    31% 87.82%,
-    32% 89.82%,
-    33% 91.83%,
-    34% 93.73%,
-    35% 95.4%,
-    36% 96.74%,
-    37% 97.68%,
-    38% 98.15%,
-    39% 98.13%,
-    40% 97.62%,
-    41% 96.65%,
-    42% 95.28%,
-    43% 93.59%,
-    44% 91.68%,
-    45% 89.67%,
-    46% 87.67%,
-    47% 85.81%,
-    48% 84.19%,
-    49% 82.91%,
-    50% 82.06%,
-    51% 81.67%,
-    52% 81.78%,
-    53% 82.38%,
-    54% 83.42%,
-    55% 84.86%,
-    56% 86.59%,
-    57% 88.53%,
-    58% 90.55%,
-    59% 92.53%,
-    60% 94.36%,
-    61% 95.92%,
-    62% 97.13%,
-    63% 97.9%,
-    64% 98.2%,
-    65% 98%,
-    66% 97.32%,
-    67% 96.2%,
-    68% 94.71%,
-    69% 92.93%,
-    70% 90.96%,
-    71% 88.94%,
-    72% 86.98%,
-    73% 85.19%,
-    74% 83.69%,
-    75% 82.56%,
-    76% 81.87%,
-    77% 81.66%,
-    78% 81.94%,
-    79% 82.7%,
-    80% 83.9%,
-    81% 85.45%,
-    82% 87.27%,
-    83% 89.25%,
-    84% 91.27%,
-    85% 93.21%,
-    86% 94.96%,
-    87% 96.4%,
-    88% 97.46%,
-    89% 98.06%,
-    90% 98.19%,
-    91% 97.81%,
-    92% 96.97%,
-    93% 95.7%,
-    94% 94.09%,
-    95% 92.24%,
-    96% 90.24%,
-    97% 88.22%,
-    98% 86.31%,
-    99% 84.61%,
-    100% 83.23%
-  );
+  clip-path: polygon(100% 0%,
+      0% 0%,
+      0% 81.65%,
+      1% 81.9%,
+      2% 82.63%,
+      3% 83.79%,
+      4% 85.32%,
+      5% 87.13%,
+      6% 89.1%,
+      7% 91.12%,
+      8% 93.07%,
+      9% 94.83%,
+      10% 96.3%,
+      11% 97.39%,
+      12% 98.03%,
+      13% 98.19%,
+      14% 97.86%,
+      15% 97.05%,
+      16% 95.81%,
+      17% 94.23%,
+      18% 92.39%,
+      19% 90.4%,
+      20% 88.38%,
+      21% 86.45%,
+      22% 84.73%,
+      23% 83.33%,
+      24% 82.31%,
+      25% 81.76%,
+      26% 81.69%,
+      27% 82.11%,
+      28% 83%,
+      29% 84.3%,
+      30% 85.94%,
+      31% 87.82%,
+      32% 89.82%,
+      33% 91.83%,
+      34% 93.73%,
+      35% 95.4%,
+      36% 96.74%,
+      37% 97.68%,
+      38% 98.15%,
+      39% 98.13%,
+      40% 97.62%,
+      41% 96.65%,
+      42% 95.28%,
+      43% 93.59%,
+      44% 91.68%,
+      45% 89.67%,
+      46% 87.67%,
+      47% 85.81%,
+      48% 84.19%,
+      49% 82.91%,
+      50% 82.06%,
+      51% 81.67%,
+      52% 81.78%,
+      53% 82.38%,
+      54% 83.42%,
+      55% 84.86%,
+      56% 86.59%,
+      57% 88.53%,
+      58% 90.55%,
+      59% 92.53%,
+      60% 94.36%,
+      61% 95.92%,
+      62% 97.13%,
+      63% 97.9%,
+      64% 98.2%,
+      65% 98%,
+      66% 97.32%,
+      67% 96.2%,
+      68% 94.71%,
+      69% 92.93%,
+      70% 90.96%,
+      71% 88.94%,
+      72% 86.98%,
+      73% 85.19%,
+      74% 83.69%,
+      75% 82.56%,
+      76% 81.87%,
+      77% 81.66%,
+      78% 81.94%,
+      79% 82.7%,
+      80% 83.9%,
+      81% 85.45%,
+      82% 87.27%,
+      83% 89.25%,
+      84% 91.27%,
+      85% 93.21%,
+      86% 94.96%,
+      87% 96.4%,
+      88% 97.46%,
+      89% 98.06%,
+      90% 98.19%,
+      91% 97.81%,
+      92% 96.97%,
+      93% 95.7%,
+      94% 94.09%,
+      95% 92.24%,
+      96% 90.24%,
+      97% 88.22%,
+      98% 86.31%,
+      99% 84.61%,
+      100% 83.23%);
 }
 
 .header-wrapper {
@@ -1784,6 +1704,15 @@ h6,
   background-color: #f8f9fa;
 }
 
+.saved-post-title{
+  overflow: hidden;
+text-overflow: ellipsis;
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+max-width: 85%;
+}
+
 .btn-save {
   position: absolute;
   top: 10px !important;
@@ -1802,6 +1731,28 @@ h6,
 
 .btn-save .bi-bookmark-fill {
   color: #0d6efd;
+}
+
+.unsave-button {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  border: none;
+  background: none;
+  color: #ff7043;
+  padding: 4px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.unsave-button:hover {
+  transform: scale(1.2);
+  background-color: #ff7043;
+  color: white;
+  border-radius: 100%;
 }
 
 /* topuser styling */
@@ -1823,6 +1774,7 @@ h6,
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
+
 .col-lg-4 .d-flex:hover p {
   color: #ff7043;
   transition: color 0.3s;
@@ -1857,43 +1809,53 @@ h6,
 
 .add-post-button {
   position: absolute;
-  top: 80px; /* Adjust as per the navbar height */
+  top: 80px;
+  /* Adjust as per the navbar height */
   right: 20px;
   padding: 10px 20px;
   margin: 5px;
-  background-color: #007bff; /* Initial color */
+  background-color: #007bff;
+  /* Initial color */
   color: white;
   border: none;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Smooth transition for hover */
+  transition: background-color 0.3s ease;
+  /* Smooth transition for hover */
 }
 
 .add-post-button:hover {
-  background-color: #0056b3; /* Change color on hover */
+  background-color: #0056b3;
+  /* Change color on hover */
 }
 
 .card {
-  transition: transform 0.2s ease; /* Add a transition for smooth effect */
+  transition: transform 0.2s ease;
+  /* Add a transition for smooth effect */
 }
 
 .card:hover {
-  transform: scale(1.05); /* Scale up the card on hover */
+  transform: scale(1.05);
+  /* Scale up the card on hover */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .liked {
-  color: blue; /* Change the color of the icon when liked */
+  color: blue;
+  /* Change the color of the icon when liked */
 }
+
 /* More specific selector for top discussion image */
 .rightbar .bg-light a .user-image {
-  width: 50px !important; /* Force override */
-  height: 50px !important; /* Force override */
+  width: 50px !important;
+  /* Force override */
+  height: 50px !important;
+  /* Force override */
   border-radius: 50%;
   object-fit: cover;
   margin-right: 15px;
-  
+
 }
 
 
@@ -1906,11 +1868,13 @@ h6,
     gap: 0;
     width: 50%;
   }
-  .user-image{
+
+  .user-image {
     width: 30px;
     height: 30px;
   }
-  .post-content span{
+
+  .post-content span {
     font-size: smaller;
   }
 
@@ -1918,9 +1882,11 @@ h6,
   .likes-comments span {
     margin: 0.5rem 0;
   }
-  .btn-like{
+
+  .btn-like {
     padding: 0;
   }
+
   .btn-outline-secondary.btn-sm {
     margin-top: 1rem;
   }
@@ -1928,16 +1894,18 @@ h6,
 
 
 
-@media (min-width: 1200px){ 
-  .header-wrapper, .header-wrapper2{
-  display: flex;
-  justify-content: center;
-  margin: auto;
-  align-items: center;
-  text-align: center;
-  padding: 2rem !important;
-  width: 50%;
-}
+@media (min-width: 1200px) {
+
+  .header-wrapper,
+  .header-wrapper2 {
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    align-items: center;
+    text-align: center;
+    padding: 2rem !important;
+    width: 50%;
+  }
 }
 
 
@@ -1945,31 +1913,34 @@ h6,
 
 @media (max-width: 1200px) {
 
-.topcontainer {
-  /* Add your alternative clip-path here */
-  padding-bottom: 5rem;
-  clip-path: polygon(100% 0%, 0% 0%, 0.00% 84.53%, 1.00% 84.57%, 2.00% 84.70%, 3.00% 84.91%, 4.00% 85.20%, 5.00% 85.56%, 6.00% 85.99%, 7.00% 86.49%, 8.00% 87.04%, 9.00% 87.63%, 10.00% 88.26%, 11.00% 88.92%, 12.00% 89.59%, 13.00% 90.27%, 14.00% 90.94%, 15.00% 91.60%, 16.00% 92.23%, 17.00% 92.82%, 18.00% 93.37%, 19.00% 93.86%, 20.00% 94.29%, 21.00% 94.66%, 22.00% 94.94%, 23.00% 95.15%, 24.00% 95.28%, 25.00% 95.32%, 26.00% 95.28%, 27.00% 95.15%, 28.00% 94.94%, 29.00% 94.66%, 30.00% 94.29%, 31.00% 93.86%, 32.00% 93.37%, 33.00% 92.82%, 34.00% 92.23%, 35.00% 91.60%, 36.00% 90.94%, 37.00% 90.27%, 38.00% 89.59%, 39.00% 88.92%, 40.00% 88.26%, 41.00% 87.63%, 42.00% 87.04%, 43.00% 86.49%, 44.00% 85.99%, 45.00% 85.56%, 46.00% 85.20%, 47.00% 84.91%, 48.00% 84.70%, 49.00% 84.57%, 50.00% 84.53%, 51.00% 84.57%, 52.00% 84.70%, 53.00% 84.91%, 54.00% 85.20%, 55.00% 85.56%, 56.00% 85.99%, 57.00% 86.49%, 58.00% 87.04%, 59.00% 87.63%, 60.00% 88.26%, 61.00% 88.92%, 62.00% 89.59%, 63.00% 90.27%, 64.00% 90.94%, 65.00% 91.60%, 66.00% 92.23%, 67.00% 92.82%, 68.00% 93.37%, 69.00% 93.86%, 70.00% 94.29%, 71.00% 94.66%, 72.00% 94.94%, 73.00% 95.15%, 74.00% 95.28%, 75.00% 95.32%, 76.00% 95.28%, 77.00% 95.15%, 78.00% 94.94%, 79.00% 94.66%, 80.00% 94.29%, 81.00% 93.86%, 82.00% 93.37%, 83.00% 92.82%, 84.00% 92.23%, 85.00% 91.60%, 86.00% 90.94%, 87.00% 90.27%, 88.00% 89.59%, 89.00% 88.92%, 90.00% 88.26%, 91.00% 87.63%, 92.00% 87.04%, 93.00% 86.49%, 94.00% 85.99%, 95.00% 85.56%, 96.00% 85.20%, 97.00% 84.91%, 98.00% 84.70%, 99.00% 84.57%, 100.00% 84.53%);
-}
+  .topcontainer {
+    /* Add your alternative clip-path here */
+    padding-bottom: 5rem;
+    clip-path: polygon(100% 0%, 0% 0%, 0.00% 84.53%, 1.00% 84.57%, 2.00% 84.70%, 3.00% 84.91%, 4.00% 85.20%, 5.00% 85.56%, 6.00% 85.99%, 7.00% 86.49%, 8.00% 87.04%, 9.00% 87.63%, 10.00% 88.26%, 11.00% 88.92%, 12.00% 89.59%, 13.00% 90.27%, 14.00% 90.94%, 15.00% 91.60%, 16.00% 92.23%, 17.00% 92.82%, 18.00% 93.37%, 19.00% 93.86%, 20.00% 94.29%, 21.00% 94.66%, 22.00% 94.94%, 23.00% 95.15%, 24.00% 95.28%, 25.00% 95.32%, 26.00% 95.28%, 27.00% 95.15%, 28.00% 94.94%, 29.00% 94.66%, 30.00% 94.29%, 31.00% 93.86%, 32.00% 93.37%, 33.00% 92.82%, 34.00% 92.23%, 35.00% 91.60%, 36.00% 90.94%, 37.00% 90.27%, 38.00% 89.59%, 39.00% 88.92%, 40.00% 88.26%, 41.00% 87.63%, 42.00% 87.04%, 43.00% 86.49%, 44.00% 85.99%, 45.00% 85.56%, 46.00% 85.20%, 47.00% 84.91%, 48.00% 84.70%, 49.00% 84.57%, 50.00% 84.53%, 51.00% 84.57%, 52.00% 84.70%, 53.00% 84.91%, 54.00% 85.20%, 55.00% 85.56%, 56.00% 85.99%, 57.00% 86.49%, 58.00% 87.04%, 59.00% 87.63%, 60.00% 88.26%, 61.00% 88.92%, 62.00% 89.59%, 63.00% 90.27%, 64.00% 90.94%, 65.00% 91.60%, 66.00% 92.23%, 67.00% 92.82%, 68.00% 93.37%, 69.00% 93.86%, 70.00% 94.29%, 71.00% 94.66%, 72.00% 94.94%, 73.00% 95.15%, 74.00% 95.28%, 75.00% 95.32%, 76.00% 95.28%, 77.00% 95.15%, 78.00% 94.94%, 79.00% 94.66%, 80.00% 94.29%, 81.00% 93.86%, 82.00% 93.37%, 83.00% 92.82%, 84.00% 92.23%, 85.00% 91.60%, 86.00% 90.94%, 87.00% 90.27%, 88.00% 89.59%, 89.00% 88.92%, 90.00% 88.26%, 91.00% 87.63%, 92.00% 87.04%, 93.00% 86.49%, 94.00% 85.99%, 95.00% 85.56%, 96.00% 85.20%, 97.00% 84.91%, 98.00% 84.70%, 99.00% 84.57%, 100.00% 84.53%);
+  }
 
-.topcontainer h1 {
-  font-size: 2rem;
-}
-.header-wrapper, .header-wrapper2{
-  display: flex;
-  justify-content: center;
-  margin: auto;
-  align-items: center;
-  text-align: center;
-  padding: 2rem !important;
-  width: 50%;
-}
-.header-wrapper{
-  padding-right: 0px !important;
-}
+  .topcontainer h1 {
+    font-size: 2rem;
+  }
 
-.header-wrapper2{
-  padding-left: 0px !important;
-}
+  .header-wrapper,
+  .header-wrapper2 {
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    align-items: center;
+    text-align: center;
+    padding: 2rem !important;
+    width: 50%;
+  }
+
+  .header-wrapper {
+    padding-right: 0px !important;
+  }
+
+  .header-wrapper2 {
+    padding-left: 0px !important;
+  }
 }
 
 
@@ -1983,9 +1954,10 @@ h6,
     padding: 2rem !important;
     width: 100%;
   }
-  
+
   .header-wrapper2 {
-    display: none; /* Hide the second wrapper on small screens */
+    display: none;
+    /* Hide the second wrapper on small screens */
   }
 
   .topcontainer {
@@ -1998,7 +1970,8 @@ h6,
 
   .topcontainer h1 {
     text-align: center;
-    font-size: 2.5rem; /* Optionally reduce font size for small screens */
+    font-size: 2.5rem;
+    /* Optionally reduce font size for small screens */
   }
 
   .mainwrapper {
@@ -2008,10 +1981,11 @@ h6,
   .rightbar {
     margin-top: 2rem;
   }
-  
+
   .topcontainer h1 {
     text-align: center;
-    font-size: 2.5rem; /* Optionally reduce font size for small screens */
+    font-size: 2.5rem;
+    /* Optionally reduce font size for small screens */
   }
 
   .mainwrapper {
@@ -2022,5 +1996,4 @@ h6,
     margin-top: 2rem;
   }
 }
-
 </style>
