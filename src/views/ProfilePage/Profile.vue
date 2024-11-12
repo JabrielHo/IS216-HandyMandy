@@ -104,7 +104,7 @@
         Add request
       </button>
 
-      <div id="review-container" class="mx-auto text-center mb-5">
+      <div id="review-container" class="mx-auto mb-5">
         <h2 class="section-title">{{ user.username }}'s Reviews</h2>
         <div v-if="!user.reviews || user.reviews.length === 0">No reviews available.</div>
         <div v-else-if="user.reviews && user.reviews.length > 0" class="review-container">
