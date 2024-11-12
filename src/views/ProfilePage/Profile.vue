@@ -512,12 +512,13 @@ export default {
 
 .review-rectangle {
   width: 100%;
-  max-width: 600px; /* Increased width */
+  max-width: 600px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 15px;
   overflow-y: auto;
-  height: 200px; /* Set height for scrolling */
+  height: 200px;
   border-radius: 10px;
+  background-color: #96ceb4;
 }
 
 .review {
