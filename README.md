@@ -23,14 +23,15 @@
 
 ## Getting Started
 
-### Vue Project Installation
+### Vue Project Installation for Local Development
 
 1. Clone the repository
-2. Install the dependencies using 
+2. Create a .env file in the root folder for Firebase connection as per firebaseConfig.js
+3. Install the dependencies using 
     ```bash 
     npm install
     ```
-3. Start the web service locally using 
+4. Start the web service locally using 
     ```bash
     npm run dev
     ```
